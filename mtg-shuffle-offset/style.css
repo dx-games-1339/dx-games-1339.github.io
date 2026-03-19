@@ -17,29 +17,28 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .stats { margin-top: 10px; font-size: 0.9rem; color: #e2e8ff; line-height: 1.35; }
 .board {
   min-height: 300px;
-  max-height: 88vh;
   border: 2px dashed rgba(255,255,255,0.25);
   border-radius: 12px;
   background: rgba(2,14,38,.8);
-  overflow-y: auto;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   color: rgba(255,255,255,.75);
   font-size: 1.05rem;
 }
 .card-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 4px;
+  grid-template-columns: repeat(20, 1fr);
+  gap: 2px;
   padding: 10px;
   width: 100%;
+  max-width: 600px;
 }
 .card-dot {
   width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
-  transform: scale(0.75);
+  transform: scale(0.5);
   transform-origin: center;
   margin: 0 auto;
 }

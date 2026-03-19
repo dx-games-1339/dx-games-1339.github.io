@@ -1,20 +1,22 @@
 // mtg-shuffle-offset
 // Deck state: array of 'land' / 'nonland'
 const board = document.getElementById('board');
+const nonlandCountInput = document.getElementById('nonlandCount');
+const landCountInput = document.getElementById('landCount');
 const pileCountInput = document.getElementById('pileCount');
 const bgSlider = document.getElementById('bgSlider');
 const btnShuffle = document.getElementById('btnShuffle');
 const btnReset = document.getElementById('btnReset');
 const stats = document.getElementById('stats');
 
-const INITIAL_NONLAND = 60;
-const INITIAL_LAND = 39;
 let deck = [];
 
 function makeDeck() {
+  const nonland = parseInt(nonlandCountInput.value, 10) || 0;
+  const land = parseInt(landCountInput.value, 10) || 0;
   deck = [];
-  for (let i = 0; i < INITIAL_NONLAND; i++) deck.push('nonland');
-  for (let i = 0; i < INITIAL_LAND; i++) deck.push('land');
+  for (let i = 0; i < nonland; i++) deck.push('nonland');
+  for (let i = 0; i < land; i++) deck.push('land');
 }
 
 function renderDeck() {
@@ -61,6 +63,16 @@ btnShuffle.addEventListener('click', () => {
 });
 
 btnReset.addEventListener('click', () => {
+  makeDeck();
+  renderDeck();
+});
+
+nonlandCountInput.addEventListener('input', () => {
+  makeDeck();
+  renderDeck();
+});
+
+landCountInput.addEventListener('input', () => {
   makeDeck();
   renderDeck();
 });

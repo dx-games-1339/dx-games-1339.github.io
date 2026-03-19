@@ -2,6 +2,7 @@
 // Deck state: array of 'land' / 'nonland'
 const board = document.getElementById('board');
 const pileCountInput = document.getElementById('pileCount');
+const bgSlider = document.getElementById('bgSlider');
 const btnShuffle = document.getElementById('btnShuffle');
 const btnReset = document.getElementById('btnReset');
 const stats = document.getElementById('stats');
@@ -64,7 +65,14 @@ btnReset.addEventListener('click', () => {
   renderDeck();
 });
 
+bgSlider.addEventListener('input', () => {
+  const value = bgSlider.value;
+  const gray = Math.floor((value / 100) * 255);
+  document.body.style.background = `radial-gradient(circle at 25% 15%, rgb(${gray}, ${gray}, ${gray}) 0%, rgb(${Math.floor(gray * 0.6)}, ${Math.floor(gray * 0.6)}, ${Math.floor(gray * 0.6)}) 60%)`;
+});
+
 window.addEventListener('DOMContentLoaded', () => {
   makeDeck();
   renderDeck();
+  bgSlider.dispatchEvent(new Event('input')); // Set initial background
 });

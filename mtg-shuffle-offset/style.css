@@ -42,6 +42,6 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   transform-origin: center;
   margin: 0 auto;
 }
-.card-dot.land { background: #f2e86b; }
+.card-dot.land { background: #ff8c00; }
 .card-dot.nonland { background: #5ab0ff; }
 .footer { border-top: 1px solid rgba(255,255,255,0.14); padding: 14px 18px; font-size: 0.9rem; color: rgba(255,255,255,0.65); text-align: center; }

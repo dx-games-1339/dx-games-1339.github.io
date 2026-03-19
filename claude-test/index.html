@@ -3,358 +3,484 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>claude-test — dx-games</title>
+  <title>Pile Shuffle — MTG Deck Visualizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
-
-    :root {
-      --bg: #060608;
-      --grid: rgba(0, 255, 180, 0.04);
-      --accent: #00ffb4;
-      --accent2: #ff3e6c;
-      --dim: rgba(0, 255, 180, 0.35);
-      --text: #c8ffe8;
-      --muted: rgba(200, 255, 232, 0.3);
-    }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --bg:        #0e0e10;
+      --surface:   #18181c;
+      --border:    rgba(255,255,255,0.08);
+      --text:      #e8e6e0;
+      --muted:     rgba(232,230,224,0.45);
+      --blue:      #4a9eff;
+      --amber:     #f5a623;
+      --radius:    10px;
+    }
+
     html, body {
-      width: 100%; height: 100%;
+      min-height: 100%;
       background: var(--bg);
       color: var(--text);
-      font-family: 'Share Tech Mono', monospace;
-      overflow: hidden;
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      line-height: 1.6;
     }
 
-    /* ── WebGL canvas ── */
-    #glcanvas {
-      position: fixed;
-      inset: 0;
-      width: 100%; height: 100%;
-      display: block;
-      z-index: 0;
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
     }
 
-    /* ── grid overlay ── */
-    .grid {
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(var(--grid) 1px, transparent 1px),
-        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-      background-size: 48px 48px;
-      z-index: 1;
-      pointer-events: none;
-    }
-
-    /* ── vignette ── */
-    .vignette {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(ellipse at center, transparent 40%, #060608 100%);
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    /* ── main content ── */
-    main {
-      position: relative;
-      z-index: 3;
-      width: 100%; height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0;
-      padding: 2rem;
-    }
-
-    .tag {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.25em;
-      color: var(--accent);
+    /* header */
+    header { margin-bottom: 3rem; }
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
-      opacity: 0;
-      animation: fadeUp 0.6s ease forwards 0.2s;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
     }
-
     h1 {
-      font-family: 'Orbitron', sans-serif;
-      font-weight: 900;
-      font-size: clamp(2.8rem, 8vw, 7rem);
-      line-height: 1;
-      text-align: center;
-      margin: 0.4em 0 0.2em;
-      background: linear-gradient(135deg, var(--accent) 0%, #00c8ff 60%, var(--accent2) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      opacity: 0;
-      animation: fadeUp 0.7s ease forwards 0.4s;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+    h1 span { color: var(--amber); }
+    .subtitle {
+      margin-top: 0.75rem;
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 520px;
     }
 
-    .sub {
-      font-size: 0.85rem;
-      letter-spacing: 0.18em;
+    /* controls */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+      padding: 1rem 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .controls label {
+      font-size: 12px;
+      letter-spacing: 0.08em;
       color: var(--muted);
       text-transform: uppercase;
-      opacity: 0;
-      animation: fadeUp 0.7s ease forwards 0.65s;
+    }
+    .controls input[type=number] {
+      width: 72px;
+      padding: 6px 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .controls input[type=number]:focus { border-color: rgba(255,255,255,0.3); }
+    .controls input[type=number]::-webkit-outer-spin-button,
+    .controls input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .controls input[type=number] { -moz-appearance: textfield; }
+
+    .btn {
+      padding: 7px 18px;
+      border-radius: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      border: 1px solid var(--border);
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--amber); color: #1a0e00; border-color: var(--amber); }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-ghost { background: transparent; color: var(--muted); }
+    .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+    .controls-spacer { flex: 1; }
+
+    /* stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 540px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.85rem 1rem;
+    }
+    .stat-label {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+    .stat-value.blue  { color: var(--blue); }
+    .stat-value.amber { color: var(--amber); }
+    .stat-value.score { color: var(--text); transition: color 0.4s; }
+
+    .score-bar-wrap {
+      margin-top: 6px;
+      height: 3px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .score-bar {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.5s ease, background 0.4s;
+    }
+    .stat-sub {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 5px;
+      letter-spacing: 0.04em;
     }
 
-    .divider {
-      width: 180px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      margin: 2rem auto;
-      opacity: 0;
-      animation: fadeIn 1s ease forwards 0.9s;
+    /* deck */
+    .deck-section { margin-bottom: 2rem; }
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
     }
+    .deck-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+    }
+    #deck-grid { display: flex; flex-wrap: wrap; gap: 3px; }
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: background 0.25s;
+    }
+    .dot.nonland { background: var(--blue); }
+    .dot.land    { background: var(--amber); }
 
-    .status-row {
+    .legend { display: flex; gap: 20px; margin-top: 10px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+    .legend-dot  { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+    /* pile preview */
+    #pile-preview { display: none; margin-bottom: 2rem; }
+    .piles-grid { display: grid; gap: 8px; }
+    .pile-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.65rem 1rem;
+    }
+    .pile-title {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .pile-dots { display: flex; flex-wrap: wrap; gap: 3px; }
+    .pile-dots .dot { width: 9px; height: 9px; transition: none; }
+
+    /* history */
+    #history-section { display: none; }
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+    .history-list::-webkit-scrollbar { width: 4px; }
+    .history-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .history-item {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
-      opacity: 0;
-      animation: fadeUp 0.6s ease forwards 1.1s;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
     }
+    .history-n    { font-size: 11px; color: var(--muted); min-width: 28px; }
+    .history-tag  { font-size: 11px; letter-spacing: 0.08em; color: var(--amber); min-width: 54px; }
+    .history-mini { display: flex; flex-wrap: wrap; gap: 2px; flex: 1; }
+    .history-mini .dot { width: 6px; height: 6px; transition: none; }
 
-    .dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--accent2);
-      box-shadow: 0 0 8px var(--accent2);
-      animation: pulse 1.8s ease-in-out infinite;
-    }
-
-    .status-text {
-      font-size: 0.72rem;
-      letter-spacing: 0.2em;
-      color: var(--accent2);
-      text-transform: uppercase;
-    }
-
-    .url-badge {
-      margin-top: 2.5rem;
-      padding: 0.5rem 1.2rem;
-      border: 1px solid var(--dim);
-      border-radius: 2px;
-      font-size: 0.7rem;
-      letter-spacing: 0.15em;
-      color: var(--dim);
-      opacity: 0;
-      animation: fadeUp 0.6s ease forwards 1.3s;
-    }
-
-    .url-badge span { color: var(--accent); }
-
-    /* ── corner decorations ── */
-    .corner {
-      position: fixed;
-      width: 40px; height: 40px;
-      z-index: 4;
-    }
-    .corner::before, .corner::after {
-      content: '';
-      position: absolute;
-      background: var(--accent);
-    }
-    .corner::before { width: 100%; height: 1px; }
-    .corner::after  { width: 1px; height: 100%; }
-
-    .corner.tl { top: 24px; left: 24px; }
-    .corner.tr { top: 24px; right: 24px; transform: scaleX(-1); }
-    .corner.bl { bottom: 24px; left: 24px; transform: scaleY(-1); }
-    .corner.br { bottom: 24px; right: 24px; transform: scale(-1); }
-
+    /* entrance */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
+      from { opacity: 0; transform: translateY(14px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.3; }
-    }
+    .page > * { opacity: 0; animation: fadeUp 0.5s ease forwards; }
+    header        { animation-delay: 0.05s; }
+    .controls     { animation-delay: 0.15s; }
+    .stats        { animation-delay: 0.22s; }
+    .deck-section { animation-delay: 0.28s; }
   </style>
 </head>
 <body>
+<div class="page">
 
-  <canvas id="glcanvas"></canvas>
-  <div class="grid"></div>
-  <div class="vignette"></div>
+  <header>
+    <p class="eyebrow">dx-games · claude-test</p>
+    <h1>Pile <span>Shuffle</span></h1>
+    <p class="subtitle">
+      Visualise how pile shuffling redistributes land and non-land cards in a 99-card Magic: The Gathering deck.
+      Blue&nbsp;=&nbsp;non-land &nbsp;·&nbsp; Yellow&nbsp;=&nbsp;land.
+    </p>
+  </header>
 
-  <div class="corner tl"></div>
-  <div class="corner tr"></div>
-  <div class="corner bl"></div>
-  <div class="corner br"></div>
+  <div class="controls">
+    <label for="pile-input">Piles</label>
+    <input type="number" id="pile-input" min="2" max="33" value="5" step="1" />
+    <button class="btn btn-primary" id="shuffle-btn">Shuffle</button>
+    <div class="controls-spacer"></div>
+    <button class="btn btn-ghost" id="reset-btn">Reset deck</button>
+  </div>
 
-  <main>
-    <p class="tag">dx-games &nbsp;/&nbsp; project 04</p>
-    <h1>CLAUDE<br>TEST</h1>
-    <p class="sub">WebGL · Single Page Application</p>
-    <div class="divider"></div>
-    <div class="status-row">
-      <div class="dot"></div>
-      <span class="status-text">Under Construction</span>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Total</div>
+      <div class="stat-value" id="stat-total">99</div>
     </div>
-    <div class="url-badge">
-      <span>dx-games-1339.github.io</span>/claude-test
+    <div class="stat">
+      <div class="stat-label">Non-lands</div>
+      <div class="stat-value blue" id="stat-nonland">60</div>
     </div>
-  </main>
+    <div class="stat">
+      <div class="stat-label">Lands</div>
+      <div class="stat-value amber" id="stat-land">39</div>
+    </div>
+    <div class="stat" id="stat-dist-card">
+      <div class="stat-label">Distribution</div>
+      <div class="stat-value score" id="stat-dist">—</div>
+      <div class="score-bar-wrap"><div class="score-bar" id="score-bar" style="width:0%;background:#444;"></div></div>
+      <div class="stat-sub" id="stat-dist-sub">shuffle to score</div>
+    </div>
+  </div>
 
-  <script>
-    /* ── Minimal WebGL particle field ── */
-    const canvas = document.getElementById('glcanvas');
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  <div class="deck-section">
+    <div class="section-label" id="deck-desc">Deck order — left = top · right = bottom</div>
+    <div class="deck-wrap">
+      <div id="deck-grid"></div>
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--blue);"></div>Non-land (60)
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--amber);"></div>Land (39)
+        </div>
+      </div>
+    </div>
+  </div>
 
-    function resize() {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
-      if (gl) gl.viewport(0, 0, canvas.width, canvas.height);
+  <div id="pile-preview">
+    <div class="section-label" id="pile-section-label">Piles during last shuffle</div>
+    <div class="piles-grid" id="piles-grid"></div>
+  </div>
+
+  <div id="history-section">
+    <div class="section-label">Shuffle history</div>
+    <div class="history-list" id="history-list"></div>
+  </div>
+
+</div>
+<script>
+  const NONLAND_COUNT = 60;
+  const LAND_COUNT    = 39;
+
+  function freshDeck() {
+    return Array.from({length: NONLAND_COUNT + LAND_COUNT}, (_, i) =>
+      i < NONLAND_COUNT ? 'nonland' : 'land'
+    );
+  }
+
+  function pileShuffle(deck, n) {
+    const buckets = Array.from({length: n}, () => []);
+    deck.forEach((card, i) => buckets[i % n].push(card));
+    return { result: buckets.flat(), buckets };
+  }
+
+  function distributionScore(deck) {
+    // Count runs (consecutive sequences of the same card type)
+    let runs = 1;
+    for (let i = 1; i < deck.length; i++) {
+      if (deck[i] !== deck[i - 1]) runs++;
     }
-    window.addEventListener('resize', resize);
-    resize();
+    // Minimum runs = 2 (all non-lands then all lands, or vice versa)
+    const minRuns = 2;
+    // Maximum possible runs given L lands and N non-lands:
+    // perfectly interleaved = 2 * min(L, N) + (max - min > 0 ? 1 : 0)
+    const lands    = deck.filter(c => c === 'land').length;
+    const nonlands = deck.length - lands;
+    const minCount = Math.min(lands, nonlands);
+    const maxCount = Math.max(lands, nonlands);
+    const maxRuns  = 2 * minCount + (maxCount > minCount ? 1 : 0);
+    const score    = Math.round((runs - minRuns) / (maxRuns - minRuns) * 100);
+    return Math.max(0, Math.min(100, score));
+  }
 
-    if (!gl) {
-      console.warn('WebGL not supported – canvas background disabled.');
-    } else {
-
-      /* ── shaders ── */
-      const VS = `
-        attribute vec2 a_pos;
-        attribute float a_size;
-        attribute float a_alpha;
-        varying float v_alpha;
-        void main() {
-          gl_Position = vec4(a_pos, 0.0, 1.0);
-          gl_PointSize = a_size;
-          v_alpha = a_alpha;
-        }
-      `;
-
-      const FS = `
-        precision mediump float;
-        varying float v_alpha;
-        uniform vec3 u_color;
-        void main() {
-          vec2 uv = gl_PointCoord - 0.5;
-          float d = length(uv);
-          float fade = 1.0 - smoothstep(0.3, 0.5, d);
-          gl_FragColor = vec4(u_color, fade * v_alpha);
-        }
-      `;
-
-      function compile(type, src) {
-        const s = gl.createShader(type);
-        gl.shaderSource(s, src);
-        gl.compileShader(s);
-        return s;
-      }
-
-      const prog = gl.createProgram();
-      gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
-      gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
-      gl.linkProgram(prog);
-      gl.useProgram(prog);
-
-      const aPos   = gl.getAttribLocation(prog, 'a_pos');
-      const aSize  = gl.getAttribLocation(prog, 'a_size');
-      const aAlpha = gl.getAttribLocation(prog, 'a_alpha');
-      const uColor = gl.getUniformLocation(prog, 'u_color');
-
-      /* ── particle data ── */
-      const N = 320;
-      const pos   = new Float32Array(N * 2);
-      const size  = new Float32Array(N);
-      const alpha = new Float32Array(N);
-      const vel   = new Float32Array(N * 2);
-      const life  = new Float32Array(N);
-      const maxLife = new Float32Array(N);
-
-      function spawn(i) {
-        pos[i*2]   = (Math.random() * 2 - 1);
-        pos[i*2+1] = (Math.random() * 2 - 1);
-        vel[i*2]   = (Math.random() - 0.5) * 0.0006;
-        vel[i*2+1] = (Math.random() - 0.5) * 0.0006;
-        size[i]    = Math.random() * 2.5 + 1.0;
-        maxLife[i] = Math.random() * 300 + 120;
-        life[i]    = Math.random() * maxLife[i]; // stagger starts
-        alpha[i]   = 0;
-      }
-
-      for (let i = 0; i < N; i++) spawn(i);
-
-      /* ── buffers ── */
-      const bufPos   = gl.createBuffer();
-      const bufSize  = gl.createBuffer();
-      const bufAlpha = gl.createBuffer();
-
-      gl.enable(gl.BLEND);
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-
-      /* ── render loop ── */
-      let last = 0;
-      function frame(ts) {
-        const dt = Math.min(ts - last, 32);
-        last = ts;
-
-        gl.clearColor(0, 0, 0, 0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-
-        // update
-        for (let i = 0; i < N; i++) {
-          life[i] += dt * 0.05;
-          if (life[i] > maxLife[i]) { spawn(i); life[i] = 0; }
-
-          const t = life[i] / maxLife[i];
-          alpha[i] = t < 0.15
-            ? t / 0.15
-            : t > 0.75
-              ? 1 - (t - 0.75) / 0.25
-              : 1.0;
-          alpha[i] *= 0.55;
-
-          pos[i*2]   += vel[i*2];
-          pos[i*2+1] += vel[i*2+1];
-
-          // wrap
-          if (pos[i*2]   >  1.05) pos[i*2]   = -1.05;
-          if (pos[i*2]   < -1.05) pos[i*2]   =  1.05;
-          if (pos[i*2+1] >  1.05) pos[i*2+1] = -1.05;
-          if (pos[i*2+1] < -1.05) pos[i*2+1] =  1.05;
-        }
-
-        // upload & draw — teal particles
-        gl.uniform3f(uColor, 0.0, 1.0, 0.7);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, bufPos);
-        gl.bufferData(gl.ARRAY_BUFFER, pos, gl.DYNAMIC_DRAW);
-        gl.enableVertexAttribArray(aPos);
-        gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, bufSize);
-        gl.bufferData(gl.ARRAY_BUFFER, size, gl.DYNAMIC_DRAW);
-        gl.enableVertexAttribArray(aSize);
-        gl.vertexAttribPointer(aSize, 1, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, bufAlpha);
-        gl.bufferData(gl.ARRAY_BUFFER, alpha, gl.DYNAMIC_DRAW);
-        gl.enableVertexAttribArray(aAlpha);
-        gl.vertexAttribPointer(aAlpha, 1, gl.FLOAT, false, 0, 0);
-
-        gl.drawArrays(gl.POINTS, 0, N);
-
-        requestAnimationFrame(frame);
-      }
-
-      requestAnimationFrame(frame);
+  function renderScore(score, isReset) {
+    const val = document.getElementById('stat-dist');
+    const bar = document.getElementById('score-bar');
+    const sub = document.getElementById('stat-dist-sub');
+    if (isReset) {
+      val.textContent = '—';
+      val.style.color = '';
+      bar.style.width = '0%';
+      bar.style.background = '#444';
+      sub.textContent = 'shuffle to score';
+      return;
     }
-  </script>
+    val.textContent = score + '%';
+    const color = score >= 80 ? '#4ade80'
+                : score >= 55 ? '#f5a623'
+                :               '#f87171';
+    val.style.color    = color;
+    bar.style.width    = score + '%';
+    bar.style.background = color;
+    sub.textContent = score >= 80 ? 'well distributed'
+                    : score >= 55 ? 'moderately distributed'
+                    :               'poorly distributed';
+  }
+
+  function makeDot(type, size) {
+    const d = document.createElement('div');
+    d.className = 'dot ' + type;
+    if (size) { d.style.width = size; d.style.height = size; }
+    return d;
+  }
+
+  function renderDeck(deck) {
+    const grid = document.getElementById('deck-grid');
+    grid.innerHTML = '';
+    deck.forEach(t => grid.appendChild(makeDot(t)));
+  }
+
+  function renderPiles(buckets) {
+    const wrap  = document.getElementById('pile-preview');
+    const grid  = document.getElementById('piles-grid');
+    const label = document.getElementById('pile-section-label');
+    const n     = buckets.length;
+    label.textContent = 'Piles during last shuffle (' + n + ' piles)';
+    grid.style.gridTemplateColumns = 'repeat(' + Math.min(n, 6) + ', 1fr)';
+    grid.innerHTML = '';
+    buckets.forEach((pile, i) => {
+      const card  = document.createElement('div');
+      card.className = 'pile-card';
+      const title = document.createElement('div');
+      title.className = 'pile-title';
+      title.textContent = 'Pile ' + (i + 1);
+      const dots  = document.createElement('div');
+      dots.className = 'pile-dots';
+      pile.forEach(t => dots.appendChild(makeDot(t, '9px')));
+      card.appendChild(title);
+      card.appendChild(dots);
+      grid.appendChild(card);
+    });
+    wrap.style.display = '';
+  }
+
+  function renderHistoryItem(entry) {
+    const row = document.createElement('div');
+    row.className = 'history-item';
+    const num = document.createElement('span');
+    num.className = 'history-n';
+    num.textContent = '#' + entry.n;
+    const tag = document.createElement('span');
+    tag.className = 'history-tag';
+    tag.textContent = entry.piles + ' piles';
+    const mini = document.createElement('div');
+    mini.className = 'history-mini';
+    entry.snap.forEach(t => mini.appendChild(makeDot(t)));
+    row.appendChild(num);
+    row.appendChild(tag);
+    row.appendChild(mini);
+    return row;
+  }
+
+  let deck = freshDeck();
+  let shuffleCount = 0;
+  let history = [];
+
+  function updateStats() {
+    const lands = deck.filter(c => c === 'land').length;
+    document.getElementById('stat-total').textContent   = deck.length;
+    document.getElementById('stat-nonland').textContent = deck.length - lands;
+    document.getElementById('stat-land').textContent    = lands;
+  }
+
+  renderDeck(deck);
+  updateStats();
+
+  document.getElementById('shuffle-btn').addEventListener('click', () => {
+    const val = parseInt(document.getElementById('pile-input').value, 10);
+    if (isNaN(val) || val < 2) { alert('Please enter at least 2 piles.'); return; }
+    if (val > 33)              { alert('Maximum 33 piles for a 99-card deck.'); return; }
+
+    const { result, buckets } = pileShuffle(deck, val);
+    deck = result;
+    shuffleCount++;
+
+    updateStats();
+    renderDeck(deck);
+    renderPiles(buckets);
+    renderScore(distributionScore(deck), false);
+
+    history.unshift({ n: shuffleCount, piles: val, snap: [...deck] });
+    const section = document.getElementById('history-section');
+    const list    = document.getElementById('history-list');
+    section.style.display = '';
+    list.innerHTML = '';
+    history.forEach(h => list.appendChild(renderHistoryItem(h)));
+
+    document.getElementById('deck-desc').textContent =
+      'After shuffle #' + shuffleCount + ' (' + val + ' piles) — left = top · right = bottom';
+  });
+
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    deck = freshDeck();
+    shuffleCount = 0;
+    history = [];
+    updateStats();
+    renderDeck(deck);
+    document.getElementById('deck-desc').textContent = 'Deck order — left = top · right = bottom';
+    document.getElementById('pile-preview').style.display   = 'none';
+    document.getElementById('history-section').style.display = 'none';
+    renderScore(0, true);
+  });
+</script>
 </body>
 </html>

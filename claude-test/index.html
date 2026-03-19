@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>claude-test — dx-games</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+
+    :root {
+      --bg: #060608;
+      --grid: rgba(0, 255, 180, 0.04);
+      --accent: #00ffb4;
+      --accent2: #ff3e6c;
+      --dim: rgba(0, 255, 180, 0.35);
+      --text: #c8ffe8;
+      --muted: rgba(200, 255, 232, 0.3);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      overflow: hidden;
+    }
+
+    /* ── WebGL canvas ── */
+    #glcanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%; height: 100%;
+      display: block;
+      z-index: 0;
+    }
+
+    /* ── grid overlay ── */
+    .grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 48px 48px;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* ── vignette ── */
+    .vignette {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, #060608 100%);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* ── main content ── */
+    main {
+      position: relative;
+      z-index: 3;
+      width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 2rem;
+    }
+
+    .tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      color: var(--accent);
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.2s;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: clamp(2.8rem, 8vw, 7rem);
+      line-height: 1;
+      text-align: center;
+      margin: 0.4em 0 0.2em;
+      background: linear-gradient(135deg, var(--accent) 0%, #00c8ff 60%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.4s;
+    }
+
+    .sub {
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.65s;
+    }
+
+    .divider {
+      width: 180px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      margin: 2rem auto;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 0.9s;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 1.1s;
+    }
+
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent2);
+      box-shadow: 0 0 8px var(--accent2);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    .status-text {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      color: var(--accent2);
+      text-transform: uppercase;
+    }
+
+    .url-badge {
+      margin-top: 2.5rem;
+      padding: 0.5rem 1.2rem;
+      border: 1px solid var(--dim);
+      border-radius: 2px;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      color: var(--dim);
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 1.3s;
+    }
+
+    .url-badge span { color: var(--accent); }
+
+    /* ── corner decorations ── */
+    .corner {
+      position: fixed;
+      width: 40px; height: 40px;
+      z-index: 4;
+    }
+    .corner::before, .corner::after {
+      content: '';
+      position: absolute;
+      background: var(--accent);
+    }
+    .corner::before { width: 100%; height: 1px; }
+    .corner::after  { width: 1px; height: 100%; }
+
+    .corner.tl { top: 24px; left: 24px; }
+    .corner.tr { top: 24px; right: 24px; transform: scaleX(-1); }
+    .corner.bl { bottom: 24px; left: 24px; transform: scaleY(-1); }
+    .corner.br { bottom: 24px; right: 24px; transform: scale(-1); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="glcanvas"></canvas>
+  <div class="grid"></div>
+  <div class="vignette"></div>
+
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <main>
+    <p class="tag">dx-games &nbsp;/&nbsp; project 04</p>
+    <h1>CLAUDE<br>TEST</h1>
+    <p class="sub">WebGL · Single Page Application</p>
+    <div class="divider"></div>
+    <div class="status-row">
+      <div class="dot"></div>
+      <span class="status-text">Under Construction</span>
+    </div>
+    <div class="url-badge">
+      <span>dx-games-1339.github.io</span>/claude-test
+    </div>
+  </main>
+
+  <script>
+    /* ── Minimal WebGL particle field ── */
+    const canvas = document.getElementById('glcanvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+    function resize() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+      if (gl) gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    if (!gl) {
+      console.warn('WebGL not supported – canvas background disabled.');
+    } else {
+
+      /* ── shaders ── */
+      const VS = `
+        attribute vec2 a_pos;
+        attribute float a_size;
+        attribute float a_alpha;
+        varying float v_alpha;
+        void main() {
+          gl_Position = vec4(a_pos, 0.0, 1.0);
+          gl_PointSize = a_size;
+          v_alpha = a_alpha;
+        }
+      `;
+
+      const FS = `
+        precision mediump float;
+        varying float v_alpha;
+        uniform vec3 u_color;
+        void main() {
+          vec2 uv = gl_PointCoord - 0.5;
+          float d = length(uv);
+          float fade = 1.0 - smoothstep(0.3, 0.5, d);
+          gl_FragColor = vec4(u_color, fade * v_alpha);
+        }
+      `;
+
+      function compile(type, src) {
+        const s = gl.createShader(type);
+        gl.shaderSource(s, src);
+        gl.compileShader(s);
+        return s;
+      }
+
+      const prog = gl.createProgram();
+      gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
+      gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
+      gl.linkProgram(prog);
+      gl.useProgram(prog);
+
+      const aPos   = gl.getAttribLocation(prog, 'a_pos');
+      const aSize  = gl.getAttribLocation(prog, 'a_size');
+      const aAlpha = gl.getAttribLocation(prog, 'a_alpha');
+      const uColor = gl.getUniformLocation(prog, 'u_color');
+
+      /* ── particle data ── */
+      const N = 320;
+      const pos   = new Float32Array(N * 2);
+      const size  = new Float32Array(N);
+      const alpha = new Float32Array(N);
+      const vel   = new Float32Array(N * 2);
+      const life  = new Float32Array(N);
+      const maxLife = new Float32Array(N);
+
+      function spawn(i) {
+        pos[i*2]   = (Math.random() * 2 - 1);
+        pos[i*2+1] = (Math.random() * 2 - 1);
+        vel[i*2]   = (Math.random() - 0.5) * 0.0006;
+        vel[i*2+1] = (Math.random() - 0.5) * 0.0006;
+        size[i]    = Math.random() * 2.5 + 1.0;
+        maxLife[i] = Math.random() * 300 + 120;
+        life[i]    = Math.random() * maxLife[i]; // stagger starts
+        alpha[i]   = 0;
+      }
+
+      for (let i = 0; i < N; i++) spawn(i);
+
+      /* ── buffers ── */
+      const bufPos   = gl.createBuffer();
+      const bufSize  = gl.createBuffer();
+      const bufAlpha = gl.createBuffer();
+
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+
+      /* ── render loop ── */
+      let last = 0;
+      function frame(ts) {
+        const dt = Math.min(ts - last, 32);
+        last = ts;
+
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        // update
+        for (let i = 0; i < N; i++) {
+          life[i] += dt * 0.05;
+          if (life[i] > maxLife[i]) { spawn(i); life[i] = 0; }
+
+          const t = life[i] / maxLife[i];
+          alpha[i] = t < 0.15
+            ? t / 0.15
+            : t > 0.75
+              ? 1 - (t - 0.75) / 0.25
+              : 1.0;
+          alpha[i] *= 0.55;
+
+          pos[i*2]   += vel[i*2];
+          pos[i*2+1] += vel[i*2+1];
+
+          // wrap
+          if (pos[i*2]   >  1.05) pos[i*2]   = -1.05;
+          if (pos[i*2]   < -1.05) pos[i*2]   =  1.05;
+          if (pos[i*2+1] >  1.05) pos[i*2+1] = -1.05;
+          if (pos[i*2+1] < -1.05) pos[i*2+1] =  1.05;
+        }
+
+        // upload & draw — teal particles
+        gl.uniform3f(uColor, 0.0, 1.0, 0.7);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, bufPos);
+        gl.bufferData(gl.ARRAY_BUFFER, pos, gl.DYNAMIC_DRAW);
+        gl.enableVertexAttribArray(aPos);
+        gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, bufSize);
+        gl.bufferData(gl.ARRAY_BUFFER, size, gl.DYNAMIC_DRAW);
+        gl.enableVertexAttribArray(aSize);
+        gl.vertexAttribPointer(aSize, 1, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, bufAlpha);
+        gl.bufferData(gl.ARRAY_BUFFER, alpha, gl.DYNAMIC_DRAW);
+        gl.enableVertexAttribArray(aAlpha);
+        gl.vertexAttribPointer(aAlpha, 1, gl.FLOAT, false, 0, 0);
+
+        gl.drawArrays(gl.POINTS, 0, N);
+
+        requestAnimationFrame(frame);
+      }
+
+      requestAnimationFrame(frame);
+    }
+  </script>
+</body>
+</html>

@@ -41,6 +41,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   transform: scale(0.5);
   transform-origin: center;
   margin: 0 auto;
+  border: 1px solid #333;
 }
 .card-dot.land { background: #ff8c00; }
 .card-dot.nonland { background: #5ab0ff; }

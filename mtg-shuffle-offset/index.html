@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MTG Shuffle Offset</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="root" class="app">
+    <header class="header">
+      <h1>MTG Shuffle Offset</h1>
+      <p>Visual card shuffle simulator - UI template ready, game logic coming soon.</p>
+    </header>
+
+    <main class="main">
+      <section class="board" id="board" aria-label="Deck visualization">
+        <p class="board-placeholder">Deck visualization area will show cards as colored dots.</p>
+      </section>
+
+      <aside class="controls">
+        <h2>Controls</h2>
+        <div class="control-row">
+          <label for="pileCount">Piles:</label>
+          <input id="pileCount" type="number" min="2" max="20" step="1" value="5" />
+        </div>
+        <button id="btnShuffle">Shuffle</button>
+        <button id="btnReset">Reset</button>
+        <div class="stats" id="stats"></div"1" value="5" />
+        <button id="btnShuffle">Shuffle</button>
+        <button id="btnReset">Reset</button>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <p>MTG shuffle offset simulator (template). Follow README for implementation plan.</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

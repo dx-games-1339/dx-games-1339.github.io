@@ -1,0 +1,23 @@
+:root { --bg: #04060f; --panel: #101e3f; --accent: #ea2828; --text: #f5f7ff; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { min-height: 100vh; background: radial-gradient(circle at 25% 15%, #1f375f 0%, #04060f 60%); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; display: flex; justify-content: center; align-items: center; padding: 20px; }
+.app { width: min(980px, 95vw); background: linear-gradient(180deg, #152852 0%, #09132a 100%); border-radius: 16px; box-shadow: 0 14px 30px rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.12); }
+.header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.16); }
+.header h1 { margin-bottom: 8px; font-size: 1.95rem; }
+.header p { color: rgba(235,241,255, .82); }
+.main { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; padding: 16px; }
+.board { min-height: 300px; border: 2px dashed rgba(255,255,255,0.25); border-radius: 12px; background: rgba(2,14,38,.8); display: grid; place-items: center; color: rgba(255,255,255,.75); font-size: 1.05rem; }
+.controls { border: 1px solid rgba(255,255,255,.12); border-radius: 12px; padding: 14px; background: rgba(0, 8, 21, 0.8); }
+.controls h2 { margin-bottom: 10px; font-size: 1.1rem; }
+button { width: 100%; margin-bottom: 10px; padding: 10px 12px; border: none; border-radius: 8px; background: var(--accent); color: #101a2c; font-weight: bold; cursor: pointer; opacity: 1; }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+.control-row { margin-bottom: 10px; display: flex; gap: 10px; align-items: center; }
+.control-row label { min-width: 60px; }
+.control-row input { width: 80px; padding: 6px 8px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.08); color: #fff; }
+.stats { margin-top: 10px; font-size: 0.9rem; color: #e2e8ff; line-height: 1.35; }
+.board{ min-height: 300px; border: 2px dashed rgba(255,255,255,0.25); border-radius: 12px; background: rgba(2,14,38,.8); display: grid; place-items: center; color: rgba(255,255,255,.75); font-size: 1.05rem; }
+.card-grid { display: grid; grid-template-columns: repeat(11, 1fr); gap: 2px; padding: 10px; width: 100%; }
+.card-dot { width: 100%; aspect-ratio: 1 / 1; border-radius: 50%; }
+.card-dot.land { background: #f2e86b; }
+.card-dot.nonland { background: #5ab0ff; }
+.footer { border-top: 1px solid rgba(255,255,255,0.14); padding: 14px 18px; font-size: 0.9rem; color: rgba(255,255,255,0.65); text-align: center; }

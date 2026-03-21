@@ -5,156 +5,240 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ironbound</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap');
 
-  :root {
-    --bg:           #0e0e0f;
-    --bg-panel:     #141416;
-    --bg-raised:    #1c1c1f;
-    --bg-input:     #111113;
-    --border:       #2e2e33;
-    --border-accent:#4a3f28;
-    --amber:        #c8902a;
-    --amber-dim:    #7a5518;
-    --amber-bright: #e8b04a;
-    --parchment:    #d4b896;
-    --parchment-dim:#7a6a58;
-    --text:         #c8c0b0;
-    --text-dim:     #6a6260;
-    --text-bright:  #e8e0d0;
-    --red:          #8b3030;
-    --red-bright:   #c04040;
-    --green:        #2a5a30;
-    --green-bright: #3a8040;
-    --mono:         'Share Tech Mono', monospace;
-    --serif:        'Cinzel', serif;
-    --body:         'Crimson Pro', Georgia, serif;
-  }
+:root {
+  --bg:#0e0e0f; --bg-panel:#141416; --bg-raised:#1c1c1f; --bg-input:#111113;
+  --border:#2e2e33; --border-accent:#4a3f28;
+  --amber:#c8902a; --amber-dim:#7a5518; --amber-bright:#e8b04a;
+  --parchment:#d4b896; --parchment-dim:#7a6a58;
+  --text:#c8c0b0; --text-dim:#6a6260; --text-bright:#e8e0d0;
+  --red:#8b3030; --red-bright:#c04040;
+  --green:#2a5a30; --green-bright:#3a8040;
+  --title-green:#4a9a58;        /* launch title colour */
+  --title-green-glow:#2a6a38;
+  --mono:'Share Tech Mono',monospace; --serif:'Cinzel',serif; --body:'Crimson Pro',Georgia,serif;
+}
 
-  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-  html, body { width:100%; height:100%; background:var(--bg); color:var(--text); font-family:var(--body); font-size:16px; line-height:1.5; overflow:hidden; }
-  .hidden { display:none !important; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.5;overflow:hidden;}
+.hidden{display:none!important;}
 
-  .rule { display:flex; align-items:center; gap:12px; color:var(--amber-dim); font-family:var(--mono); font-size:10px; letter-spacing:0.12em; }
-  .rule::before,.rule::after { content:''; flex:1; height:1px; background:var(--border-accent); }
+.rule{display:flex;align-items:center;gap:12px;color:var(--amber-dim);font-family:var(--mono);font-size:10px;letter-spacing:.12em;}
+.rule::before,.rule::after{content:'';flex:1;height:1px;background:var(--border-accent);}
 
-  .btn { display:block; width:100%; padding:11px 24px; background:transparent; border:1px solid var(--border-accent); color:var(--parchment); font-family:var(--serif); font-size:13px; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; cursor:pointer; transition:background 0.15s,border-color 0.15s,color 0.15s; outline:none; }
-  .btn:hover { background:var(--amber-dim); border-color:var(--amber); color:var(--amber-bright); }
-  .btn:active { background:var(--amber); color:var(--bg); }
-  .btn:disabled { opacity:0.35; cursor:not-allowed; background:transparent; border-color:var(--border); color:var(--text-dim); }
-  .btn-primary { background:var(--amber-dim); border-color:var(--amber); color:var(--amber-bright); }
-  .btn-primary:hover { background:var(--amber); color:var(--bg); }
-  .btn-sm { width:auto; display:inline-block; padding:6px 16px; font-size:11px; }
+.btn{display:block;width:100%;padding:10px 20px;background:transparent;border:1px solid var(--border-accent);color:var(--parchment);font-family:var(--serif);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .15s,border-color .15s,color .15s;outline:none;}
+.btn:hover{background:var(--amber-dim);border-color:var(--amber);color:var(--amber-bright);}
+.btn:active{background:var(--amber);color:var(--bg);}
+.btn:disabled{opacity:.35;cursor:not-allowed;background:transparent;border-color:var(--border);color:var(--text-dim);}
+.btn-primary{background:var(--amber-dim);border-color:var(--amber);color:var(--amber-bright);}
+.btn-primary:hover{background:var(--amber);color:var(--bg);}
+.btn-danger{border-color:var(--red);color:var(--red-bright);}
+.btn-danger:hover{background:var(--red);color:#fff;}
+.btn-sm{width:auto;display:inline-block;padding:5px 14px;font-size:10px;}
 
-  label { display:block; font-family:var(--mono); font-size:11px; letter-spacing:0.1em; color:var(--parchment-dim); text-transform:uppercase; margin-bottom:5px; }
-  input[type="text"],input[type="number"] { width:100%; background:var(--bg-input); border:1px solid var(--border); color:var(--text-bright); font-family:var(--mono); font-size:13px; padding:8px 10px; outline:none; transition:border-color 0.15s; }
-  input[type="text"]:focus,input[type="number"]:focus { border-color:var(--amber-dim); }
-  input[type="number"] { -moz-appearance:textfield; }
-  input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none; }
-  .field-hint { font-family:var(--body); font-style:italic; font-size:13px; color:var(--text-dim); margin-top:3px; }
-  .field-error { font-family:var(--mono); font-size:11px; color:var(--red-bright); margin-top:3px; display:none; }
-  .field-error.visible { display:block; }
-  .field-group { margin-bottom:18px; }
+label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--parchment-dim);text-transform:uppercase;margin-bottom:5px;}
+input[type=text],input[type=number]{width:100%;background:var(--bg-input);border:1px solid var(--border);color:var(--text-bright);font-family:var(--mono);font-size:13px;padding:7px 9px;outline:none;transition:border-color .15s;}
+input[type=text]:focus,input[type=number]:focus{border-color:var(--amber-dim);}
+input[type=number]{-moz-appearance:textfield;}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+.field-hint{font-family:var(--body);font-style:italic;font-size:13px;color:var(--text-dim);margin-top:3px;}
+.field-error{font-family:var(--mono);font-size:11px;color:var(--red-bright);margin-top:3px;display:none;}
+.field-error.visible{display:block;}
+.field-group{margin-bottom:16px;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border-accent);}
 
-  ::-webkit-scrollbar { width:6px; }
-  ::-webkit-scrollbar-track { background:var(--bg); }
-  ::-webkit-scrollbar-thumb { background:var(--border-accent); }
+/* ── LAUNCH ── */
+#screen-launch{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;background:var(--bg);}
+#screen-launch::before,#screen-launch::after{content:'';position:absolute;width:120px;height:120px;border-color:var(--border-accent);border-style:solid;pointer-events:none;}
+#screen-launch::before{top:32px;left:32px;border-width:1px 0 0 1px;}
+#screen-launch::after{bottom:32px;right:32px;border-width:0 1px 1px 0;}
+.launch-inner{width:360px;display:flex;flex-direction:column;}
+.launch-title{font-family:var(--serif);font-size:52px;font-weight:700;letter-spacing:.18em;color:var(--title-green);text-align:center;line-height:1;margin-bottom:4px;text-shadow:0 0 40px rgba(74,154,88,.3);}
+.launch-subtitle{font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--parchment-dim);text-align:center;margin-bottom:32px;}
+.launch-buttons{display:flex;flex-direction:column;gap:8px;}
+.launch-error{margin-top:12px;padding:10px 14px;border:1px solid var(--red);background:rgba(139,48,48,.12);font-family:var(--mono);font-size:11px;color:var(--red-bright);display:none;}
+.launch-error.visible{display:block;}
+.launch-version{position:absolute;bottom:20px;right:32px;font-family:var(--mono);font-size:10px;color:var(--text-dim);letter-spacing:.1em;}
 
-  /* Launch */
-  #screen-launch { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; background:var(--bg); }
-  #screen-launch::before,#screen-launch::after { content:''; position:absolute; width:120px; height:120px; border-color:var(--border-accent); border-style:solid; pointer-events:none; }
-  #screen-launch::before { top:32px; left:32px; border-width:1px 0 0 1px; }
-  #screen-launch::after  { bottom:32px; right:32px; border-width:0 1px 1px 0; }
-  .launch-inner { width:360px; display:flex; flex-direction:column; gap:0; }
-  .launch-title { font-family:var(--serif); font-size:52px; font-weight:700; letter-spacing:0.18em; color:var(--amber); text-align:center; line-height:1; margin-bottom:4px; text-shadow:0 0 40px rgba(200,144,42,0.25); }
-  .launch-subtitle { font-family:var(--mono); font-size:10px; letter-spacing:0.3em; text-transform:uppercase; color:var(--parchment-dim); text-align:center; margin-bottom:32px; }
-  .launch-buttons { display:flex; flex-direction:column; gap:8px; }
-  .launch-error { margin-top:12px; padding:10px 14px; border:1px solid var(--red); background:rgba(139,48,48,0.12); font-family:var(--mono); font-size:11px; color:var(--red-bright); letter-spacing:0.05em; display:none; }
-  .launch-error.visible { display:block; }
-  .launch-version { position:absolute; bottom:20px; right:32px; font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:0.1em; }
+/* ── WORLD OPTIONS ── */
+#screen-world-options{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg);}
+.options-panel{width:520px;background:var(--bg-panel);border:1px solid var(--border-accent);padding:32px 38px;max-height:92vh;overflow-y:auto;}
+.options-title{font-family:var(--serif);font-size:17px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);margin-bottom:5px;}
+.options-desc{font-family:var(--body);font-style:italic;font-size:14px;color:var(--text-dim);margin-bottom:24px;}
+.options-section-title{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--amber-dim);margin:20px 0 14px;}
+.options-actions{display:flex;gap:10px;margin-top:24px;}
+.options-actions .btn{flex:1;}
 
-  /* World Options */
-  #screen-world-options { width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:var(--bg); }
-  .options-panel { width:520px; background:var(--bg-panel); border:1px solid var(--border-accent); padding:36px 40px; max-height:92vh; overflow-y:auto; }
-  .options-title { font-family:var(--serif); font-size:18px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--amber); margin-bottom:6px; }
-  .options-desc  { font-family:var(--body); font-style:italic; font-size:14px; color:var(--text-dim); margin-bottom:28px; }
-  .options-section-title { font-family:var(--mono); font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:var(--amber-dim); margin:24px 0 16px; }
-  .options-actions { display:flex; gap:10px; margin-top:28px; }
-  .options-actions .btn { flex:1; }
+/* ── TEST SCENARIO ── */
+#screen-test-scenario{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg);}
+.scenario-panel{width:520px;background:var(--bg-panel);border:1px solid var(--border-accent);padding:32px 38px;}
+.scenario-title{font-family:var(--serif);font-size:17px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);margin-bottom:5px;}
+.scenario-desc{font-family:var(--body);font-style:italic;font-size:14px;color:var(--text-dim);margin-bottom:20px;}
+.scenario-list{display:flex;flex-direction:column;gap:6px;margin-bottom:20px;}
+.scenario-item{border:1px solid var(--border);background:var(--bg-raised);padding:11px 13px;cursor:pointer;transition:border-color .12s,background .12s;}
+.scenario-item:hover{border-color:var(--amber-dim);background:#1e1e22;}
+.scenario-item.selected{border-color:var(--amber);background:rgba(74,63,40,.2);}
+.scenario-item-name{font-family:var(--serif);font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--parchment);margin-bottom:2px;}
+.scenario-item-desc{font-family:var(--body);font-style:italic;font-size:12px;color:var(--text-dim);}
+.scenario-actions{display:flex;gap:10px;}
+.scenario-actions .btn{flex:1;}
 
-  /* Test Scenario */
-  #screen-test-scenario { width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:var(--bg); }
-  .scenario-panel { width:520px; background:var(--bg-panel); border:1px solid var(--border-accent); padding:36px 40px; }
-  .scenario-title { font-family:var(--serif); font-size:18px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--amber); margin-bottom:6px; }
-  .scenario-desc  { font-family:var(--body); font-style:italic; font-size:14px; color:var(--text-dim); margin-bottom:24px; }
-  .scenario-list  { display:flex; flex-direction:column; gap:6px; margin-bottom:24px; }
-  .scenario-item  { border:1px solid var(--border); background:var(--bg-raised); padding:12px 14px; cursor:pointer; transition:border-color 0.12s,background 0.12s; }
-  .scenario-item:hover { border-color:var(--amber-dim); background:#1e1e22; }
-  .scenario-item.selected { border-color:var(--amber); background:rgba(74,63,40,0.2); }
-  .scenario-item-name { font-family:var(--serif); font-size:13px; font-weight:600; letter-spacing:0.1em; color:var(--parchment); margin-bottom:3px; }
-  .scenario-item-desc { font-family:var(--body); font-style:italic; font-size:13px; color:var(--text-dim); }
-  .scenario-actions { display:flex; gap:10px; }
-  .scenario-actions .btn { flex:1; }
+/* ── GAME SCREEN ── */
+#screen-game{width:100%;height:100%;display:flex;flex-direction:column;background:var(--bg);}
 
-  /* Game */
-  #screen-game { width:100%; height:100%; display:flex; flex-direction:column; background:var(--bg); }
-  #toolbar { height:44px; min-height:44px; background:var(--bg-panel); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 16px; gap:20px; flex-shrink:0; }
-  .toolbar-logo { font-family:var(--serif); font-size:15px; font-weight:700; letter-spacing:0.18em; color:var(--amber); margin-right:4px; }
-  .toolbar-sep  { width:1px; height:20px; background:var(--border); }
-  .toolbar-stat { display:flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11px; }
-  .toolbar-stat-label { color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase; }
-  .toolbar-stat-value { color:var(--text-bright); letter-spacing:0.05em; }
-  .toolbar-stat-value.gold { color:var(--amber); }
-  .toolbar-spacer { flex:1; }
-  .toolbar-btn { padding:5px 18px; background:transparent; border:1px solid var(--border-accent); color:var(--parchment); font-family:var(--serif); font-size:11px; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; cursor:pointer; transition:background 0.12s,border-color 0.12s,color 0.12s; outline:none; }
-  .toolbar-btn:hover { background:var(--amber-dim); border-color:var(--amber); color:var(--amber-bright); }
-  .toolbar-btn.save-btn { font-size:10px; padding:4px 12px; }
-  .toolbar-btn.devmode-btn { border-color:var(--green); color:var(--green-bright); }
-  .toolbar-btn.devmode-btn.active { background:rgba(42,90,48,0.3); border-color:var(--green-bright); }
+/* TOOLBAR — flex with overflow protection */
+#toolbar{
+  height:44px;min-height:44px;flex-shrink:0;
+  background:var(--bg-panel);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 12px;gap:0;
+  overflow:hidden;
+}
+.toolbar-logo{font-family:var(--serif);font-size:14px;font-weight:700;letter-spacing:.16em;color:var(--amber);flex-shrink:0;margin-right:8px;}
+.toolbar-sep{width:1px;height:20px;background:var(--border);flex-shrink:0;margin:0 8px;}
+.toolbar-stats{display:flex;align-items:center;gap:0;flex-shrink:1;overflow:hidden;}
+.toolbar-stat{display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;padding:0 8px;flex-shrink:1;white-space:nowrap;}
+.toolbar-stat-label{color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;}
+.toolbar-stat-value{color:var(--text-bright);}
+.toolbar-stat-value.gold{color:var(--amber);}
+.toolbar-spacer{flex:1;min-width:4px;}
+.toolbar-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.toolbar-btn{padding:4px 12px;background:transparent;border:1px solid var(--border-accent);color:var(--parchment);font-family:var(--serif);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .12s,border-color .12s,color .12s;outline:none;white-space:nowrap;}
+.toolbar-btn:hover{background:var(--amber-dim);border-color:var(--amber);color:var(--amber-bright);}
+.toolbar-btn.devmode-btn{border-color:var(--green);color:var(--green-bright);}
+.toolbar-btn.devmode-btn.active{background:rgba(42,90,48,.3);border-color:var(--green-bright);}
+.toolbar-btn.end-turn-btn{border-color:var(--amber);color:var(--amber-bright);font-weight:700;}
+.toolbar-btn.end-turn-btn:hover{background:var(--amber);color:var(--bg);}
+.toolbar-btn.exit-btn{border-color:var(--red);color:var(--red-bright);}
+.toolbar-btn.exit-btn:hover{background:var(--red);color:#fff;}
 
-  #canvas-area { flex:1; position:relative; overflow:hidden; }
-  #map-canvas  { display:block; width:100%; height:100%; cursor:grab; }
-  #map-canvas.panning { cursor:grabbing; }
+#canvas-area{flex:1;position:relative;overflow:hidden;}
+#map-canvas{display:block;width:100%;height:100%;cursor:grab;}
+#map-canvas.panning{cursor:grabbing;}
 
-  /* Map popup (shared for city and POI) */
-  .map-popup {
-    position:absolute; pointer-events:none;
-    background:var(--bg-panel); border:1px solid var(--border-accent);
-    padding:11px 14px; min-width:170px; max-width:220px;
-    font-family:var(--mono); font-size:11px;
-    display:none; z-index:5;
-  }
-  .map-popup.visible { display:block; }
-  .map-popup .popup-name  { font-family:var(--serif); font-size:13px; font-weight:600; letter-spacing:0.12em; color:var(--parchment); margin-bottom:5px; }
-  .map-popup .popup-tag   { font-size:10px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:2px; }
-  .map-popup .popup-tag.hq         { color:var(--amber); }
-  .map-popup .popup-tag.discovered { color:var(--amber-bright); }
-  .map-popup .popup-tag.undiscovered { color:var(--text-dim); }
-  .map-popup .popup-tag.dev-info   { color:var(--green-bright); }
-  .map-popup .popup-row { color:var(--text-dim); font-size:10px; margin-top:3px; }
-  .map-popup .popup-row span { color:var(--text-bright); }
+/* Map popup */
+.map-popup{position:absolute;pointer-events:none;background:var(--bg-panel);border:1px solid var(--border-accent);padding:11px 14px;min-width:170px;max-width:230px;font-family:var(--mono);font-size:11px;display:none;z-index:5;}
+.map-popup.visible{display:block;}
+.map-popup .popup-name{font-family:var(--serif);font-size:13px;font-weight:600;letter-spacing:.12em;color:var(--parchment);margin-bottom:5px;}
+.map-popup .popup-tag{font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;}
+.map-popup .popup-tag.hq{color:var(--amber);}
+.map-popup .popup-tag.discovered{color:var(--amber-bright);}
+.map-popup .popup-tag.undiscovered{color:var(--text-dim);}
+.map-popup .popup-tag.dev-info{color:var(--green-bright);}
+.map-popup .popup-row{color:var(--text-dim);font-size:10px;margin-top:3px;}
+.map-popup .popup-row span{color:var(--text-bright);}
 
-  #map-legend { position:absolute; bottom:12px; left:12px; background:rgba(14,14,15,0.85); border:1px solid var(--border); padding:8px 12px; font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:0.06em; line-height:2; pointer-events:none; z-index:4; }
-  #map-legend span { display:inline-block; width:10px; height:10px; margin-right:6px; vertical-align:middle; }
+#map-legend{position:absolute;bottom:12px;left:12px;background:rgba(14,14,15,.85);border:1px solid var(--border);padding:7px 11px;font-family:var(--mono);font-size:10px;color:var(--text-dim);letter-spacing:.06em;line-height:2;pointer-events:none;z-index:4;}
+#map-legend span{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:middle;}
 
-  #dev-panel { position:absolute; top:8px; right:8px; width:360px; max-height:calc(100% - 16px); background:rgba(14,14,15,0.95); border:1px solid var(--green); overflow-y:auto; font-family:var(--mono); font-size:11px; color:var(--green-bright); padding:12px 14px; line-height:1.7; pointer-events:auto; z-index:10; }
-  #dev-panel h3 { font-family:var(--serif); font-size:12px; color:var(--green-bright); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:8px; border-bottom:1px solid var(--green); padding-bottom:6px; }
-  #dev-panel pre { white-space:pre-wrap; word-break:break-all; font-size:10px; color:#5a8a5a; }
+#dev-panel{position:absolute;top:8px;right:8px;width:340px;max-height:calc(100% - 16px);background:rgba(14,14,15,.95);border:1px solid var(--green);overflow-y:auto;font-family:var(--mono);font-size:10px;color:var(--green-bright);padding:10px 12px;line-height:1.7;pointer-events:auto;z-index:10;}
+#dev-panel h3{font-family:var(--serif);font-size:11px;color:var(--green-bright);letter-spacing:.15em;text-transform:uppercase;margin-bottom:7px;border-bottom:1px solid var(--green);padding-bottom:5px;}
+#dev-panel pre{white-space:pre-wrap;word-break:break-all;font-size:9px;color:#5a8a5a;}
 
-  #bottom-panel { height:140px; min-height:140px; background:var(--bg-panel); border-top:1px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .bottom-stub  { font-family:var(--mono); font-size:11px; color:var(--text-dim); letter-spacing:0.08em; }
+#bottom-panel{height:140px;min-height:140px;background:var(--bg-panel);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.bottom-stub{font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:.08em;}
 
-  #toast-container { position:fixed; bottom:160px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; pointer-events:none; z-index:9999; }
-  .toast { padding:9px 18px; background:var(--bg-panel); border:1px solid var(--border-accent); font-family:var(--mono); font-size:11px; color:var(--parchment); letter-spacing:0.08em; animation:toast-in 0.2s ease, toast-out 0.3s ease 2.5s forwards; pointer-events:none; }
-  .toast.error   { border-color:var(--red);         color:var(--red-bright); }
-  .toast.success { border-color:var(--green-bright); color:var(--green-bright); }
-  @keyframes toast-in  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes toast-out { from{opacity:1} to{opacity:0} }
+/* ── CITY LAYOUT OVERLAY ── */
+#city-overlay{
+  position:absolute;inset:0;z-index:20;
+  display:flex;flex-direction:column;
+  background:var(--bg);
+}
+.city-header{
+  display:flex;align-items:center;gap:0;
+  height:44px;min-height:44px;flex-shrink:0;
+  background:var(--bg-panel);border-bottom:1px solid var(--border);
+  padding:0 16px;
+}
+.city-header-name{font-family:var(--serif);font-size:16px;font-weight:600;letter-spacing:.16em;color:var(--parchment);}
+.city-header-hq{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--amber);margin-left:10px;text-transform:uppercase;}
+.city-header-spacer{flex:1;}
+.city-close-btn{padding:4px 14px;background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:10px;letter-spacing:.1em;cursor:pointer;text-transform:uppercase;outline:none;transition:border-color .12s,color .12s;}
+.city-close-btn:hover{border-color:var(--parchment);color:var(--parchment);}
+
+.city-body{display:flex;flex:1;overflow:hidden;}
+
+/* Left tab bar */
+.city-tabs{
+  width:160px;min-width:160px;flex-shrink:0;
+  background:var(--bg-panel);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:12px 0;gap:2px;overflow-y:auto;
+}
+.city-tab{
+  padding:9px 16px;cursor:pointer;
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);
+  border-left:2px solid transparent;transition:color .12s,border-color .12s,background .12s;
+}
+.city-tab:hover{color:var(--parchment);background:rgba(255,255,255,.03);}
+.city-tab.active{color:var(--amber-bright);border-left-color:var(--amber);}
+.city-tab.hq-only-tab{color:var(--text-dim);}
+.city-tab-section{padding:6px 16px 2px;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--border-accent);margin-top:6px;}
+
+/* Panel content area */
+.city-content{flex:1;overflow-y:auto;padding:24px 28px;}
+.panel-title{font-family:var(--serif);font-size:16px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-bottom:4px;}
+.panel-subtitle{font-family:var(--body);font-style:italic;font-size:14px;color:var(--text-dim);margin-bottom:20px;}
+
+/* Roster table */
+.roster-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
+.roster-table th{text-align:left;color:var(--amber-dim);letter-spacing:.1em;text-transform:uppercase;font-size:9px;padding:4px 8px 8px;border-bottom:1px solid var(--border-accent);}
+.roster-table td{padding:8px 8px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;}
+.roster-table tr:hover td{background:rgba(255,255,255,.02);}
+.recruit-name{color:var(--parchment);font-size:12px;}
+.recruit-level{color:var(--amber);}
+.recruit-state{font-size:10px;padding:1px 6px;border:1px solid;text-transform:uppercase;letter-spacing:.06em;}
+.recruit-state.available{border-color:var(--green);color:var(--green-bright);}
+.recruit-state.deployed{border-color:var(--amber-dim);color:var(--amber);}
+.trait-badge{display:inline-block;font-size:9px;padding:1px 5px;border:1px solid var(--border-accent);color:var(--parchment-dim);margin-right:3px;margin-bottom:2px;text-transform:uppercase;letter-spacing:.06em;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;}
+.stat-box{background:var(--bg-raised);border:1px solid var(--border);padding:8px 10px;}
+.stat-box-label{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px;}
+.stat-box-value{font-family:var(--mono);font-size:14px;color:var(--text-bright);}
+
+/* Tavern pool */
+.hire-grid{display:flex;flex-direction:column;gap:6px;}
+.hire-card{background:var(--bg-raised);border:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:14px;}
+.hire-card:hover{border-color:var(--amber-dim);}
+.hire-card-name{font-family:var(--serif);font-size:13px;color:var(--parchment);min-width:120px;}
+.hire-card-stats{flex:1;font-family:var(--mono);font-size:10px;color:var(--text-dim);}
+.hire-card-stats span{color:var(--text);}
+.hire-card-cost{font-family:var(--mono);font-size:12px;color:var(--amber);min-width:70px;text-align:right;}
+.hire-card-btn{flex-shrink:0;}
+
+/* Stubs for remaining panels */
+.stub-panel{text-align:center;padding:48px 24px;color:var(--text-dim);font-family:var(--mono);font-size:11px;letter-spacing:.08em;line-height:2.2;}
+.stub-panel strong{display:block;font-family:var(--serif);font-size:14px;color:var(--parchment);margin-bottom:8px;letter-spacing:.12em;}
+
+/* Staff task list */
+.task-row{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--border);}
+.task-row:last-child{border-bottom:none;}
+.task-name{font-family:var(--serif);font-size:12px;font-weight:600;color:var(--parchment);min-width:180px;}
+.task-effect{font-family:var(--body);font-style:italic;font-size:13px;color:var(--text-dim);flex:1;}
+.task-count{font-family:var(--mono);font-size:11px;color:var(--text-dim);}
+.task-count span{color:var(--amber);}
+
+/* Confirm dialog */
+#confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:flex;align-items:center;justify-content:center;}
+.confirm-box{background:var(--bg-panel);border:1px solid var(--border-accent);padding:28px 32px;width:380px;text-align:center;}
+.confirm-title{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:.14em;color:var(--parchment);margin-bottom:10px;}
+.confirm-msg{font-family:var(--body);font-size:14px;color:var(--text-dim);margin-bottom:22px;line-height:1.6;}
+.confirm-actions{display:flex;gap:10px;}
+.confirm-actions .btn{flex:1;}
+
+/* Toast */
+#toast-container{position:fixed;bottom:160px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;z-index:9999;}
+.toast{padding:8px 16px;background:var(--bg-panel);border:1px solid var(--border-accent);font-family:var(--mono);font-size:11px;color:var(--parchment);letter-spacing:.08em;animation:toast-in .2s ease,toast-out .3s ease 2.5s forwards;pointer-events:none;}
+.toast.error{border-color:var(--red);color:var(--red-bright);}
+.toast.success{border-color:var(--green-bright);color:var(--green-bright);}
+@keyframes toast-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toast-out{from{opacity:1}to{opacity:0}}
 </style>
 </head>
 <body>
 
-<!-- Launch -->
+<!-- ══ LAUNCH ══ -->
 <div id="screen-launch">
   <div class="launch-inner">
     <div class="launch-title">IRONBOUND</div>
@@ -169,16 +253,16 @@
     <div class="launch-error" id="launch-error"></div>
   </div>
   <input type="file" id="file-load-input" accept=".json" style="display:none">
-  <div class="launch-version">v0.3 — Step 3</div>
+  <div class="launch-version">v0.4 — Step 4</div>
 </div>
 
-<!-- World Options -->
+<!-- ══ WORLD OPTIONS ══ -->
 <div id="screen-world-options" class="hidden">
   <div class="options-panel">
     <div class="options-title">World Options</div>
     <div class="options-desc">Configure the parameters of the new world. All fields have defaults.</div>
     <div class="rule">ORGANIZATION</div>
-    <div style="margin-top:16px"></div>
+    <div style="margin-top:14px"></div>
     <div class="field-group">
       <label for="opt-org-name">Organization Name</label>
       <input type="text" id="opt-org-name" value="The Guild" maxlength="40">
@@ -204,7 +288,6 @@
     <div class="field-group">
       <label for="opt-target-pois">Target World POIs</label>
       <input type="number" id="opt-target-pois" value="20" min="10" max="50">
-      <div class="field-hint">POIs the world sustains simultaneously (10–50).</div>
       <div class="field-error" id="err-target-pois">Must be between 10 and 50.</div>
     </div>
     <div class="field-group">
@@ -220,11 +303,11 @@
   </div>
 </div>
 
-<!-- Test Scenario -->
+<!-- ══ TEST SCENARIO ══ -->
 <div id="screen-test-scenario" class="hidden">
   <div class="scenario-panel">
     <div class="scenario-title">Test Scenarios</div>
-    <div class="scenario-desc">Select a pre-defined scenario to test a specific system or mechanic.</div>
+    <div class="scenario-desc">Select a pre-defined scenario to test a specific system.</div>
     <div class="scenario-list" id="scenario-list"></div>
     <div class="scenario-actions">
       <button class="btn" id="btn-scenario-back">Back</button>
@@ -233,26 +316,32 @@
   </div>
 </div>
 
-<!-- Game -->
+<!-- ══ GAME SCREEN ══ -->
 <div id="screen-game" class="hidden">
+
+  <!-- TOOLBAR -->
   <div id="toolbar">
     <span class="toolbar-logo">IRONBOUND</span>
     <div class="toolbar-sep"></div>
-    <div class="toolbar-stat"><span class="toolbar-stat-label">Turn</span><span class="toolbar-stat-value" id="tb-turn">1</span></div>
-    <div class="toolbar-stat"><span class="toolbar-stat-label">Day</span><span class="toolbar-stat-value" id="tb-day">1</span></div>
-    <div class="toolbar-stat"><span class="toolbar-stat-label">Gold</span><span class="toolbar-stat-value gold" id="tb-gold">0</span></div>
-    <div class="toolbar-stat"><span class="toolbar-stat-label">Roster</span><span class="toolbar-stat-value" id="tb-roster">0</span></div>
-    <div class="toolbar-stat"><span class="toolbar-stat-label">POIs</span><span class="toolbar-stat-value" id="tb-pois">0</span></div>
+    <div class="toolbar-stats">
+      <div class="toolbar-stat"><span class="toolbar-stat-label">Turn</span>&nbsp;<span class="toolbar-stat-value" id="tb-turn">1</span></div>
+      <div class="toolbar-stat"><span class="toolbar-stat-label">Day</span>&nbsp;<span class="toolbar-stat-value" id="tb-day">1</span></div>
+      <div class="toolbar-stat"><span class="toolbar-stat-label">Gold</span>&nbsp;<span class="toolbar-stat-value gold" id="tb-gold">0</span></div>
+      <div class="toolbar-stat"><span class="toolbar-stat-label">Roster</span>&nbsp;<span class="toolbar-stat-value" id="tb-roster">0</span></div>
+      <div class="toolbar-stat"><span class="toolbar-stat-label">POIs</span>&nbsp;<span class="toolbar-stat-value" id="tb-pois">0</span></div>
+    </div>
     <div class="toolbar-spacer"></div>
-    <button class="toolbar-btn devmode-btn" id="btn-devmode">DEV</button>
-    <button class="toolbar-btn save-btn"    id="btn-save">Save</button>
-    <button class="toolbar-btn"             id="btn-end-turn">End Turn</button>
+    <div class="toolbar-actions">
+      <button class="toolbar-btn devmode-btn" id="btn-devmode">DEV</button>
+      <button class="toolbar-btn" id="btn-save">Save</button>
+      <button class="toolbar-btn end-turn-btn" id="btn-end-turn">End Turn</button>
+      <button class="toolbar-btn exit-btn" id="btn-exit">Exit</button>
+    </div>
   </div>
 
+  <!-- MAP -->
   <div id="canvas-area">
     <canvas id="map-canvas"></canvas>
-
-    <!-- Shared map popup (city or POI) -->
     <div class="map-popup" id="map-popup">
       <div class="popup-name"  id="popup-name">—</div>
       <div class="popup-tag"   id="popup-tag"></div>
@@ -260,22 +349,44 @@
       <div class="popup-row"   id="popup-row2"></div>
       <div class="popup-row"   id="popup-dev" style="display:none"></div>
     </div>
-
     <div id="map-legend">
       <span style="background:#2d4a2a"></span>Forest &nbsp;
       <span style="background:#3a3a28"></span>Plains &nbsp;
       <span style="background:#3a3530"></span>Hills &nbsp;
       <span style="background:#1a2a3a"></span>Water
     </div>
-
     <div id="dev-panel" class="hidden">
       <h3>⬡ Dev Mode — Game State</h3>
       <pre id="dev-state-dump"></pre>
     </div>
   </div>
 
-  <div id="bottom-panel">
-    <div class="bottom-stub">Context panel — Step 4+</div>
+  <div id="bottom-panel"><div class="bottom-stub">Context panel — Step 5+</div></div>
+
+  <!-- CITY LAYOUT OVERLAY -->
+  <div id="city-overlay" class="hidden">
+    <div class="city-header">
+      <span class="city-header-name" id="city-header-name">City</span>
+      <span class="city-header-hq hidden" id="city-header-hq">⬡ HQ</span>
+      <div class="city-header-spacer"></div>
+      <button class="city-close-btn" id="btn-close-city">← Back to Map</button>
+    </div>
+    <div class="city-body">
+      <div class="city-tabs" id="city-tabs"></div>
+      <div class="city-content" id="city-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONFIRM DIALOG ══ -->
+<div id="confirm-overlay" class="hidden">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirm-title">Confirm</div>
+    <div class="confirm-msg"   id="confirm-msg"></div>
+    <div class="confirm-actions">
+      <button class="btn" id="confirm-cancel">Cancel</button>
+      <button class="btn btn-danger" id="confirm-ok">Confirm</button>
+    </div>
   </div>
 </div>
 
@@ -284,186 +395,211 @@
 <script>
 'use strict';
 
-/* ═══════════════════════════════════
+/* ══════════════════════════════════════════════════════
    CONSTANTS
-═══════════════════════════════════ */
-const VERSION        = '0.3-step3';
+══════════════════════════════════════════════════════ */
+const VERSION        = '0.4-step4';
 const AUTOSAVE_KEY   = 'ironbound_autosave';
 const AUTOSAVE_EVERY = 5;
 
-/* ═══════════════════════════════════
-   TIME HELPERS  (Section 2)
-═══════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   TIME  (Section 2)
+══════════════════════════════════════════════════════ */
 const TIME = {
-  TURNS_PER_DAY:  6,
-  DAYS_PER_WEEK:  7,
-  DAYS_PER_MONTH: 30,
-  turnToDay:   t => Math.floor((t - 1) / 6) + 1,
-  turnToWeek:  t => Math.floor((TIME.turnToDay(t) - 1) / 7) + 1,
-  turnToMonth: t => Math.floor((TIME.turnToDay(t) - 1) / 30) + 1,
-  isFirstTurnOfDay:   t => ((t - 1) % 6) === 0,
-  isFirstTurnOfWeek:  t => TIME.isFirstTurnOfDay(t) && ((TIME.turnToDay(t) - 1) % 7 === 0),
-  isFirstTurnOfMonth: t => TIME.isFirstTurnOfDay(t) && ((TIME.turnToDay(t) - 1) % 30 === 0),
-  isUpkeepTurn: t => { const d = TIME.turnToDay(t); return ((d-1)%30)===29 && TIME.isFirstTurnOfDay(t); },
+  turnToDay:   t => Math.floor((t-1)/6)+1,
+  turnToWeek:  t => Math.floor((TIME.turnToDay(t)-1)/7)+1,
+  isFirstTurnOfDay:  t => ((t-1)%6)===0,
+  isFirstTurnOfWeek: t => TIME.isFirstTurnOfDay(t)&&((TIME.turnToDay(t)-1)%7===0),
+  isUpkeepTurn: t => { const d=TIME.turnToDay(t); return ((d-1)%30)===29&&TIME.isFirstTurnOfDay(t); },
 };
 
-/* ═══════════════════════════════════
-   SEEDED PRNG  (Mulberry32)
-═══════════════════════════════════ */
-function makePRNG(seed) {
-  let s = seed >>> 0;
-  return {
-    next() {
-      s += 0x6D2B79F5;
-      let t = Math.imul(s ^ (s >>> 15), 1 | s);
-      t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    },
-    int(lo, hi) { return Math.floor(this.next() * (hi - lo + 1)) + lo; },
-    pick(arr)   { return arr[this.int(0, arr.length - 1)]; },
-    float(lo, hi) { return this.next() * (hi - lo) + lo; },
+/* ══════════════════════════════════════════════════════
+   SEEDED PRNG
+══════════════════════════════════════════════════════ */
+function makePRNG(seed){
+  let s=seed>>>0;
+  return{
+    next(){ s+=0x6D2B79F5; let t=Math.imul(s^(s>>>15),1|s); t^=t+Math.imul(t^(t>>>7),61|t); return((t^(t>>>14))>>>0)/4294967296; },
+    int(lo,hi){ return Math.floor(this.next()*(hi-lo+1))+lo; },
+    pick(a){ return a[this.int(0,a.length-1)]; },
+    bool(p=0.5){ return this.next()<p; },
   };
 }
 
-/* ═══════════════════════════════════
-   NOISE  (value noise, 2 octaves)
-═══════════════════════════════════ */
-function makeNoise(seed) {
-  const rng = makePRNG(seed);
-  const SZ  = 256;
-  const tbl = new Float32Array(SZ * SZ);
-  for (let i = 0; i < tbl.length; i++) tbl[i] = rng.next();
-  function sample(x, y) {
-    const xi = Math.floor(x) & (SZ-1), yi = Math.floor(y) & (SZ-1);
-    const xf = x - Math.floor(x),      yf = y - Math.floor(y);
-    const u = xf*xf*(3-2*xf), v = yf*yf*(3-2*yf);
-    const a = tbl[yi*SZ+xi], b = tbl[yi*SZ+((xi+1)&(SZ-1))];
-    const c = tbl[((yi+1)&(SZ-1))*SZ+xi], d = tbl[((yi+1)&(SZ-1))*SZ+((xi+1)&(SZ-1))];
+/* ══════════════════════════════════════════════════════
+   NOISE
+══════════════════════════════════════════════════════ */
+function makeNoise(seed){
+  const r=makePRNG(seed),SZ=256,t=new Float32Array(SZ*SZ);
+  for(let i=0;i<t.length;i++) t[i]=r.next();
+  function s(x,y){
+    const xi=Math.floor(x)&(SZ-1),yi=Math.floor(y)&(SZ-1),xf=x-Math.floor(x),yf=y-Math.floor(y);
+    const u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);
+    const a=t[yi*SZ+xi],b=t[yi*SZ+((xi+1)&(SZ-1))],c=t[((yi+1)&(SZ-1))*SZ+xi],d=t[((yi+1)&(SZ-1))*SZ+((xi+1)&(SZ-1))];
     return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;
   }
-  return (x,y) => sample(x*0.015,y*0.015)*0.65 + sample(x*0.045,y*0.045)*0.35;
+  return(x,y)=>s(x*.015,y*.015)*.65+s(x*.045,y*.045)*.35;
 }
 
-/* ═══════════════════════════════════
+/* ══════════════════════════════════════════════════════
    NAME GENERATORS
-═══════════════════════════════════ */
-const CITY_PFX = ['Iron','Stone','Red','Ash','Gold','Silver','Dark','Crow','Wolf','Bear','Storm','Frost'];
-const CITY_SFX = ['hold','ford','gate','bridge','haven','wall','keep','march','vale','wick','crest','moor'];
-function randomCityName(rng) { return rng.pick(CITY_PFX)+rng.pick(CITY_SFX); }
+══════════════════════════════════════════════════════ */
+const CITY_PFX=['Iron','Stone','Red','Ash','Gold','Silver','Dark','Crow','Wolf','Bear','Storm','Frost'];
+const CITY_SFX=['hold','ford','gate','bridge','haven','wall','keep','march','vale','wick','crest','moor'];
+const POI_ADJ=['Ancient','Forgotten','Cursed','Crumbling','Hidden','Haunted','Overgrown','Sunken'];
+const POI_NOUN=['Halls','Outpost','Den','Remains','Hollow','Depths','Sanctuary','Warrens'];
+const RECRUIT_FIRST=['Aldric','Maren','Torvin','Sela','Brynn','Calder','Isra','Daven','Lyss','Ranek','Wren','Corvin','Tessa','Harken','Sove','Orin','Pell','Aida','Zuren','Feth'];
+const RECRUIT_LAST=['Ashworth','Coldmere','Dunwall','Irenfeld','Blackthorn','Greaves','Hollow','Strant','Vorne','Embers','Crane','Dunmore','Ferris','Gale','Holst','Irith','Kael','Lorne','Mast','Nadren'];
+function cityName(rng){ return rng.pick(CITY_PFX)+rng.pick(CITY_SFX); }
+function poiName(rng){  return rng.pick(POI_ADJ)+' '+rng.pick(POI_NOUN); }
+function recruitName(rng){ return rng.pick(RECRUIT_FIRST)+' '+rng.pick(RECRUIT_LAST); }
 
-const POI_TYPES = ['dungeon','camp','ruins','forest zone','cave system','abandoned fort','mine','shrine'];
-const POI_ADJ   = ['Ancient','Forgotten','Cursed','Crumbling','Hidden','Haunted','Overgrown','Sunken'];
-const POI_NOUN  = ['Halls','Outpost','Den','Remains','Hollow','Depths','Sanctuary','Warrens'];
-function randomPOIName(rng) { return rng.pick(POI_ADJ)+' '+rng.pick(POI_NOUN); }
-
-/* ═══════════════════════════════════
-   POI SIZE → despawn timer (in turns)
-   Small:  2–10 days  → 12–60 turns
-   Medium: 10–60 days → 60–360 turns
-   Large:  1–6 months → 180–1080 turns
-═══════════════════════════════════ */
-const POI_SIZES = ['small','medium','large'];
-const POI_SIZE_WEIGHTS = [0.55, 0.35, 0.10]; // cumulative thresholds
-
-function rollPOISize(rng) {
-  const r = rng.next();
-  if (r < POI_SIZE_WEIGHTS[0]) return 'small';
-  if (r < POI_SIZE_WEIGHTS[0]+POI_SIZE_WEIGHTS[1]) return 'medium';
-  return 'large';
-}
-function rollDespawnTimer(size, rng) {
-  if (size === 'small')  return rng.int(12, 60);          // 2–10 days
-  if (size === 'medium') return rng.int(60, 360);          // 10–60 days
-  return rng.int(180, 1080);                               // 1–6 months
-}
-
-/* Zone count per POI size (placeholder ranges — full definition in Step 6) */
-function rollZoneCount(size, rng) {
-  if (size === 'small')  return rng.int(3, 6);
-  if (size === 'medium') return rng.int(6, 12);
-  return rng.int(12, 20);
-}
-
-/* Terrain affinity weights for POI placement
-   Each terrain type has a weight for each POI type.
-   Higher = more likely to spawn there. */
-const TERRAIN_AFFINITY = {
-  forest:   { dungeon:1, camp:3, ruins:2, 'forest zone':5, 'cave system':1, 'abandoned fort':1, mine:1, shrine:2 },
-  plains:   { dungeon:1, camp:4, ruins:3, 'forest zone':1, 'cave system':0, 'abandoned fort':3, mine:1, shrine:2 },
-  hills:    { dungeon:2, camp:2, ruins:2, 'forest zone':1, 'cave system':4, 'abandoned fort':2, mine:4, shrine:2 },
-  water:    { dungeon:0, camp:0, ruins:0, 'forest zone':0, 'cave system':0, 'abandoned fort':0, mine:0, shrine:0 },
+/* ══════════════════════════════════════════════════════
+   TRAIT DEFINITIONS  (Section 5.5)
+══════════════════════════════════════════════════════ */
+const TRAIT_DEFS = {
+  Loyal:     { exclusive:'Disloyal' },
+  Disloyal:  { exclusive:'Loyal'    },
+  Provident: { exclusive:null       },
+  Strong:    { exclusive:'Weak'     },
+  Weak:      { exclusive:'Strong'   },
+  Dexterous: { exclusive:'Clumsy'   },
+  Clumsy:    { exclusive:'Dexterous'},
+  Intelligent:{ exclusive:null      },
+  Watchful:  { exclusive:'Dumb'     },
+  Dumb:      { exclusive:'Watchful' },
+  Fast:      { exclusive:'Slow'     },
+  Slow:      { exclusive:'Fast'     },
+  Resilient: { exclusive:'Fragile'  },
+  Fragile:   { exclusive:'Resilient'},
+  Greedy:    { exclusive:null       },
 };
+const TRAIT_NAMES = Object.keys(TRAIT_DEFS);
 
-function weightedPickType(terrain, rng) {
-  const weights = TERRAIN_AFFINITY[terrain] || TERRAIN_AFFINITY.plains;
-  const types = Object.keys(weights).filter(t => weights[t] > 0);
-  const total  = types.reduce((s,t) => s+weights[t], 0);
-  let r = rng.next() * total;
-  for (const t of types) { r -= weights[t]; if (r <= 0) return t; }
-  return types[types.length-1];
+/* Apply trait modifiers to base characteristics (Section 5.5.2)
+   Percentage modifiers applied after additive ones. */
+function applyTraits(chars, traits) {
+  const c = { ...chars };
+  // Additive first
+  if (traits.includes('Intelligent')) c.level  = Math.min(10, c.level + 1);
+  if (traits.includes('Strong'))      c.health += 2;
+  if (traits.includes('Weak'))        c.health -= 2;
+  if (traits.includes('Resilient'))   c.health += 10;
+  if (traits.includes('Fragile'))     c.health -= 20;
+  if (traits.includes('Slow'))        c.health += 5;
+  if (traits.includes('Fast'))        c.health  = Math.round(c.health * 0.90);
+  // Percentage modifiers (applied after additive)
+  if (traits.includes('Strong'))      c.strength    = Math.round(c.strength    * 1.10);
+  if (traits.includes('Weak'))        c.strength    = Math.round(c.strength    * 0.85);
+  if (traits.includes('Dexterous'))   c.dexterity   = Math.round(c.dexterity   * 1.10);
+  if (traits.includes('Clumsy'))      c.dexterity   = Math.round(c.dexterity   * 0.85);
+  if (traits.includes('Watchful'))    c.perception  = Math.round(c.perception  * 1.15);
+  if (traits.includes('Dumb'))        c.perception  = Math.round(c.perception  * 0.70);
+  if (traits.includes('Intelligent')) c.perception  = Math.round(c.perception  * 1.05);
+  if (traits.includes('Fast'))        c.movementSpeed = Math.round(c.movementSpeed * 1.20);
+  if (traits.includes('Slow'))        c.movementSpeed = Math.round(c.movementSpeed * 0.90);
+  // Loyalty: Loyal fixes at 30; Disloyal has no immediate modifier (drains monthly)
+  if (traits.includes('Loyal'))       c.loyalty = 30;
+  return c;
 }
 
-/* ═══════════════════════════════════
-   POI FACTORY
-═══════════════════════════════════ */
-function makeId() { return Math.random().toString(36).slice(2,10); }
+function rollTraits(rng) {
+  // ~40% chance no traits, ~45% one trait, ~15% two traits
+  const roll = rng.next();
+  if (roll < 0.40) return [];
+  const pool = [...TRAIT_NAMES];
+  const t1 = rng.pick(pool);
+  if (roll < 0.85) return [t1];
+  // Second trait: exclude t1 and its exclusive partner
+  const excl = TRAIT_DEFS[t1].exclusive;
+  const pool2 = pool.filter(t => t !== t1 && t !== excl);
+  if (!pool2.length) return [t1];
+  const t2 = rng.pick(pool2);
+  // Verify t2 doesn't exclude t1 (belt-and-suspenders)
+  if (TRAIT_DEFS[t2].exclusive === t1) return [t1];
+  return [t1, t2];
+}
 
-function spawnPOI(world, rng, discoveredByDefault) {
-  const SIZE = world._mapSize;
+/* ══════════════════════════════════════════════════════
+   RECRUIT FACTORY  (Section 5)
+   Placeholder ranges for undocumented stats:
+   strength 6–14, dexterity 6–14, perception 5–12,
+   regeneration 3–8, movementSpeed 8–12
+══════════════════════════════════════════════════════ */
+function makeId(){ return Math.random().toString(36).slice(2,10); }
 
-  // Pick a valid non-water, non-city, non-occupied tile
-  let x, y, terrain;
-  let attempts = 0;
-  const citySet = new Set(world.cities.map(c => `${c.x},${c.y}`));
-  const poiSet  = new Set(world.pois.map(p => `${p.x},${p.y}`));
-  const MIN_CITY_DIST = SIZE * 0.06; // at least 6% of map width from a city
-
-  do {
-    x = rng.int(2, SIZE-3);
-    y = rng.int(2, SIZE-3);
-    terrain = world.tiles[y*SIZE+x]?.terrainType ?? 'water';
-    const nearCity = world.cities.some(c => Math.hypot(c.x-x, c.y-y) < MIN_CITY_DIST);
-    attempts++;
-    if (terrain !== 'water' && !citySet.has(`${x},${y}`) && !poiSet.has(`${x},${y}`) && !nearCity) break;
-  } while (attempts < 500);
-
-  if (terrain === 'water') return null; // couldn't place — skip
-
-  const type  = weightedPickType(terrain, rng);
-  const size  = rollPOISize(rng);
-  const zones = rollZoneCount(size, rng);
-  const timer = rollDespawnTimer(size, rng);
-
-  return {
-    id:           makeId(),
-    name:         randomPOIName(rng),
-    type,
-    size,
-    x, y,
-    despawnTimer: timer,
-    _maxTimer:    timer,    // kept for dev display
-    _zoneCount:   zones,   // placeholder until zones are generated in Step 6
-    zones:        [],       // populated in Step 6
-    discovered:   discoveredByDefault,
-    visible:      true,
+function generateRecruit(rng, level) {
+  const lvl = level ?? rng.int(4,7);  // most hires are lvl 4–7 per GDD
+  const base = {
+    health:          rng.int(90,130),
+    regeneration:    rng.int(3,8),
+    movementSpeed:   rng.int(8,12),
+    baseCarryCapacity:rng.int(5,10),
+    strength:        rng.int(6,14),
+    dexterity:       rng.int(6,14),
+    perception:      rng.int(5,12),
+    loyalty:         rng.int(10,20),
+    level:           lvl,
   };
-}
+  const traits = rollTraits(rng);
+  const chars  = applyTraits(base, traits);
+  const { level: finalLevel, ...rest } = chars;
 
-/* ═══════════════════════════════════
-   GAME STATE — factory functions
-═══════════════════════════════════ */
-function makeHungerState() { return { stage:'Hunger', charges:0 }; }
+  // Upkeep base rate; Greedy increases by 10%
+  let baseRate = rng.int(8,14);
+  if (traits.includes('Greedy')) baseRate = Math.ceil(baseRate * 1.10);
 
-function makeRecruit(overrides={}) {
   return {
-    id:makeId(), name:overrides.name??'Unknown', portrait:'default', race:'human',
-    level:overrides.level??5, upkeepBaseRate:10, traits:[],
-    characteristics:{ health:100, regeneration:5, movementSpeed:10, baseCarryCapacity:7, strength:10, dexterity:10, perception:8, loyalty:15 },
+    id: makeId(),
+    name: recruitName(rng),
+    portrait: 'default',
+    race: 'human',
+    level: finalLevel,
+    upkeepBaseRate: baseRate,
+    traits,
+    characteristics: {
+      health:            rest.health,
+      regeneration:      rest.regeneration,
+      movementSpeed:     rest.movementSpeed,
+      baseCarryCapacity: rest.baseCarryCapacity,
+      strength:          rest.strength,
+      dexterity:         rest.dexterity,
+      perception:        rest.perception,
+      loyalty:           Math.max(1, Math.min(30, rest.loyalty)),
+    },
     equipment:{ garment:null, head:null, backpack:null, trinket:null, trinket2:null },
-    inventory:[], statusEffects:[], wounds:[], hunger:makeHungerState(), incapacitated:null, state:'Available',
+    inventory:[], statusEffects:[], wounds:[],
+    hunger:{ stage:'Hunger', charges:0 },
+    incapacitated:null,
+    state:'Available',
   };
 }
 
+/* ══════════════════════════════════════════════════════
+   TAVERN HIRE POOL  (Section 3.2)
+   6 recruits refreshed every in-game week.
+══════════════════════════════════════════════════════ */
+function generateHirePool(seed, count=6) {
+  const rng = makePRNG(seed);
+  const pool = [];
+  for (let i=0; i<count; i++) {
+    const r = generateRecruit(rng);
+    // Hiring cost: roughly 3× first month's upkeep
+    r._hiringCost = r.upkeepBaseRate * r.level * 3;
+    pool.push(r);
+  }
+  return pool;
+}
+
+function refreshHirePool(gs) {
+  const week = TIME.turnToWeek(gs.turn);
+  gs._hirePoolSeed = (gs.world._seed ^ (week * 0x9E3779B9)) >>> 0;
+  gs._hirePool = generateHirePool(gs._hirePoolSeed);
+}
+
+/* ══════════════════════════════════════════════════════
+   ORGANIZATION / GAME STATE FACTORIES
+══════════════════════════════════════════════════════ */
 function makeOrganization(opts={}) {
   return {
     id:makeId(), name:opts.name??'The Guild', gold:opts.gold??4200,
@@ -479,565 +615,609 @@ function makeGameState(opts={}) {
     turn:1,
     world:{ tiles:[], cities:[], pois:[],
       _mapSize:opts.mapSize??128, _targetPois:opts.targetPois??20, _targetKnownPois:opts.targetKnownPois??8,
-      _seed:opts.seed??(Math.random()*0xFFFFFFFF|0),
-      _poiSeed:0, // advances with each POI spawn to give unique placement per spawn event
+      _seed:opts.seed??(Math.random()*0xFFFFFFFF|0), _poiSeed:0,
     },
     organizations:[org], playerOrgId:org.id,
+    _hirePool:[], _hirePoolSeed:0,
     _version:VERSION, _devMode:false, _autosaveTurn:0,
+    _ledger:[],
   };
 }
 
-/* ═══════════════════════════════════
+/* ══════════════════════════════════════════════════════
    WORLD GENERATION  (Section 10)
-═══════════════════════════════════ */
-function generateWorld(gs) {
-  const world = gs.world;
-  const SIZE  = world._mapSize;
-  const seed  = world._seed;
-  const rng   = makePRNG(seed);
-  const noise = makeNoise(seed ^ 0xDEADBEEF);
+══════════════════════════════════════════════════════ */
+const POI_TYPES=['dungeon','camp','ruins','forest zone','cave system','abandoned fort','mine','shrine'];
+const TERRAIN_AFFINITY={
+  forest:{dungeon:1,camp:3,ruins:2,'forest zone':5,'cave system':1,'abandoned fort':1,mine:1,shrine:2},
+  plains:{dungeon:1,camp:4,ruins:3,'forest zone':1,'cave system':0,'abandoned fort':3,mine:1,shrine:2},
+  hills: {dungeon:2,camp:2,ruins:2,'forest zone':1,'cave system':4,'abandoned fort':2,mine:4,shrine:2},
+  water: {dungeon:0,camp:0,ruins:0,'forest zone':0,'cave system':0,'abandoned fort':0,mine:0,shrine:0},
+};
+function weightedPickType(terrain,rng){
+  const w=TERRAIN_AFFINITY[terrain]||TERRAIN_AFFINITY.plains;
+  const types=Object.keys(w).filter(t=>w[t]>0);
+  const total=types.reduce((s,t)=>s+w[t],0);
+  let r=rng.next()*total;
+  for(const t of types){r-=w[t];if(r<=0)return t;}
+  return types[types.length-1];
+}
+function rollPOISize(rng){ const r=rng.next(); return r<.55?'small':r<.90?'medium':'large'; }
+function rollTimer(size,rng){ if(size==='small')return rng.int(12,60); if(size==='medium')return rng.int(60,360); return rng.int(180,1080); }
+function rollZoneCount(size,rng){ if(size==='small')return rng.int(3,6); if(size==='medium')return rng.int(6,12); return rng.int(12,20); }
 
-  /* Terrain */
-  world.tiles = [];
-  for (let y=0; y<SIZE; y++) {
-    for (let x=0; x<SIZE; x++) {
-      const ex = Math.min(x, SIZE-1-x)/(SIZE*0.15);
-      const ey = Math.min(y, SIZE-1-y)/(SIZE*0.15);
-      const n  = noise(x,y) * Math.min(1, Math.min(ex,ey));
-      let terrainType;
-      if      (n < 0.25) terrainType='water';
-      else if (n < 0.42) terrainType='hills';
-      else if (n < 0.62) terrainType='plains';
-      else               terrainType='forest';
-      world.tiles.push({ x, y, terrainType });
+function spawnPOI(world,rng,discovered){
+  const SIZE=world._mapSize;
+  const citySet=new Set(world.cities.map(c=>`${c.x},${c.y}`));
+  const poiSet =new Set(world.pois.map(p=>`${p.x},${p.y}`));
+  const minDist=SIZE*.06;
+  let x,y,terrain,attempts=0;
+  do{
+    x=rng.int(2,SIZE-3); y=rng.int(2,SIZE-3);
+    terrain=world.tiles[y*SIZE+x]?.terrainType??'water';
+    const nearCity=world.cities.some(c=>Math.hypot(c.x-x,c.y-y)<minDist);
+    attempts++;
+    if(terrain!=='water'&&!citySet.has(`${x},${y}`)&&!poiSet.has(`${x},${y}`)&&!nearCity) break;
+  }while(attempts<500);
+  if(terrain==='water') return null;
+  const size=rollPOISize(rng);
+  return{ id:makeId(), name:poiName(rng), type:weightedPickType(terrain,rng), size, x, y,
+    despawnTimer:rollTimer(size,rng), _zoneCount:rollZoneCount(size,rng), zones:[], discovered, visible:true };
+}
+
+function populatePOIs(gs){
+  const w=gs.world; const needed=w._targetPois-w.pois.length; if(needed<=0) return;
+  w._poiSeed=((w._poiSeed^gs.turn)>>>0);
+  const rng=makePRNG(w._poiSeed+needed);
+  const currentKnown=w.pois.filter(p=>p.discovered).length;
+  for(let i=0;i<needed;i++){
+    const wantDisc=currentKnown+w.pois.slice(w._targetPois-needed).filter(p=>p.discovered).length < w._targetKnownPois;
+    const p=spawnPOI(w,rng,wantDisc); if(p) w.pois.push(p);
+  }
+}
+
+function generateWorld(gs){
+  const w=gs.world; const SIZE=w._mapSize; const seed=w._seed;
+  const rng=makePRNG(seed); const noise=makeNoise(seed^0xDEADBEEF);
+
+  w.tiles=[];
+  for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++){
+    const ex=Math.min(x,SIZE-1-x)/(SIZE*.15), ey=Math.min(y,SIZE-1-y)/(SIZE*.15);
+    const n=noise(x,y)*Math.min(1,Math.min(ex,ey));
+    w.tiles.push({x,y,terrainType:n<.25?'water':n<.42?'hills':n<.62?'plains':'forest'});
+  }
+  function tAt(x,y){ if(x<0||y<0||x>=SIZE||y>=SIZE)return'water'; return w.tiles[y*SIZE+x].terrainType; }
+
+  const minD=SIZE*.28; const placed=[];
+  for(let band=0;band<3;band++){
+    const xMin=Math.floor(SIZE*.12),xMax=Math.floor(SIZE*.88);
+    const yMin=Math.floor(SIZE*(.1+band*.27)),yMax=Math.floor(SIZE*(.35+band*.27));
+    let at=0,cx,cy;
+    do{cx=rng.int(xMin,xMax);cy=rng.int(yMin,yMax);at++;}
+    while((tAt(cx,cy)==='water'||placed.some(p=>Math.hypot(p.x-cx,p.y-cy)<minD))&&at<400);
+    if(tAt(cx,cy)==='water') for(let r=1;r<20;r++){for(const[dx,dy]of[[r,0],[-r,0],[0,r],[0,-r]]){if(tAt(cx+dx,cy+dy)!=='water'){cx+=dx;cy+=dy;break;}}if(tAt(cx,cy)!=='water')break;}
+    placed.push({id:makeId(),name:cityName(rng),x:cx,y:cy});
+  }
+  w.cities=placed;
+  gs.organizations[0].hqCityId=rng.pick(w.cities).id;
+
+  w._poiSeed=seed^0xC0FFEE;
+  populatePOIs(gs);
+
+  // Starting recruits
+  const opts_chars = gs._startingChars ?? 0;
+  if (opts_chars > 0) {
+    const rrng = makePRNG(seed ^ 0xBEEF);
+    for (let i = 0; i < opts_chars; i++) {
+      gs.organizations[0].recruits.push(generateRecruit(rrng));
     }
   }
 
-  function terrainAt(x,y) {
-    if (x<0||y<0||x>=SIZE||y>=SIZE) return 'water';
-    return world.tiles[y*SIZE+x].terrainType;
-  }
-
-  /* Cities */
-  const MIN_CITY_DIST = SIZE*0.28;
-  const placed = [];
-  for (let band=0; band<3; band++) {
-    const xMin=Math.floor(SIZE*0.12), xMax=Math.floor(SIZE*0.88);
-    const yMin=Math.floor(SIZE*(0.1+band*0.27)), yMax=Math.floor(SIZE*(0.35+band*0.27));
-    let attempts=0, cx, cy;
-    do { cx=rng.int(xMin,xMax); cy=rng.int(yMin,yMax); attempts++; }
-    while ((terrainAt(cx,cy)==='water'||placed.some(p=>Math.hypot(p.x-cx,p.y-cy)<MIN_CITY_DIST)) && attempts<400);
-    if (terrainAt(cx,cy)==='water') {
-      for (let r=1; r<20; r++) {
-        for (const [dx,dy] of [[r,0],[-r,0],[0,r],[0,-r]]) { if(terrainAt(cx+dx,cy+dy)!=='water'){cx+=dx;cy+=dy;break;} }
-        if (terrainAt(cx,cy)!=='water') break;
-      }
-    }
-    placed.push({ id:makeId(), name:randomCityName(rng), x:cx, y:cy });
-  }
-  world.cities = placed;
-  gs.organizations[0].hqCityId = rng.pick(world.cities).id;
-
-  /* Initial POI population */
-  world._poiSeed = seed ^ 0xC0FFEE;
-  populatePOIs(gs, true);
+  // Initialise hire pool
+  refreshHirePool(gs);
 
   return gs;
 }
 
-/* ═══════════════════════════════════
-   POI POPULATION  (Section 3.1, 8.2)
-   isInitial = true skips the "spawn count reached" guard
-═══════════════════════════════════ */
-function populatePOIs(gs, isInitial=false) {
-  const world   = gs.world;
-  const target  = world._targetPois;
-  const current = world.pois.length;
-  if (!isInitial && current >= target) return;
-
-  const needed = target - current;
-  if (needed <= 0) return;
-
-  // Use a deterministic but advancing seed so each spawn event is unique
-  world._poiSeed = (world._poiSeed ^ gs.turn) >>> 0;
-  const rng = makePRNG(world._poiSeed + needed);
-
-  // How many of the total target count spawn as Discovered?
-  // The ratio of discovered to total is preserved per spawn batch.
-  const knownTarget  = world._targetKnownPois;
-  const currentKnown = world.pois.filter(p => p.discovered).length;
-
-  for (let i=0; i<needed; i++) {
-    // Decide if this POI should be discovered
-    const totalAfter   = current + i + 1;
-    const knownSoFar   = currentKnown + world.pois.slice(current).filter(p=>p.discovered).length;
-    const wantDiscovered = knownSoFar < knownTarget;
-
-    const poi = spawnPOI(world, rng, wantDiscovered);
-    if (poi) world.pois.push(poi);
-  }
+/* ══════════════════════════════════════════════════════
+   TURN ORDER  (Steps 1 active; 2–8 stub)
+══════════════════════════════════════════════════════ */
+function worldConsistencyCheck(gs){
+  const w=gs.world, before=w.pois.length;
+  w.pois=w.pois.filter(p=>{p.despawnTimer--;return p.despawnTimer>0;});
+  if(w.pois.length<w._targetPois) populatePOIs(gs);
+  return before-w.pois.length;
 }
 
-/* ═══════════════════════════════════
-   TURN ORDER — Step 1
-   World consistency check (Section 13.7 step 1)
-═══════════════════════════════════ */
-function worldConsistencyCheck(gs) {
-  const world   = gs.world;
-  const before  = world.pois.length;
+function advanceTurn(){
+  if(!GS) return;
+  GS.turn++;
 
-  // Decrement all despawn timers; remove expired POIs
-  world.pois = world.pois.filter(poi => {
-    poi.despawnTimer--;
-    return poi.despawnTimer > 0;
-  });
+  // Step 1 — world consistency
+  const expired = worldConsistencyCheck(GS);
 
-  const expired = before - world.pois.length;
-
-  // Replenish to target
-  if (world.pois.length < world._targetPois) {
-    populatePOIs(gs);
+  // Step 3 — weekly rotation: refresh hire pool
+  if (TIME.isFirstTurnOfWeek(GS.turn)) {
+    refreshHirePool(GS);
+    showToast('Weekly rotation — new recruits available');
   }
 
-  return expired;
+  if((GS.turn-GS._autosaveTurn)>=AUTOSAVE_EVERY){autosave();GS._autosaveTurn=GS.turn;}
+
+  updateToolbar();
+  MapRenderer.rebuildPOIs(GS.world, GS._devMode);
+  if(GS._devMode) refreshDevPanel();
+
+  // Refresh city panel if open
+  if (!document.getElementById('city-overlay').classList.contains('hidden') && _openCityId) {
+    renderCityPanel(_openCityId, _openCityTabId ?? 'roster');
+  }
+
+  const msg = expired>0 ? `Turn ${GS.turn} — ${expired} POI${expired>1?'s':''} expired` : `Turn ${GS.turn}`;
+  showToast(msg);
 }
 
-/* ═══════════════════════════════════
+/* ══════════════════════════════════════════════════════
    GLOBAL STATE
-═══════════════════════════════════ */
+══════════════════════════════════════════════════════ */
 let GS = null;
-function playerOrg() { return GS.organizations.find(o=>o.id===GS.playerOrgId); }
+function playerOrg(){ return GS.organizations.find(o=>o.id===GS.playerOrgId); }
 
-/* ═══════════════════════════════════
+/* ══════════════════════════════════════════════════════
    SAVE / LOAD
-═══════════════════════════════════ */
-function saveGame() {
-  if (!GS) return;
-  const blob = new Blob([JSON.stringify(GS,null,2)],{type:'application/json'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href=url; a.download=`ironbound_save_turn${GS.turn}.json`; a.click();
-  URL.revokeObjectURL(url);
-  showToast('Game saved.','success');
+══════════════════════════════════════════════════════ */
+function saveGame(){
+  if(!GS)return;
+  const b=new Blob([JSON.stringify(GS,null,2)],{type:'application/json'});
+  const u=URL.createObjectURL(b);
+  const a=document.createElement('a'); a.href=u; a.download=`ironbound_save_turn${GS.turn}.json`; a.click();
+  URL.revokeObjectURL(u); showToast('Game saved.','success');
 }
-function autosave() { if (!GS) return; try { localStorage.setItem(AUTOSAVE_KEY,JSON.stringify(GS)); } catch(e){} }
-function loadFromJson(json) {
-  let p; try { p=JSON.parse(json); } catch(e){return null;}
-  if (!p||typeof p.turn!=='number'||!p.world||!Array.isArray(p.organizations)) return null;
-  return p;
-}
-function loadGameFromFile(file) {
+function autosave(){ if(!GS)return; try{localStorage.setItem(AUTOSAVE_KEY,JSON.stringify(GS));}catch(e){} }
+function loadFromJson(json){ let p; try{p=JSON.parse(json);}catch(e){return null;} if(!p||typeof p.turn!=='number'||!p.world||!Array.isArray(p.organizations))return null; return p; }
+function loadGameFromFile(file){
   const r=new FileReader();
-  r.onload=e=>{
-    const s=loadFromJson(e.target.result);
-    if(!s){showLaunchError('Invalid or corrupted save file.');return;}
-    GS=s; enterGame(); showToast('Save loaded — Turn '+GS.turn,'success');
-  };
+  r.onload=e=>{ const s=loadFromJson(e.target.result); if(!s){showLaunchError('Invalid or corrupted save file.');return;} GS=s; enterGame(); showToast('Save loaded — Turn '+GS.turn,'success'); };
   r.onerror=()=>showLaunchError('Could not read the file.');
   r.readAsText(file);
 }
 
-/* ═══════════════════════════════════
-   TURN ADVANCE  (Section 13.7 — Steps 1 active, 2-8 stub)
-═══════════════════════════════════ */
-function advanceTurn() {
-  if (!GS) return;
-  GS.turn++;
-
-  // Step 1 — World consistency check
-  const expired = worldConsistencyCheck(GS);
-
-  // Steps 2–8 stub (implemented in later steps)
-
-  if ((GS.turn-GS._autosaveTurn)>=AUTOSAVE_EVERY) { autosave(); GS._autosaveTurn=GS.turn; }
-  updateToolbar();
-  MapRenderer.rebuildPOIs(GS.world, GS._devMode);
-  if (GS._devMode) refreshDevPanel();
-
-  const msg = expired > 0
-    ? `Turn ${GS.turn} — ${expired} POI${expired>1?'s':''} expired`
-    : `Turn ${GS.turn}`;
-  showToast(msg);
+/* ══════════════════════════════════════════════════════
+   EXIT TO MENU
+══════════════════════════════════════════════════════ */
+function exitToMenu(){
+  showConfirm(
+    'Exit to Menu',
+    'Unsaved progress will be lost. Are you sure you want to return to the main menu?',
+    ()=>{
+      autosave();
+      GS=null;
+      closeCityPanel();
+      showScreen('launch');
+      showToast('Returned to main menu');
+    }
+  );
 }
 
-/* ═══════════════════════════════════
-   TEST SCENARIOS
-═══════════════════════════════════ */
-const TEST_SCENARIOS = [
-  {
-    id:'world_pois', name:'World with POIs',
-    desc:'128×128 world with full POI population (20 target). Tests discovery states, rendering, and End Turn despawn.',
-    build(){ const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:8}); return generateWorld(s); },
-  },
-  {
-    id:'many_pois', name:'Dense POI Map',
-    desc:'128×128 world, 50 target POIs. Tests crowded map rendering and spawn/despawn cycling.',
-    build(){ const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:50,targetKnownPois:15}); return generateWorld(s); },
-  },
-  {
-    id:'fast_despawn', name:'Fast Despawn Test',
-    desc:'20 POIs, all with very short timers. Advance several turns to watch despawn and repopulation in action.',
-    build(){
-      const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:8});
-      generateWorld(s);
-      // Override all timers to 3–8 turns so they despawn quickly
-      const rng=makePRNG(0xFADE);
-      s.world.pois.forEach(p=>{ p.despawnTimer=rng.int(3,8); p._maxTimer=p.despawnTimer; });
-      return s;
-    },
-  },
-  {
-    id:'world_gen', name:'World Generation Only',
-    desc:'128×128 world with terrain and cities (Step 2 scenario, still valid).',
-    build(){ const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128}); return generateWorld(s); },
-  },
-];
+/* ══════════════════════════════════════════════════════
+   CONFIRM DIALOG
+══════════════════════════════════════════════════════ */
+let _confirmCb = null;
+function showConfirm(title, msg, onOk){
+  _confirmCb = onOk;
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent   = msg;
+  document.getElementById('confirm-overlay').classList.remove('hidden');
+}
+document.getElementById('confirm-cancel').addEventListener('click',()=>{
+  document.getElementById('confirm-overlay').classList.add('hidden'); _confirmCb=null;
+});
+document.getElementById('confirm-ok').addEventListener('click',()=>{
+  document.getElementById('confirm-overlay').classList.add('hidden');
+  if(_confirmCb){ _confirmCb(); _confirmCb=null; }
+});
 
-/* ═══════════════════════════════════
-   WEBGL MAP RENDERER
-═══════════════════════════════════ */
-const MapRenderer = (() => {
-  let gl, canvas;
-  let prog, aPos, aColor, uResolution, uOffset, uScale;
-  let terrainBuf, terrainCount;
-  let roadBuf,    roadCount;
-  let cityBuf,    cityCount;
-  let hqBuf,      hqCount;
-  let poiBuf,     poiCount;         // discovered POIs
-  let poiUnkBuf,  poiUnkCount;      // undiscovered POIs (normal view)
-  let poiDevBuf,  poiDevCount;      // undiscovered POIs (dev mode — distinct colour)
+/* ══════════════════════════════════════════════════════
+   CITY LAYOUT  (Section 3.2)
+══════════════════════════════════════════════════════ */
+let _openCityId   = null;
+let _openCityTabId = null;
 
-  let vpOffset = {x:0,y:0};
-  let vpScale  = 1;
-  const MIN_SCALE=1, MAX_SCALE=24;
+function openCityPanel(cityId){
+  _openCityId = cityId;
+  _openCityTabId = null;
+  const city = GS.world.cities.find(c=>c.id===cityId);
+  if(!city) return;
+  const org  = playerOrg();
+  const isHQ = org && org.hqCityId === cityId;
 
-  const TERRAIN_COLOR = {
-    forest:[0.176,0.290,0.165,1], plains:[0.227,0.227,0.157,1],
-    hills: [0.227,0.212,0.188,1], water: [0.102,0.165,0.227,1],
-  };
-  const CITY_COLOR       = [0.784,0.565,0.165,1];
-  const HQ_COLOR         = [0.906,0.690,0.290,1];
-  const ROAD_COLOR       = [0.392,0.353,0.235,0.7];
-  // POI colours
-  const POI_DISC_COLOR   = [0.850,0.700,0.300,1.0]; // amber — discovered
-  const POI_UNDISC_COLOR = [0.380,0.340,0.260,0.85]; // dim amber — undiscovered (always shown)
-  const POI_DEV_COLOR    = [0.200,0.700,0.280,0.90]; // green — undiscovered in dev mode
+  document.getElementById('city-header-name').textContent = city.name;
+  const hqEl = document.getElementById('city-header-hq');
+  hqEl.classList.toggle('hidden', !isHQ);
 
-  function compile(type,src){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s); if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){console.error(gl.getShaderInfoLog(s));return null;} return s; }
-  function createProg(vs,fs){ const p=gl.createProgram(); gl.attachShader(p,compile(gl.VERTEX_SHADER,vs)); gl.attachShader(p,compile(gl.FRAGMENT_SHADER,fs)); gl.linkProgram(p); if(!gl.getProgramParameter(p,gl.LINK_STATUS)){console.error(gl.getProgramInfoLog(p));return null;} return p; }
+  // Build tab list
+  const tabsEl = document.getElementById('city-tabs');
+  tabsEl.innerHTML = '';
 
-  function init(c) {
-    canvas=c; gl=c.getContext('webgl',{antialias:true,alpha:false}); if(!gl) return false;
-    const vs=`attribute vec2 a_pos; attribute vec4 a_color; uniform vec2 u_resolution; uniform vec2 u_offset; uniform float u_scale; varying vec4 v_color;
-      void main(){ vec2 w=(a_pos-u_offset)*u_scale; vec2 clip=(w/u_resolution)*2.0-1.0; gl_Position=vec4(clip.x,-clip.y,0,1); v_color=a_color; }`;
-    const fs=`precision mediump float; varying vec4 v_color; void main(){ gl_FragColor=v_color; }`;
-    prog=createProg(vs,fs); if(!prog) return false;
-    aPos=gl.getAttribLocation(prog,'a_pos'); aColor=gl.getAttribLocation(prog,'a_color');
-    uResolution=gl.getUniformLocation(prog,'u_resolution'); uOffset=gl.getUniformLocation(prog,'u_offset'); uScale=gl.getUniformLocation(prog,'u_scale');
-    gl.useProgram(prog); gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+  function addSection(label){
+    const s=document.createElement('div'); s.className='city-tab-section'; s.textContent=label; tabsEl.appendChild(s);
+  }
+  function addTab(id, label, hqOnly=false){
+    const t=document.createElement('div');
+    t.className='city-tab'+(hqOnly?' hq-only-tab':'');
+    t.dataset.tab=id; t.textContent=label;
+    t.addEventListener('click',()=>renderCityPanel(cityId, id));
+    tabsEl.appendChild(t);
+  }
+
+  addSection('City');
+  addTab('market', 'Market');
+  addTab('tavern', 'Tavern');
+
+  if(isHQ){
+    addSection('Headquarters');
+    addTab('roster',   'Roster',   true);
+    addTab('storeroom','Storeroom',true);
+    addTab('ledger',   'Ledger',   true);
+    addTab('groups',   'Groups',   true);
+    addTab('staff',    'Staff',    true);
+  }
+
+  // Default tab
+  renderCityPanel(cityId, isHQ ? 'roster' : 'market');
+  document.getElementById('city-overlay').classList.remove('hidden');
+}
+
+function closeCityPanel(){
+  document.getElementById('city-overlay').classList.add('hidden');
+  _openCityId = null; _openCityTabId = null;
+}
+
+function renderCityPanel(cityId, tabId){
+  _openCityId   = cityId;
+  _openCityTabId = tabId;
+
+  // Highlight active tab
+  document.querySelectorAll('.city-tab').forEach(t=>{
+    t.classList.toggle('active', t.dataset.tab===tabId);
+  });
+
+  const content = document.getElementById('city-content');
+  const org     = playerOrg();
+
+  switch(tabId){
+    case 'market':   content.innerHTML = renderMarketPanel();   break;
+    case 'tavern':   content.innerHTML = renderTavernPanel(org); break;
+    case 'roster':   content.innerHTML = renderRosterPanel(org); break;
+    case 'storeroom':content.innerHTML = renderStoreroomPanel(org); break;
+    case 'ledger':   content.innerHTML = renderLedgerPanel(org); break;
+    case 'groups':   content.innerHTML = renderGroupsStub();    break;
+    case 'staff':    content.innerHTML = renderStaffPanel(org); break;
+    default:         content.innerHTML = '<div class="stub-panel"><strong>Unknown Panel</strong></div>';
+  }
+
+  // Wire up hire buttons after render
+  if(tabId==='tavern') wireHireButtons(org);
+}
+
+/* ── Market (stub) ── */
+function renderMarketPanel(){
+  return `<div class="panel-title">Market</div>
+  <div class="panel-subtitle">Purchase food, equipment, and weapons.</div>
+  <div class="stub-panel"><strong>Market</strong>Purchase mechanic implemented in Step 9.</div>`;
+}
+
+/* ── Tavern / Recruitment ── */
+function renderTavernPanel(org){
+  const pool = GS._hirePool || [];
+  const week = TIME.turnToWeek(GS.turn);
+  let html = `<div class="panel-title">Tavern</div>
+  <div class="panel-subtitle">Hire recruits. Pool refreshes each week. <span style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">Week ${week}</span></div>
+  <div class="hire-grid">`;
+  for(const r of pool){
+    const traitHtml = r.traits.map(t=>`<span class="trait-badge">${t}</span>`).join('');
+    html += `<div class="hire-card">
+      <div class="hire-card-name">${r.name}</div>
+      <div class="hire-card-stats">
+        Lvl <span>${r.level}</span> &nbsp; HP <span>${r.characteristics.health}</span> &nbsp;
+        STR <span>${r.characteristics.strength}</span> &nbsp; DEX <span>${r.characteristics.dexterity}</span> &nbsp;
+        PER <span>${r.characteristics.perception}</span> &nbsp; SPD <span>${r.characteristics.movementSpeed}</span>
+        ${traitHtml ? `<br>${traitHtml}` : ''}
+      </div>
+      <div class="hire-card-cost">⬡ ${r._hiringCost}</div>
+      <div class="hire-card-btn">
+        <button class="btn btn-sm btn-primary hire-btn" data-id="${r.id}"
+          ${org.gold < r._hiringCost ? 'disabled' : ''}>Hire</button>
+      </div>
+    </div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function wireHireButtons(org){
+  document.querySelectorAll('.hire-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const rid = btn.dataset.id;
+      const recruit = (GS._hirePool||[]).find(r=>r.id===rid);
+      if(!recruit) return;
+      if(org.gold < recruit._hiringCost){ showToast('Not enough gold.','error'); return; }
+      org.gold -= recruit._hiringCost;
+      // Remove hiring cost field, assign to org
+      const { _hiringCost, ...cleanRecruit } = recruit;
+      org.recruits.push(cleanRecruit);
+      GS._ledger.push({ turn:GS.turn, desc:`Hired ${recruit.name}`, amount:-recruit._hiringCost });
+      // Remove from pool
+      GS._hirePool = (GS._hirePool||[]).filter(r=>r.id!==rid);
+      updateToolbar();
+      renderCityPanel(_openCityId, 'tavern');
+      showToast(`${recruit.name} hired for ${recruit._hiringCost} gold.`,'success');
+    });
+  });
+}
+
+/* ── Roster ── */
+function renderRosterPanel(org){
+  if(!org.recruits.length){
+    return `<div class="panel-title">Roster</div><div class="panel-subtitle">All guild recruits.</div>
+    <div class="stub-panel"><strong>Empty Roster</strong>No recruits yet. Hire from the Tavern.</div>`;
+  }
+  let html=`<div class="panel-title">Roster</div>
+  <div class="panel-subtitle">${org.recruits.length} recruit${org.recruits.length!==1?'s':''} on file.</div>
+  <table class="roster-table">
+  <thead><tr>
+    <th>Name</th><th>Lvl</th><th>HP</th><th>STR</th><th>DEX</th><th>PER</th><th>SPD</th><th>LYL</th><th>Traits</th><th>State</th>
+  </tr></thead><tbody>`;
+  for(const r of org.recruits){
+    const traits=r.traits.map(t=>`<span class="trait-badge">${t}</span>`).join('');
+    const stateClass=r.state==='Available'?'available':'deployed';
+    html+=`<tr>
+      <td><span class="recruit-name">${r.name}</span></td>
+      <td><span class="recruit-level">${r.level}</span></td>
+      <td>${r.characteristics.health}</td>
+      <td>${r.characteristics.strength}</td>
+      <td>${r.characteristics.dexterity}</td>
+      <td>${r.characteristics.perception}</td>
+      <td>${r.characteristics.movementSpeed}</td>
+      <td>${r.characteristics.loyalty}</td>
+      <td>${traits||'—'}</td>
+      <td><span class="recruit-state ${stateClass}">${r.state}</span></td>
+    </tr>`;
+  }
+  html+='</tbody></table>';
+  return html;
+}
+
+/* ── Storeroom (stub) ── */
+function renderStoreroomPanel(org){
+  return `<div class="panel-title">Storeroom</div>
+  <div class="panel-subtitle">Items stored at headquarters. No capacity limit.</div>
+  <div class="stub-panel"><strong>Storeroom</strong>Item management and the For Sale section are implemented in Step 9.</div>`;
+}
+
+/* ── Ledger ── */
+function renderLedgerPanel(org){
+  const entries = GS._ledger || [];
+  let html=`<div class="panel-title">Ledger</div>
+  <div class="panel-subtitle">Gold income and expenditure log.</div>`;
+  if(!entries.length){
+    html+='<div class="stub-panel"><strong>No entries yet.</strong>Transactions will appear here.</div>';
+    return html;
+  }
+  html+=`<table class="roster-table"><thead><tr><th>Turn</th><th>Description</th><th>Amount</th></tr></thead><tbody>`;
+  for(const e of [...entries].reverse()){
+    const col=e.amount>=0?'color:var(--green-bright)':'color:var(--red-bright)';
+    const sign=e.amount>=0?'+':'';
+    html+=`<tr><td>${e.turn}</td><td>${e.desc}</td><td style="${col}">${sign}${e.amount}</td></tr>`;
+  }
+  html+='</tbody></table>';
+  return html;
+}
+
+/* ── Group Manager (stub) ── */
+function renderGroupsStub(){
+  return `<div class="panel-title">Group Manager</div>
+  <div class="panel-subtitle">Create and manage field groups.</div>
+  <div class="stub-panel"><strong>Group Manager</strong>Group creation and management implemented in Step 5.</div>`;
+}
+
+/* ── Staff Assignments ── */
+function renderStaffPanel(org){
+  const tasks=[
+    { name:'Gather Rumors',           effect:'Determines how many newly spawned POIs are Discovered beyond the public baseline. No additional effect in v1 beyond the world option baseline.' },
+    { name:'Develop Trading Connections', effect:'Increases items available in the Market and raises the chance of rare items appearing.' },
+    { name:'Train Recruits',          effect:'Slowly improves unassigned recruits over time.' },
+    { name:'Treat Wounded',           effect:'Reduces recovery time for injured recruits. More capable agents speed up recovery further.' },
+  ];
+  let html=`<div class="panel-title">Staff Assignments</div>
+  <div class="panel-subtitle">Assign recruits to passive HQ tasks. Assignments can be changed at any time.</div>`;
+  for(const t of tasks){
+    // Count recruits assigned to this task (Step 5+ will wire actual assignment)
+    const assigned = org.recruits.filter(r=>r._hqTask===t.name).length;
+    html+=`<div class="task-row">
+      <div class="task-name">${t.name}</div>
+      <div class="task-effect">${t.effect}</div>
+      <div class="task-count">Assigned: <span>${assigned}</span></div>
+    </div>`;
+  }
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════
+   WEBGL MAP RENDERER  (carried from Step 3)
+══════════════════════════════════════════════════════ */
+const MapRenderer=(()=>{
+  let gl,canvas,prog,aPos,aColor,uRes,uOff,uScale;
+  let tBuf,tCnt,rBuf,rCnt,cBuf,cCnt,hBuf,hCnt,pBuf,pCnt,puBuf,puCnt,pdBuf,pdCnt;
+  let vpO={x:0,y:0},vpS=1;
+  const MIN_S=1,MAX_S=24;
+  const TC={forest:[.176,.290,.165,1],plains:[.227,.227,.157,1],hills:[.227,.212,.188,1],water:[.102,.165,.227,1]};
+  const CC=[.784,.565,.165,1],HC=[.906,.690,.290,1],RC=[.392,.353,.235,.7];
+  const PD=[.850,.700,.300,1],PU=[.380,.340,.260,.85],PV=[.200,.700,.280,.90];
+  function cs(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){console.error(gl.getShaderInfoLog(s));return null;}return s;}
+  function cp(vs,fs){const p=gl.createProgram();gl.attachShader(p,cs(gl.VERTEX_SHADER,vs));gl.attachShader(p,cs(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);return p;}
+  function init(c){
+    canvas=c;gl=c.getContext('webgl',{antialias:true,alpha:false});if(!gl)return false;
+    const vs=`attribute vec2 a_pos;attribute vec4 a_color;uniform vec2 u_res;uniform vec2 u_off;uniform float u_scale;varying vec4 v;void main(){vec2 w=(a_pos-u_off)*u_scale;vec2 cl=(w/u_res)*2.0-1.0;gl_Position=vec4(cl.x,-cl.y,0,1);v=a_color;}`;
+    const fs=`precision mediump float;varying vec4 v;void main(){gl_FragColor=v;}`;
+    prog=cp(vs,fs);if(!prog)return false;
+    aPos=gl.getAttribLocation(prog,'a_pos');aColor=gl.getAttribLocation(prog,'a_color');
+    uRes=gl.getUniformLocation(prog,'u_res');uOff=gl.getUniformLocation(prog,'u_off');uScale=gl.getUniformLocation(prog,'u_scale');
+    gl.useProgram(prog);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
     return true;
   }
-
-  function buf(data){ const b=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,b); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.STATIC_DRAW); return b; }
-  function quad(a,x,y,w,h,c){ const [x1,y1,x2,y2]=[x,y,x+w,y+h]; [[x1,y1],[x2,y1],[x1,y2],[x2,y1],[x2,y2],[x1,y2]].forEach(([px,py])=>a.push(px,py,...c)); }
-  function line(a,x1,y1,x2,y2,t,c){ const dx=x2-x1,dy=y2-y1,l=Math.hypot(dx,dy); if(l<0.001)return; const nx=-dy/l*t*0.5,ny=dx/l*t*0.5; [[x1+nx,y1+ny],[x2+nx,y2+ny],[x1-nx,y1-ny],[x2+nx,y2+ny],[x2-nx,y2-ny],[x1-nx,y1-ny]].forEach(([px,py])=>a.push(px,py,...c)); }
-  function diamond(a,cx,cy,r,c){ [[cx,cy-r],[cx+r,cy],[cx,cy+r],[cx,cy-r],[cx,cy+r],[cx-r,cy]].forEach(([px,py])=>a.push(px,py,...c)); }
-
-  // Small cross shape for POI markers
-  function cross(a,cx,cy,r,c){
-    const t=r*0.28;
-    quad(a,cx-t,cy-r,t*2,r*2,c);
-    quad(a,cx-r,cy-t,r*2,t*2,c);
+  function buf(d){const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(d),gl.STATIC_DRAW);return b;}
+  function quad(a,x,y,w,h,c){[[x,y],[x+w,y],[x,y+h],[x+w,y],[x+w,y+h],[x,y+h]].forEach(([px,py])=>a.push(px,py,...c));}
+  function line(a,x1,y1,x2,y2,t,c){const dx=x2-x1,dy=y2-y1,l=Math.hypot(dx,dy);if(l<.001)return;const nx=-dy/l*t*.5,ny=dx/l*t*.5;[[x1+nx,y1+ny],[x2+nx,y2+ny],[x1-nx,y1-ny],[x2+nx,y2+ny],[x2-nx,y2-ny],[x1-nx,y1-ny]].forEach(([px,py])=>a.push(px,py,...c));}
+  function diamond(a,cx,cy,r,c){[[cx,cy-r],[cx+r,cy],[cx,cy+r],[cx,cy-r],[cx,cy+r],[cx-r,cy]].forEach(([px,py])=>a.push(px,py,...c));}
+  function cross(a,cx,cy,r,c){const t=r*.28;quad(a,cx-t,cy-r,t*2,r*2,c);quad(a,cx-r,cy-t,r*2,t*2,c);}
+  function octagon(a,cx,cy,r,c){const s=r*.707;const pts=[[cx,cy-r],[cx+s,cy-s],[cx+r,cy],[cx+s,cy+s],[cx,cy+r],[cx-s,cy+s],[cx-r,cy],[cx-s,cy-s]];for(let i=0;i<pts.length;i++){const[ax,ay]=pts[i],[bx,by]=pts[(i+1)%pts.length];a.push(cx,cy,...c,ax,ay,...c,bx,by,...c);}}
+  function buildGeometry(world){
+    const td=[];for(const t of world.tiles)quad(td,t.x,t.y,1,1,TC[t.terrainType]);tBuf=buf(td);tCnt=td.length/6;
+    const rd=[];for(let i=0;i<world.cities.length;i++)for(let j=i+1;j<world.cities.length;j++)line(rd,world.cities[i].x+.5,world.cities[i].y+.5,world.cities[j].x+.5,world.cities[j].y+.5,.35,RC);rBuf=buf(rd);rCnt=rd.length/6;
+    const cd=[];for(const c of world.cities)diamond(cd,c.x+.5,c.y+.5,1.2,CC);cBuf=buf(cd);cCnt=cd.length/6;
+    hBuf=null;hCnt=0;rebuildPOIs(world,false);
   }
-  // Small circle approximation (8-sided polygon) for undiscovered POIs
-  function octagon(a,cx,cy,r,c){
-    const s=r*0.707;
-    const pts=[[cx,cy-r],[cx+s,cy-s],[cx+r,cy],[cx+s,cy+s],[cx,cy+r],[cx-s,cy+s],[cx-r,cy],[cx-s,cy-s]];
-    for(let i=0;i<pts.length;i++){
-      const [ax,ay]=pts[i], [bx,by]=pts[(i+1)%pts.length];
-      a.push(cx,cy,...c, ax,ay,...c, bx,by,...c);
+  function rebuildHQ(world,hqId){const c=world.cities.find(x=>x.id===hqId);if(!c)return;const d=[];diamond(d,c.x+.5,c.y+.5,1.7,HC);hBuf=buf(d);hCnt=d.length/6;}
+  function rebuildPOIs(world,dev){
+    const dd=[],ud=[],vd=[];
+    for(const p of world.pois){
+      const cx=p.x+.5,cy=p.y+.5;
+      if(p.discovered){cross(dd,cx,cy,.9,PD);}
+      else{octagon(ud,cx,cy,.75,PU);if(dev)octagon(vd,cx,cy,.55,PV);}
     }
+    pBuf=buf(dd);pCnt=dd.length/3;puBuf=buf(ud);puCnt=ud.length/3;pdBuf=buf(vd);pdCnt=vd.length/3;
   }
-
-  function buildGeometry(world) {
-    const tData=[];
-    for(const t of world.tiles) quad(tData,t.x,t.y,1,1,TERRAIN_COLOR[t.terrainType]);
-    terrainBuf=buf(tData); terrainCount=tData.length/6;
-
-    const rData=[];
-    for(let i=0;i<world.cities.length;i++)
-      for(let j=i+1;j<world.cities.length;j++)
-        line(rData,world.cities[i].x+0.5,world.cities[i].y+0.5,world.cities[j].x+0.5,world.cities[j].y+0.5,0.35,ROAD_COLOR);
-    roadBuf=buf(rData); roadCount=rData.length/6;
-
-    const cData=[];
-    for(const c of world.cities) diamond(cData,c.x+0.5,c.y+0.5,1.2,CITY_COLOR);
-    cityBuf=buf(cData); cityCount=cData.length/6;
-
-    hqBuf=null; hqCount=0;
-    rebuildPOIs(world, false);
-  }
-
-  function rebuildHQ(world,hqId) {
-    const c=world.cities.find(x=>x.id===hqId); if(!c) return;
-    const d=[]; diamond(d,c.x+0.5,c.y+0.5,1.7,HQ_COLOR);
-    hqBuf=buf(d); hqCount=d.length/6;
-  }
-
-  function rebuildPOIs(world, devMode) {
-    const dData=[], uData=[], vData=[];
-    for(const p of world.pois) {
-      const cx=p.x+0.5, cy=p.y+0.5;
-      if (p.discovered) {
-        cross(dData,cx,cy,0.9,POI_DISC_COLOR);
-      } else {
-        // Always show undiscovered location (as a dimmer marker per spec)
-        octagon(uData,cx,cy,0.75,POI_UNDISC_COLOR);
-        if (devMode) {
-          // Dev: overlay a green indicator to distinguish undiscovered
-          octagon(vData,cx,cy,0.55,POI_DEV_COLOR);
-        }
-      }
-    }
-    poiBuf=buf(dData);    poiCount=dData.length/3;
-    poiUnkBuf=buf(uData); poiUnkCount=uData.length/3;
-    poiDevBuf=buf(vData); poiDevCount=vData.length/3;
-  }
-
-  function bindDraw(b,count,mode){
-    if(!b||count===0)return;
-    gl.bindBuffer(gl.ARRAY_BUFFER,b);
-    const S=6*4;
-    gl.enableVertexAttribArray(aPos);   gl.vertexAttribPointer(aPos,  2,gl.FLOAT,false,S,0);
-    gl.enableVertexAttribArray(aColor); gl.vertexAttribPointer(aColor,4,gl.FLOAT,false,S,8);
-    gl.drawArrays(mode??gl.TRIANGLES,0,count);
-  }
-
-  function resize(){
-    const dpr=window.devicePixelRatio||1, w=canvas.clientWidth, h=canvas.clientHeight;
-    if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}
-  }
-
-  function draw(world,devMode){
-    if(!gl||!world||!world.tiles.length)return;
-    resize();
-    const W=canvas.width,H=canvas.height;
-    gl.viewport(0,0,W,H); gl.clearColor(0.055,0.055,0.059,1); gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.uniform2f(uResolution,W,H); gl.uniform2f(uOffset,vpOffset.x,vpOffset.y); gl.uniform1f(uScale,vpScale);
-    bindDraw(terrainBuf,terrainCount);
-    bindDraw(roadBuf,roadCount);
-    bindDraw(poiUnkBuf,poiUnkCount);   // undiscovered (dim)
-    if(devMode) bindDraw(poiDevBuf,poiDevCount); // dev overlay
-    bindDraw(poiBuf,poiCount);         // discovered (bright)
-    bindDraw(cityBuf,cityCount);
-    bindDraw(hqBuf,hqCount);
-  }
-
-  function fitToView(mapSize){
-    const W=canvas.clientWidth||800, H=canvas.clientHeight||600;
-    vpScale=Math.min(W/mapSize,H/mapSize)*0.92;
-    vpOffset.x=-(W/vpScale-mapSize)/2; vpOffset.y=-(H/vpScale-mapSize)/2;
-  }
-  function screenToWorld(sx,sy){ const dpr=window.devicePixelRatio||1; return {x:sx*dpr/vpScale+vpOffset.x, y:sy*dpr/vpScale+vpOffset.y}; }
-  function pan(dx,dy){ const dpr=window.devicePixelRatio||1; vpOffset.x-=dx*dpr/vpScale; vpOffset.y-=dy*dpr/vpScale; }
-  function zoom(f,px,py){ const old=vpScale; vpScale=Math.max(MIN_SCALE,Math.min(MAX_SCALE,vpScale*f)); const sf=vpScale/old-1; const dpr=window.devicePixelRatio||1; vpOffset.x+=(px*dpr/old)*sf; vpOffset.y+=(py*dpr/old)*sf; }
-
-  return { init, buildGeometry, rebuildHQ, rebuildPOIs, draw, fitToView, screenToWorld, pan, zoom };
+  function bd(b,cnt,mode){if(!b||cnt===0)return;gl.bindBuffer(gl.ARRAY_BUFFER,b);const S=24;gl.enableVertexAttribArray(aPos);gl.vertexAttribPointer(aPos,2,gl.FLOAT,false,S,0);gl.enableVertexAttribArray(aColor);gl.vertexAttribPointer(aColor,4,gl.FLOAT,false,S,8);gl.drawArrays(mode??gl.TRIANGLES,0,cnt);}
+  function resize(){const dpr=window.devicePixelRatio||1,w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}}
+  function draw(world,dev){if(!gl||!world||!world.tiles.length)return;resize();const W=canvas.width,H=canvas.height;gl.viewport(0,0,W,H);gl.clearColor(.055,.055,.059,1);gl.clear(gl.COLOR_BUFFER_BIT);gl.uniform2f(uRes,W,H);gl.uniform2f(uOff,vpO.x,vpO.y);gl.uniform1f(uScale,vpS);bd(tBuf,tCnt);bd(rBuf,rCnt);bd(puBuf,puCnt);if(dev)bd(pdBuf,pdCnt);bd(pBuf,pCnt);bd(cBuf,cCnt);bd(hBuf,hCnt);}
+  function fitToView(sz){const W=canvas.clientWidth||800,H=canvas.clientHeight||600;vpS=Math.min(W/sz,H/sz)*.92;vpO.x=-(W/vpS-sz)/2;vpO.y=-(H/vpS-sz)/2;}
+  function screenToWorld(sx,sy){const dpr=window.devicePixelRatio||1;return{x:sx*dpr/vpS+vpO.x,y:sy*dpr/vpS+vpO.y};}
+  function pan(dx,dy){const dpr=window.devicePixelRatio||1;vpO.x-=dx*dpr/vpS;vpO.y-=dy*dpr/vpS;}
+  function zoom(f,px,py){const old=vpS;vpS=Math.max(MIN_S,Math.min(MAX_S,vpS*f));const sf=vpS/old-1;const dpr=window.devicePixelRatio||1;vpO.x+=(px*dpr/old)*sf;vpO.y+=(py*dpr/old)*sf;}
+  return{init,buildGeometry,rebuildHQ,rebuildPOIs,draw,fitToView,screenToWorld,pan,zoom};
 })();
 
-/* ═══════════════════════════════════
-   LABEL RENDERER  (city/POI names on 2D canvas)
-═══════════════════════════════════ */
-const LabelRenderer = (() => {
-  let ctx, c2d;
-  function init(){
-    c2d=document.createElement('canvas');
-    c2d.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';
-    document.getElementById('canvas-area').appendChild(c2d);
-    ctx=c2d.getContext('2d');
-  }
-  function draw(world, vpState, devMode){
-    if(!world||!world.cities) return;
-    const dpr=window.devicePixelRatio||1, W=c2d.clientWidth, H=c2d.clientHeight;
+/* ══════════════════════════════════════════════════════
+   LABEL RENDERER  (carried from Step 3)
+══════════════════════════════════════════════════════ */
+const LabelRenderer=(()=>{
+  let ctx,c2d;
+  function init(){c2d=document.createElement('canvas');c2d.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';document.getElementById('canvas-area').appendChild(c2d);ctx=c2d.getContext('2d');}
+  function draw(world,vp,dev){
+    if(!world||!world.cities)return;
+    const dpr=window.devicePixelRatio||1,W=c2d.clientWidth,H=c2d.clientHeight;
     if(c2d.width!==Math.round(W*dpr)||c2d.height!==Math.round(H*dpr)){c2d.width=Math.round(W*dpr);c2d.height=Math.round(H*dpr);}
-    ctx.clearRect(0,0,c2d.width,c2d.height);
-    ctx.save(); ctx.scale(dpr,dpr);
-
-    const org = GS?GS.organizations.find(o=>o.id===GS.playerOrgId):null;
-    const sc  = vpState.scale;
-
-    // City labels
+    ctx.clearRect(0,0,c2d.width,c2d.height);ctx.save();ctx.scale(dpr,dpr);
+    const org=GS?GS.organizations.find(o=>o.id===GS.playerOrgId):null,sc=vp.scale;
     for(const city of world.cities){
-      const sx=(city.x+0.5-vpState.offset.x)*sc, sy=(city.y+0.5-vpState.offset.y)*sc;
-      if(sx<-80||sx>W+80||sy<-20||sy>H+20) continue;
-      const isHQ = org&&org.hqCityId===city.id;
-      const fs   = Math.max(9,Math.min(14,sc*1.1));
-      ctx.font=`600 ${fs}px Cinzel,serif`; ctx.textAlign='center'; ctx.textBaseline='top';
-      ctx.fillStyle='rgba(14,14,15,0.8)'; ctx.fillText(city.name,sx+1,sy+sc*2.4+1);
-      ctx.fillStyle=isHQ?'#e8b04a':'#d4b896'; ctx.fillText(city.name,sx,sy+sc*2.4);
-      if(isHQ){ const sf=Math.max(7,Math.min(9,sc*0.7)); ctx.font=`${sf}px Share Tech Mono,monospace`; ctx.fillStyle='#c8902a'; ctx.fillText('⬡ HQ',sx,sy+sc*2.4+Math.max(11,Math.min(18,sc*1.2))); }
+      const sx=(city.x+.5-vp.offset.x)*sc,sy=(city.y+.5-vp.offset.y)*sc;
+      if(sx<-80||sx>W+80||sy<-20||sy>H+20)continue;
+      const isHQ=org&&org.hqCityId===city.id;
+      const fs=Math.max(9,Math.min(14,sc*1.1));
+      ctx.font=`600 ${fs}px Cinzel,serif`;ctx.textAlign='center';ctx.textBaseline='top';
+      ctx.fillStyle='rgba(14,14,15,.8)';ctx.fillText(city.name,sx+1,sy+sc*2.4+1);
+      ctx.fillStyle=isHQ?'#e8b04a':'#d4b896';ctx.fillText(city.name,sx,sy+sc*2.4);
+      if(isHQ){const sf=Math.max(7,Math.min(9,sc*.7));ctx.font=`${sf}px Share Tech Mono,monospace`;ctx.fillStyle='#c8902a';ctx.fillText('⬡ HQ',sx,sy+sc*2.4+Math.max(11,Math.min(18,sc*1.2)));}
     }
-
-    // POI labels (only shown at higher zoom)
-    if(sc>=6){
-      for(const poi of world.pois){
-        if(!poi.discovered && !devMode) continue; // only label discovered (unless dev)
-        const sx=(poi.x+0.5-vpState.offset.x)*sc, sy=(poi.y+0.5-vpState.offset.y)*sc;
-        if(sx<-80||sx>W+80||sy<-20||sy>H+20) continue;
-        const fs=Math.max(8,Math.min(11,sc*0.75));
-        ctx.font=`${fs}px Share Tech Mono,monospace`; ctx.textAlign='center'; ctx.textBaseline='top';
-        const colour = poi.discovered ? '#c8a050' : (devMode?'#3a7a40':'#4a4038');
-        ctx.fillStyle='rgba(14,14,15,0.7)'; ctx.fillText(poi.name,sx+1,sy+sc*1.6+1);
-        ctx.fillStyle=colour; ctx.fillText(poi.name,sx,sy+sc*1.6);
-        if(devMode&&!poi.discovered){
-          ctx.font=`${Math.max(7,fs-1)}px Share Tech Mono,monospace`;
-          ctx.fillStyle='#2a6a30';
-          ctx.fillText(`[UNDISC ${poi.despawnTimer}t]`,sx,sy+sc*1.6+fs+2);
-        }
-      }
+    if(sc>=6) for(const poi of world.pois){
+      if(!poi.discovered&&!dev)continue;
+      const sx=(poi.x+.5-vp.offset.x)*sc,sy=(poi.y+.5-vp.offset.y)*sc;
+      if(sx<-80||sx>W+80||sy<-20||sy>H+20)continue;
+      const fs=Math.max(8,Math.min(11,sc*.75));
+      ctx.font=`${fs}px Share Tech Mono,monospace`;ctx.textAlign='center';ctx.textBaseline='top';
+      const col=poi.discovered?'#c8a050':(dev?'#3a7a40':'#4a4038');
+      ctx.fillStyle='rgba(14,14,15,.7)';ctx.fillText(poi.name,sx+1,sy+sc*1.6+1);
+      ctx.fillStyle=col;ctx.fillText(poi.name,sx,sy+sc*1.6);
+      if(dev&&!poi.discovered){ctx.font=`${Math.max(7,fs-1)}px Share Tech Mono,monospace`;ctx.fillStyle='#2a6a30';ctx.fillText(`[${poi.despawnTimer}t]`,sx,sy+sc*1.6+fs+2);}
     }
-
     ctx.restore();
   }
-  return { init, draw };
+  return{init,draw};
 })();
 
-/* ═══════════════════════════════════
-   RENDER LOOP
-═══════════════════════════════════ */
-let rafId=null, vpState={offset:{x:0,y:0},scale:1};
-
+/* ══════════════════════════════════════════════════════
+   RENDER LOOP & VIEWPORT SYNC
+══════════════════════════════════════════════════════ */
+let rafId=null,vpState={offset:{x:0,y:0},scale:1};
+function syncVPState(){const w0=MapRenderer.screenToWorld(0,0),w1=MapRenderer.screenToWorld(1,0);vpState.offset={x:w0.x,y:w0.y};vpState.scale=1/(w1.x-w0.x);}
 function startRenderLoop(){
   function frame(){
-    if(GS&&GS.world.tiles.length){ MapRenderer.draw(GS.world,GS._devMode); LabelRenderer.draw(GS.world,vpState,GS._devMode); }
+    if(GS&&GS.world.tiles.length&&document.getElementById('city-overlay').classList.contains('hidden')){
+      MapRenderer.draw(GS.world,GS._devMode);LabelRenderer.draw(GS.world,vpState,GS._devMode);
+    }
     rafId=requestAnimationFrame(frame);
   }
-  if(rafId) cancelAnimationFrame(rafId);
+  if(rafId)cancelAnimationFrame(rafId);
   rafId=requestAnimationFrame(frame);
 }
 
-function syncVPState(){
-  const w0=MapRenderer.screenToWorld(0,0), w1=MapRenderer.screenToWorld(1,0);
-  vpState.offset={x:w0.x,y:w0.y}; vpState.scale=1/(w1.x-w0.x);
-}
-
-/* ═══════════════════════════════════
+/* ══════════════════════════════════════════════════════
    MAP INPUT
-═══════════════════════════════════ */
+══════════════════════════════════════════════════════ */
 function initMapInput(){
   const c=document.getElementById('map-canvas');
-  let dragging=false, lastX=0, lastY=0, didDrag=false;
-
+  let dragging=false,lastX=0,lastY=0,didDrag=false;
   c.addEventListener('mousedown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;didDrag=false;c.classList.add('panning');hidePopup();});
   window.addEventListener('mouseup',()=>{dragging=false;c.classList.remove('panning');});
-  window.addEventListener('mousemove',e=>{
-    if(!dragging)return;
-    const dx=e.clientX-lastX, dy=e.clientY-lastY;
-    if(Math.abs(dx)>2||Math.abs(dy)>2) didDrag=true;
-    MapRenderer.pan(dx,dy); syncVPState(); lastX=e.clientX; lastY=e.clientY;
-  });
-  c.addEventListener('wheel',e=>{ e.preventDefault(); MapRenderer.zoom(e.deltaY<0?1.12:1/1.12,e.offsetX,e.offsetY); syncVPState(); },{passive:false});
-  c.addEventListener('click',e=>{ if(didDrag)return; handleMapClick(e.offsetX,e.offsetY,e.clientX,e.clientY); });
+  window.addEventListener('mousemove',e=>{if(!dragging)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;if(Math.abs(dx)>2||Math.abs(dy)>2)didDrag=true;MapRenderer.pan(dx,dy);syncVPState();lastX=e.clientX;lastY=e.clientY;});
+  c.addEventListener('wheel',e=>{e.preventDefault();MapRenderer.zoom(e.deltaY<0?1.12:1/1.12,e.offsetX,e.offsetY);syncVPState();},{passive:false});
+  c.addEventListener('click',e=>{if(didDrag)return;handleMapClick(e.offsetX,e.offsetY,e.clientX,e.clientY);});
 }
 
-/* ═══════════════════════════════════
-   MAP CLICK HANDLING
-═══════════════════════════════════ */
-const CITY_HIT = 2.2;
-const POI_HIT  = 1.6;
-
 function handleMapClick(sx,sy,cx,cy){
-  if(!GS||!GS.world.cities) return;
-  const w = MapRenderer.screenToWorld(sx,sy);
-  const area = document.getElementById('canvas-area').getBoundingClientRect();
-
-  // Cities take precedence
+  if(!GS||!GS.world.cities)return;
+  const w=MapRenderer.screenToWorld(sx,sy);
+  const area=document.getElementById('canvas-area').getBoundingClientRect();
   for(const city of GS.world.cities){
-    if(Math.hypot(city.x+0.5-w.x, city.y+0.5-w.y)<CITY_HIT){
-      showCityPopup(city,cx-area.left,cy-area.top); return;
-    }
+    if(Math.hypot(city.x+.5-w.x,city.y+.5-w.y)<2.2){ openCityPanel(city.id); return; }
   }
-  // POIs (all visible per spec — both discovered and undiscovered)
   for(const poi of GS.world.pois){
-    if(Math.hypot(poi.x+0.5-w.x, poi.y+0.5-w.y)<POI_HIT){
-      showPOIPopup(poi,cx-area.left,cy-area.top); return;
-    }
+    if(Math.hypot(poi.x+.5-w.x,poi.y+.5-w.y)<1.6){ showPOIPopup(poi,cx-area.left,cy-area.top); return; }
   }
   hidePopup();
 }
 
 function positionPopup(lx,ly){
-  const popup = document.getElementById('map-popup');
-  const area  = document.getElementById('canvas-area').getBoundingClientRect();
-  const pw=230, ph=100;
-  const left=Math.min(lx+14, area.width-pw-4);
-  const top =Math.min(ly+14, area.height-ph-4);
-  popup.style.left=left+'px'; popup.style.top=top+'px';
-  popup.classList.add('visible'); popup.style.pointerEvents='auto';
+  const p=document.getElementById('map-popup'),area=document.getElementById('canvas-area').getBoundingClientRect();
+  p.style.left=Math.min(lx+14,area.width-235)+'px';p.style.top=Math.min(ly+14,area.height-110)+'px';
+  p.classList.add('visible');p.style.pointerEvents='auto';
 }
-
-function showCityPopup(city,lx,ly){
-  const org=playerOrg(), isHQ=org&&org.hqCityId===city.id;
-  document.getElementById('popup-name').textContent=city.name;
-  const tag=document.getElementById('popup-tag');
-  tag.className='popup-tag'+(isHQ?' hq':'');
-  tag.textContent=isHQ?'⬡ Headquarters':'City';
-  document.getElementById('popup-row1').innerHTML=`<span>${city.x},${city.y}</span>`;
-  document.getElementById('popup-row2').textContent='';
-  document.getElementById('popup-dev').style.display='none';
-  positionPopup(lx,ly);
-}
-
 function showPOIPopup(poi,lx,ly){
   document.getElementById('popup-name').textContent=poi.name;
   const tag=document.getElementById('popup-tag');
-  if(poi.discovered){
-    tag.className='popup-tag discovered'; tag.textContent='◆ Discovered';
-  } else {
-    tag.className='popup-tag undiscovered'; tag.textContent='◇ Undiscovered';
-  }
+  if(poi.discovered){tag.className='popup-tag discovered';tag.textContent='◆ Discovered';}
+  else{tag.className='popup-tag undiscovered';tag.textContent='◇ Undiscovered';}
   document.getElementById('popup-row1').innerHTML=`Type: <span>${poi.type}</span>`;
   document.getElementById('popup-row2').innerHTML=`Despawn: <span>${poi.despawnTimer} turns</span>`;
-
-  const devEl=document.getElementById('popup-dev');
-  if(GS._devMode){
-    devEl.style.display='block';
-    devEl.className='popup-row popup-tag dev-info';
-    devEl.innerHTML=`Size: <span>${poi.size}</span> &nbsp; Zones: <span>${poi._zoneCount}</span>`;
-  } else {
-    // Normal mode: hide type/timer details on undiscovered POIs
-    if(!poi.discovered){
-      document.getElementById('popup-row1').textContent='Location known — interact to discover.';
-      document.getElementById('popup-row2').textContent='';
-    }
-    devEl.style.display='none';
-  }
+  const dev=document.getElementById('popup-dev');
+  if(GS._devMode){dev.style.display='block';dev.className='popup-row popup-tag dev-info';dev.innerHTML=`Size: <span>${poi.size}</span> &nbsp; Zones: <span>${poi._zoneCount}</span>`;}
+  else{if(!poi.discovered){document.getElementById('popup-row1').textContent='Location known — interact to discover.';document.getElementById('popup-row2').textContent='';}dev.style.display='none';}
   positionPopup(lx,ly);
 }
+function hidePopup(){document.getElementById('map-popup').classList.remove('visible');}
 
-function hidePopup(){ document.getElementById('map-popup').classList.remove('visible'); }
-
-/* ═══════════════════════════════════
+/* ══════════════════════════════════════════════════════
    ENTER GAME
-═══════════════════════════════════ */
+══════════════════════════════════════════════════════ */
 function enterGame(){
-  showScreen('game'); updateToolbar();
+  showScreen('game');updateToolbar();
   requestAnimationFrame(()=>{
     const c=document.getElementById('map-canvas');
-    if(!MapRenderer._init){ MapRenderer.init(c); LabelRenderer.init(); initMapInput(); MapRenderer._init=true; }
+    if(!MapRenderer._init){MapRenderer.init(c);LabelRenderer.init();initMapInput();MapRenderer._init=true;}
     if(GS.world.tiles.length){
       MapRenderer.buildGeometry(GS.world);
-      const org=playerOrg(); if(org) MapRenderer.rebuildHQ(GS.world,org.hqCityId);
+      const org=playerOrg();if(org)MapRenderer.rebuildHQ(GS.world,org.hqCityId);
       MapRenderer.rebuildPOIs(GS.world,GS._devMode);
-      MapRenderer.fitToView(GS.world._mapSize); syncVPState();
+      MapRenderer.fitToView(GS.world._mapSize);syncVPState();
     }
     startRenderLoop();
   });
 }
 
-/* ═══════════════════════════════════
+/* ══════════════════════════════════════════════════════
    TOOLBAR & DEV
-═══════════════════════════════════ */
+══════════════════════════════════════════════════════ */
 function updateToolbar(){
   if(!GS)return;
   const org=playerOrg();
@@ -1048,98 +1228,139 @@ function updateToolbar(){
   document.getElementById('tb-pois').textContent   = GS.world.pois.length;
 }
 function toggleDevMode(){
-  if(!GS)return;
-  GS._devMode=!GS._devMode;
+  if(!GS)return;GS._devMode=!GS._devMode;
   document.getElementById('btn-devmode').classList.toggle('active',GS._devMode);
   document.getElementById('dev-panel').classList.toggle('hidden',!GS._devMode);
   MapRenderer.rebuildPOIs(GS.world,GS._devMode);
-  if(GS._devMode) refreshDevPanel();
+  if(GS._devMode)refreshDevPanel();
 }
 function refreshDevPanel(){
-  const el=document.getElementById('dev-state-dump'); if(!el) return;
-  const d={...GS,world:{...GS.world,tiles:`[${GS.world.tiles.length} tiles]`,pois:GS.world.pois.map(p=>({id:p.id,name:p.name,type:p.type,size:p.size,discovered:p.discovered,despawnTimer:p.despawnTimer}))}};
+  const el=document.getElementById('dev-state-dump');if(!el)return;
+  const d={...GS,world:{...GS.world,tiles:`[${GS.world.tiles.length} tiles]`,pois:GS.world.pois.map(p=>({id:p.id,name:p.name,type:p.type,size:p.size,discovered:p.discovered,despawnTimer:p.despawnTimer}))},_hirePool:`[${(GS._hirePool||[]).length} recruits]`};
   el.textContent=JSON.stringify(d,null,2);
 }
 
-/* ═══════════════════════════════════
+/* ══════════════════════════════════════════════════════
    SCREEN MANAGEMENT
-═══════════════════════════════════ */
+══════════════════════════════════════════════════════ */
 const SCREENS=['screen-launch','screen-world-options','screen-test-scenario','screen-game'];
-function showScreen(n){ SCREENS.forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.toggle('hidden',id!=='screen-'+n); }); }
+function showScreen(n){SCREENS.forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('hidden',id!=='screen-'+n);});}
 
-/* ═══════════════════════════════════
+/* ══════════════════════════════════════════════════════
    TOAST
-═══════════════════════════════════ */
+══════════════════════════════════════════════════════ */
 function showToast(msg,type=''){
   const c=document.getElementById('toast-container');
-  const t=document.createElement('div');
-  t.className='toast'+(type?' '+type:''); t.textContent=msg;
-  c.appendChild(t); setTimeout(()=>t.remove(),2900);
+  const t=document.createElement('div');t.className='toast'+(type?' '+type:'');t.textContent=msg;
+  c.appendChild(t);setTimeout(()=>t.remove(),2900);
 }
 
-/* ═══════════════════════════════════
-   LAUNCH MENU
-═══════════════════════════════════ */
-function showLaunchError(m){ const e=document.getElementById('launch-error'); e.textContent=m; e.classList.add('visible'); }
-function clearLaunchError(){ document.getElementById('launch-error').classList.remove('visible'); }
-document.getElementById('btn-new-game').addEventListener('click',()=>{ clearLaunchError(); showScreen('world-options'); });
-document.getElementById('btn-load-game').addEventListener('click',()=>{ clearLaunchError(); document.getElementById('file-load-input').value=''; document.getElementById('file-load-input').click(); });
-document.getElementById('file-load-input').addEventListener('change',e=>{ const f=e.target.files[0]; if(f) loadGameFromFile(f); });
-document.getElementById('btn-test-scenario').addEventListener('click',()=>{ clearLaunchError(); buildScenarioList(); showScreen('test-scenario'); });
-
-/* ═══════════════════════════════════
-   WORLD OPTIONS
-═══════════════════════════════════ */
-function getOpts(){ return { orgName:document.getElementById('opt-org-name').value.trim(), gold:parseInt(document.getElementById('opt-gold').value,10), startingChars:parseInt(document.getElementById('opt-chars').value,10), mapSize:parseInt(document.getElementById('opt-map-size').value,10), targetPois:parseInt(document.getElementById('opt-target-pois').value,10), targetKnownPois:parseInt(document.getElementById('opt-known-pois').value,10) }; }
-function validateOpts(v){ const e={}; if(!v.orgName) e['org-name']='Name cannot be empty.'; if(isNaN(v.startingChars)||v.startingChars<0||v.startingChars>9) e['chars']='Must be between 0 and 9.'; if(isNaN(v.mapSize)||v.mapSize<64||v.mapSize>256) e['map-size']='Must be between 64 and 256.'; if(isNaN(v.targetPois)||v.targetPois<10||v.targetPois>50) e['target-pois']='Must be between 10 and 50.'; if(isNaN(v.targetKnownPois)||v.targetKnownPois<6||v.targetKnownPois>v.targetPois) e['known-pois']='Must be between 6 and Target world POIs.'; return e; }
-function showOptsErrors(errs){ ['org-name','chars','map-size','target-pois','known-pois'].forEach(k=>{ const el=document.getElementById('err-'+k); if(!el)return; if(errs[k]){el.textContent=errs[k];el.classList.add('visible');}else el.classList.remove('visible'); }); }
-document.getElementById('btn-options-back').addEventListener('click',()=>showScreen('launch'));
-document.getElementById('btn-options-confirm').addEventListener('click',()=>{
-  const v=getOpts(), errs=validateOpts(v); showOptsErrors(errs);
-  if(Object.keys(errs).length>0)return;
-  GS=makeGameState(v); generateWorld(GS); enterGame(); showToast('World generated — '+v.orgName,'success');
-});
-
-/* ═══════════════════════════════════
+/* ══════════════════════════════════════════════════════
    TEST SCENARIOS
-═══════════════════════════════════ */
+══════════════════════════════════════════════════════ */
+const TEST_SCENARIOS=[
+  {id:'roster_test',name:'Roster Test',
+   desc:'Starts with 5 recruits of varied traits and levels. Tests roster display, hire flow, and trait rendering.',
+   build(){
+     const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:8});
+     s._startingChars=5;
+     generateWorld(s);
+     return s;
+   }},
+  {id:'hire_test',name:'Tavern Hire Test',
+   desc:'Empty roster, 4200 gold. Tests hiring recruits from the Tavern pool.',
+   build(){
+     const s=makeGameState({orgName:'Test Guild',gold:4200,mapSize:128,targetPois:20,targetKnownPois:8});
+     generateWorld(s);
+     return s;
+   }},
+  {id:'world_pois',name:'World with POIs',
+   desc:'128×128 world with full POI population. Tests map, End Turn, and city layout.',
+   build(){
+     const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:8});
+     generateWorld(s);
+     return s;
+   }},
+  {id:'fast_despawn',name:'Fast Despawn Test',
+   desc:'POIs with very short timers. Advance turns to watch despawn cycle.',
+   build(){
+     const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:8});
+     generateWorld(s);
+     const rng=makePRNG(0xFADE);
+     s.world.pois.forEach(p=>{p.despawnTimer=rng.int(3,8);});
+     return s;
+   }},
+];
+
 let selScenarioId=null;
 function buildScenarioList(){
-  selScenarioId=null; document.getElementById('btn-scenario-launch').disabled=true;
-  const list=document.getElementById('scenario-list'); list.innerHTML='';
+  selScenarioId=null;document.getElementById('btn-scenario-launch').disabled=true;
+  const list=document.getElementById('scenario-list');list.innerHTML='';
   TEST_SCENARIOS.forEach(s=>{
-    const item=document.createElement('div'); item.className='scenario-item'; item.dataset.id=s.id;
+    const item=document.createElement('div');item.className='scenario-item';item.dataset.id=s.id;
     item.innerHTML=`<div class="scenario-item-name">${s.name}</div><div class="scenario-item-desc">${s.desc}</div>`;
-    item.addEventListener('click',()=>{ document.querySelectorAll('.scenario-item').forEach(el=>el.classList.remove('selected')); item.classList.add('selected'); selScenarioId=s.id; document.getElementById('btn-scenario-launch').disabled=false; });
+    item.addEventListener('click',()=>{document.querySelectorAll('.scenario-item').forEach(el=>el.classList.remove('selected'));item.classList.add('selected');selScenarioId=s.id;document.getElementById('btn-scenario-launch').disabled=false;});
     list.appendChild(item);
   });
 }
-document.getElementById('btn-scenario-back').addEventListener('click',()=>showScreen('launch'));
-document.getElementById('btn-scenario-launch').addEventListener('click',()=>{ const s=TEST_SCENARIOS.find(x=>x.id===selScenarioId); if(!s)return; GS=s.build(); enterGame(); showToast('Scenario: '+s.name,'success'); });
 
-/* ═══════════════════════════════════
+/* ══════════════════════════════════════════════════════
+   LAUNCH MENU
+══════════════════════════════════════════════════════ */
+function showLaunchError(m){const e=document.getElementById('launch-error');e.textContent=m;e.classList.add('visible');}
+function clearLaunchError(){document.getElementById('launch-error').classList.remove('visible');}
+document.getElementById('btn-new-game').addEventListener('click',()=>{clearLaunchError();showScreen('world-options');});
+document.getElementById('btn-load-game').addEventListener('click',()=>{clearLaunchError();document.getElementById('file-load-input').value='';document.getElementById('file-load-input').click();});
+document.getElementById('file-load-input').addEventListener('change',e=>{const f=e.target.files[0];if(f)loadGameFromFile(f);});
+document.getElementById('btn-test-scenario').addEventListener('click',()=>{clearLaunchError();buildScenarioList();showScreen('test-scenario');});
+
+/* ══════════════════════════════════════════════════════
+   WORLD OPTIONS
+══════════════════════════════════════════════════════ */
+function getOpts(){return{orgName:document.getElementById('opt-org-name').value.trim(),gold:parseInt(document.getElementById('opt-gold').value,10),startingChars:parseInt(document.getElementById('opt-chars').value,10),mapSize:parseInt(document.getElementById('opt-map-size').value,10),targetPois:parseInt(document.getElementById('opt-target-pois').value,10),targetKnownPois:parseInt(document.getElementById('opt-known-pois').value,10)};}
+function validateOpts(v){const e={};if(!v.orgName)e['org-name']='Name cannot be empty.';if(isNaN(v.startingChars)||v.startingChars<0||v.startingChars>9)e['chars']='Must be between 0 and 9.';if(isNaN(v.mapSize)||v.mapSize<64||v.mapSize>256)e['map-size']='Must be between 64 and 256.';if(isNaN(v.targetPois)||v.targetPois<10||v.targetPois>50)e['target-pois']='Must be between 10 and 50.';if(isNaN(v.targetKnownPois)||v.targetKnownPois<6||v.targetKnownPois>v.targetPois)e['known-pois']='Must be between 6 and Target world POIs.';return e;}
+function showOptsErrors(errs){['org-name','chars','map-size','target-pois','known-pois'].forEach(k=>{const el=document.getElementById('err-'+k);if(!el)return;if(errs[k]){el.textContent=errs[k];el.classList.add('visible');}else el.classList.remove('visible');});}
+document.getElementById('btn-options-back').addEventListener('click',()=>showScreen('launch'));
+document.getElementById('btn-options-confirm').addEventListener('click',()=>{
+  const v=getOpts(),errs=validateOpts(v);showOptsErrors(errs);
+  if(Object.keys(errs).length>0)return;
+  GS=makeGameState(v);GS._startingChars=v.startingChars;
+  generateWorld(GS);enterGame();showToast('World generated — '+v.orgName,'success');
+});
+
+/* ══════════════════════════════════════════════════════
    IN-GAME CONTROLS
-═══════════════════════════════════ */
+══════════════════════════════════════════════════════ */
+document.getElementById('btn-scenario-back').addEventListener('click',()=>showScreen('launch'));
+document.getElementById('btn-scenario-launch').addEventListener('click',()=>{const s=TEST_SCENARIOS.find(x=>x.id===selScenarioId);if(!s)return;GS=s.build();enterGame();showToast('Scenario: '+s.name,'success');});
 document.getElementById('btn-end-turn').addEventListener('click',advanceTurn);
 document.getElementById('btn-save').addEventListener('click',saveGame);
 document.getElementById('btn-devmode').addEventListener('click',toggleDevMode);
-window.addEventListener('keydown',e=>{ if(e.key==='Escape') hidePopup(); });
-window.addEventListener('resize',()=>{ if(GS&&GS.world.tiles.length) syncVPState(); });
-window.addEventListener('beforeunload',()=>{ if(GS) autosave(); });
+document.getElementById('btn-exit').addEventListener('click',exitToMenu);
+document.getElementById('btn-close-city').addEventListener('click',closeCityPanel);
+window.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(!document.getElementById('city-overlay').classList.contains('hidden')){closeCityPanel();return;}
+    if(!document.getElementById('confirm-overlay').classList.contains('hidden')){document.getElementById('confirm-overlay').classList.add('hidden');return;}
+    hidePopup();
+  }
+});
+window.addEventListener('resize',()=>{if(GS&&GS.world.tiles.length)syncVPState();});
+window.addEventListener('beforeunload',()=>{if(GS)autosave();});
 
-/* ═══════════════════════════════════
+/* ══════════════════════════════════════════════════════
    AUTOSAVE RESTORE
-═══════════════════════════════════ */
+══════════════════════════════════════════════════════ */
 (function checkAutosave(){
-  try {
-    const raw=localStorage.getItem(AUTOSAVE_KEY); if(!raw) return;
-    const s=JSON.parse(raw); if(!s||typeof s.turn!=='number') return;
+  try{
+    const raw=localStorage.getItem(AUTOSAVE_KEY);if(!raw)return;
+    const s=JSON.parse(raw);if(!s||typeof s.turn!=='number')return;
     const btnLoad=document.getElementById('btn-load-game');
-    const btnAuto=document.createElement('button'); btnAuto.className='btn';
+    const btnAuto=document.createElement('button');btnAuto.className='btn';
     btnAuto.innerHTML=`Restore Autosave <span style="font-family:var(--mono);font-size:10px;color:var(--amber-dim)"> — Turn ${s.turn}</span>`;
     btnLoad.parentNode.insertBefore(btnAuto,btnLoad.nextSibling);
-    btnAuto.addEventListener('click',()=>{ clearLaunchError(); const st=loadFromJson(raw); if(!st){showLaunchError('Autosave data is corrupted.');return;} GS=st; enterGame(); showToast('Autosave restored — Turn '+GS.turn,'success'); });
-  } catch(e){}
+    btnAuto.addEventListener('click',()=>{clearLaunchError();const st=loadFromJson(raw);if(!st){showLaunchError('Autosave data is corrupted.');return;}GS=st;enterGame();showToast('Autosave restored — Turn '+GS.turn,'success');});
+  }catch(e){}
 })();
 </script>
 </body>

@@ -85,6 +85,9 @@ Each step produces a working, runnable `index.html` that builds directly on the 
   - Ledger: empty but rendered
   - Group Manager: stub panel
   - Staff Assignments: stub panel with the 4 HQ tasks listed
+- **Exit to Menu button** in the toolbar — pressing it discards the current session and returns the player to the launch menu. A confirmation prompt prevents accidental loss of unsaved progress.
+- **Launch menu title colour** — the "IRONBOUND" title on the launch menu is updated to a green hue instead of amber.
+- **Toolbar overflow fix** — the End Turn button disappeared in Step 3 due to a CSS layout overflow caused by the addition of the POIs stat pushing toolbar content beyond the toolbar's fixed width. The toolbar layout is corrected so all stats and buttons are always visible and accessible regardless of viewport width. End Turn functionality is verified working after the fix.
 
 **Depends on:** Steps 1–3
 

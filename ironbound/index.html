@@ -5,10 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ironbound</title>
 <style>
-  /* ── Google Fonts ──────────────────────────────────────────── */
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap');
 
-  /* ── Design tokens ─────────────────────────────────────────── */
   :root {
     --bg:           #0e0e0f;
     --bg-panel:     #141416;
@@ -33,517 +31,206 @@
     --body:         'Crimson Pro', Georgia, serif;
   }
 
-  /* ── Reset ─────────────────────────────────────────────────── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width:100%; height:100%; background:var(--bg); color:var(--text); font-family:var(--body); font-size:16px; line-height:1.5; overflow:hidden; }
+  .hidden { display:none !important; }
 
-  html, body {
-    width: 100%; height: 100%;
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--body);
-    font-size: 16px;
-    line-height: 1.5;
-    overflow: hidden;
-  }
+  .rule { display:flex; align-items:center; gap:12px; color:var(--amber-dim); font-family:var(--mono); font-size:10px; letter-spacing:0.12em; }
+  .rule::before, .rule::after { content:''; flex:1; height:1px; background:var(--border-accent); }
 
-  /* ── Utility ────────────────────────────────────────────────── */
-  .hidden { display: none !important; }
+  .btn { display:block; width:100%; padding:11px 24px; background:transparent; border:1px solid var(--border-accent); color:var(--parchment); font-family:var(--serif); font-size:13px; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; cursor:pointer; transition:background 0.15s,border-color 0.15s,color 0.15s; outline:none; }
+  .btn:hover { background:var(--amber-dim); border-color:var(--amber); color:var(--amber-bright); }
+  .btn:active { background:var(--amber); color:var(--bg); }
+  .btn:disabled { opacity:0.35; cursor:not-allowed; background:transparent; border-color:var(--border); color:var(--text-dim); }
+  .btn-primary { background:var(--amber-dim); border-color:var(--amber); color:var(--amber-bright); }
+  .btn-primary:hover { background:var(--amber); color:var(--bg); }
+  .btn-sm { width:auto; display:inline-block; padding:6px 16px; font-size:11px; }
 
-  /* ── Decorative rule ───────────────────────────────────────── */
-  .rule {
-    display: flex; align-items: center; gap: 12px;
-    color: var(--amber-dim);
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
-  }
-  .rule::before, .rule::after {
-    content: ''; flex: 1; height: 1px; background: var(--border-accent);
-  }
+  label { display:block; font-family:var(--mono); font-size:11px; letter-spacing:0.1em; color:var(--parchment-dim); text-transform:uppercase; margin-bottom:5px; }
+  input[type="text"], input[type="number"] { width:100%; background:var(--bg-input); border:1px solid var(--border); color:var(--text-bright); font-family:var(--mono); font-size:13px; padding:8px 10px; outline:none; transition:border-color 0.15s; }
+  input[type="text"]:focus, input[type="number"]:focus { border-color:var(--amber-dim); }
+  input[type="number"] { -moz-appearance:textfield; }
+  input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none; }
+  .field-hint { font-family:var(--body); font-style:italic; font-size:13px; color:var(--text-dim); margin-top:3px; }
+  .field-error { font-family:var(--mono); font-size:11px; color:var(--red-bright); margin-top:3px; display:none; }
+  .field-error.visible { display:block; }
+  .field-group { margin-bottom:18px; }
 
-  /* ── Buttons ────────────────────────────────────────────────── */
-  .btn {
-    display: block; width: 100%;
-    padding: 11px 24px;
-    background: transparent;
-    border: 1px solid var(--border-accent);
-    color: var(--parchment);
-    font-family: var(--serif); font-size: 13px; font-weight: 600;
-    letter-spacing: 0.15em; text-transform: uppercase;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, color 0.15s;
-    outline: none;
-  }
-  .btn:hover {
-    background: var(--amber-dim);
-    border-color: var(--amber);
-    color: var(--amber-bright);
-  }
-  .btn:active { background: var(--amber); color: var(--bg); }
-  .btn:disabled {
-    opacity: 0.35; cursor: not-allowed;
-    background: transparent; border-color: var(--border); color: var(--text-dim);
-  }
-  .btn-primary {
-    background: var(--amber-dim);
-    border-color: var(--amber);
-    color: var(--amber-bright);
-  }
-  .btn-primary:hover {
-    background: var(--amber);
-    color: var(--bg);
-  }
-  .btn-danger {
-    border-color: var(--red);
-    color: var(--red-bright);
-  }
-  .btn-danger:hover { background: var(--red); color: #fff; }
-  .btn-sm {
-    width: auto; display: inline-block;
-    padding: 6px 16px; font-size: 11px;
-  }
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--border-accent); }
 
-  /* ── Form elements ──────────────────────────────────────────── */
-  label {
-    display: block;
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
-    color: var(--parchment-dim); text-transform: uppercase;
-    margin-bottom: 5px;
-  }
-  input[type="text"], input[type="number"] {
-    width: 100%;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    color: var(--text-bright);
-    font-family: var(--mono); font-size: 13px;
-    padding: 8px 10px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  input[type="text"]:focus, input[type="number"]:focus {
-    border-color: var(--amber-dim);
-  }
-  input[type="number"] { -moz-appearance: textfield; }
-  input[type="number"]::-webkit-outer-spin-button,
-  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
-  .field-hint {
-    font-family: var(--body); font-style: italic; font-size: 13px;
-    color: var(--text-dim); margin-top: 3px;
-  }
-  .field-error {
-    font-family: var(--mono); font-size: 11px;
-    color: var(--red-bright); margin-top: 3px; display: none;
-  }
-  .field-error.visible { display: block; }
-  .field-group { margin-bottom: 18px; }
+  /* ── Launch ── */
+  #screen-launch { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; background:var(--bg); }
+  #screen-launch::before, #screen-launch::after { content:''; position:absolute; width:120px; height:120px; border-color:var(--border-accent); border-style:solid; pointer-events:none; }
+  #screen-launch::before { top:32px; left:32px; border-width:1px 0 0 1px; }
+  #screen-launch::after  { bottom:32px; right:32px; border-width:0 1px 1px 0; }
+  .launch-inner { width:360px; display:flex; flex-direction:column; gap:0; }
+  .launch-title { font-family:var(--serif); font-size:52px; font-weight:700; letter-spacing:0.18em; color:var(--amber); text-align:center; line-height:1; margin-bottom:4px; text-shadow:0 0 40px rgba(200,144,42,0.25); }
+  .launch-subtitle { font-family:var(--mono); font-size:10px; letter-spacing:0.3em; text-transform:uppercase; color:var(--parchment-dim); text-align:center; margin-bottom:32px; }
+  .launch-buttons { display:flex; flex-direction:column; gap:8px; }
+  .launch-error { margin-top:12px; padding:10px 14px; border:1px solid var(--red); background:rgba(139,48,48,0.12); font-family:var(--mono); font-size:11px; color:var(--red-bright); letter-spacing:0.05em; display:none; }
+  .launch-error.visible { display:block; }
+  .launch-version { position:absolute; bottom:20px; right:32px; font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:0.1em; }
 
-  /* ── Scrollbar ───────────────────────────────────────────────── */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border-accent); }
+  /* ── World Options ── */
+  #screen-world-options { width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:var(--bg); }
+  .options-panel { width:520px; background:var(--bg-panel); border:1px solid var(--border-accent); padding:36px 40px; max-height:92vh; overflow-y:auto; }
+  .options-title { font-family:var(--serif); font-size:18px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--amber); margin-bottom:6px; }
+  .options-desc  { font-family:var(--body); font-style:italic; font-size:14px; color:var(--text-dim); margin-bottom:28px; }
+  .options-section-title { font-family:var(--mono); font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:var(--amber-dim); margin:24px 0 16px; }
+  .options-actions { display:flex; gap:10px; margin-top:28px; }
+  .options-actions .btn { flex:1; }
 
-  /* ════════════════════════════════════════════════════════════
-     SCREEN: Launch Menu
-  ════════════════════════════════════════════════════════════ */
-  #screen-launch {
-    width: 100%; height: 100%;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    position: relative;
-    background: var(--bg);
-  }
+  /* ── Test Scenario ── */
+  #screen-test-scenario { width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:var(--bg); }
+  .scenario-panel { width:520px; background:var(--bg-panel); border:1px solid var(--border-accent); padding:36px 40px; }
+  .scenario-title { font-family:var(--serif); font-size:18px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--amber); margin-bottom:6px; }
+  .scenario-desc  { font-family:var(--body); font-style:italic; font-size:14px; color:var(--text-dim); margin-bottom:24px; }
+  .scenario-list  { display:flex; flex-direction:column; gap:6px; margin-bottom:24px; }
+  .scenario-item  { border:1px solid var(--border); background:var(--bg-raised); padding:12px 14px; cursor:pointer; transition:border-color 0.12s,background 0.12s; }
+  .scenario-item:hover { border-color:var(--amber-dim); background:#1e1e22; }
+  .scenario-item.selected { border-color:var(--amber); background:rgba(74,63,40,0.2); }
+  .scenario-item-name { font-family:var(--serif); font-size:13px; font-weight:600; letter-spacing:0.1em; color:var(--parchment); margin-bottom:3px; }
+  .scenario-item-desc { font-family:var(--body); font-style:italic; font-size:13px; color:var(--text-dim); }
+  .scenario-actions { display:flex; gap:10px; }
+  .scenario-actions .btn { flex:1; }
 
-  /* Corner ornaments */
-  #screen-launch::before, #screen-launch::after {
-    content: '';
-    position: absolute;
-    width: 120px; height: 120px;
-    border-color: var(--border-accent);
-    border-style: solid;
-    pointer-events: none;
-  }
-  #screen-launch::before {
-    top: 32px; left: 32px;
-    border-width: 1px 0 0 1px;
-  }
-  #screen-launch::after {
-    bottom: 32px; right: 32px;
-    border-width: 0 1px 1px 0;
-  }
+  /* ── Game screen ── */
+  #screen-game { width:100%; height:100%; display:flex; flex-direction:column; background:var(--bg); }
 
-  .launch-inner {
-    width: 360px;
-    display: flex; flex-direction: column;
-    gap: 0;
-  }
+  #toolbar { height:44px; min-height:44px; background:var(--bg-panel); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 16px; gap:24px; flex-shrink:0; }
+  .toolbar-logo { font-family:var(--serif); font-size:15px; font-weight:700; letter-spacing:0.18em; color:var(--amber); margin-right:8px; }
+  .toolbar-sep  { width:1px; height:20px; background:var(--border); }
+  .toolbar-stat { display:flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11px; }
+  .toolbar-stat-label { color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase; }
+  .toolbar-stat-value { color:var(--text-bright); letter-spacing:0.05em; }
+  .toolbar-stat-value.gold { color:var(--amber); }
+  .toolbar-spacer { flex:1; }
+  .toolbar-btn { padding:5px 18px; background:transparent; border:1px solid var(--border-accent); color:var(--parchment); font-family:var(--serif); font-size:11px; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; cursor:pointer; transition:background 0.12s,border-color 0.12s,color 0.12s; outline:none; }
+  .toolbar-btn:hover { background:var(--amber-dim); border-color:var(--amber); color:var(--amber-bright); }
+  .toolbar-btn.save-btn { font-size:10px; padding:4px 12px; }
+  .toolbar-btn.devmode-btn { border-color:var(--green); color:var(--green-bright); }
+  .toolbar-btn.devmode-btn.active { background:rgba(42,90,48,0.3); border-color:var(--green-bright); }
 
-  .launch-title {
-    font-family: var(--serif);
-    font-size: 52px; font-weight: 700;
-    letter-spacing: 0.18em;
-    color: var(--amber);
-    text-align: center;
-    line-height: 1;
-    margin-bottom: 4px;
-    text-shadow: 0 0 40px rgba(200,144,42,0.25);
-  }
+  /* Canvas wrapper — fills remaining space between toolbar and bottom panel */
+  #canvas-area { flex:1; position:relative; overflow:hidden; }
+  #map-canvas  { display:block; width:100%; height:100%; cursor:grab; }
+  #map-canvas.panning { cursor:grabbing; }
 
-  .launch-subtitle {
-    font-family: var(--mono); font-size: 10px;
-    letter-spacing: 0.3em; text-transform: uppercase;
-    color: var(--parchment-dim);
-    text-align: center;
-    margin-bottom: 32px;
+  /* City popup */
+  #city-popup {
+    position:absolute; pointer-events:none;
+    background:var(--bg-panel); border:1px solid var(--border-accent);
+    padding:10px 14px; min-width:160px;
+    font-family:var(--mono); font-size:11px;
+    display:none;
   }
+  #city-popup.visible { display:block; }
+  #city-popup .popup-name { font-family:var(--serif); font-size:13px; font-weight:600; letter-spacing:0.12em; color:var(--parchment); margin-bottom:4px; }
+  #city-popup .popup-hq   { color:var(--amber); font-size:10px; letter-spacing:0.1em; }
+  #city-popup .popup-coords { color:var(--text-dim); font-size:10px; margin-top:3px; }
 
-  .launch-buttons { display: flex; flex-direction: column; gap: 8px; }
-
-  .launch-error {
-    margin-top: 12px; padding: 10px 14px;
-    border: 1px solid var(--red);
-    background: rgba(139,48,48,0.12);
-    font-family: var(--mono); font-size: 11px;
-    color: var(--red-bright); letter-spacing: 0.05em;
-    display: none;
-  }
-  .launch-error.visible { display: block; }
-
-  .launch-version {
-    position: absolute; bottom: 20px; right: 32px;
-    font-family: var(--mono); font-size: 10px;
-    color: var(--text-dim); letter-spacing: 0.1em;
-  }
-
-  /* ════════════════════════════════════════════════════════════
-     SCREEN: World Options
-  ════════════════════════════════════════════════════════════ */
-  #screen-world-options {
-    width: 100%; height: 100%;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--bg);
-  }
-
-  .options-panel {
-    width: 520px;
-    background: var(--bg-panel);
-    border: 1px solid var(--border-accent);
-    padding: 36px 40px;
-    max-height: 92vh;
-    overflow-y: auto;
-  }
-
-  .options-title {
-    font-family: var(--serif); font-size: 18px; font-weight: 600;
-    letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--amber); margin-bottom: 6px;
-  }
-  .options-desc {
-    font-family: var(--body); font-style: italic; font-size: 14px;
-    color: var(--text-dim); margin-bottom: 28px;
-  }
-
-  .options-section-title {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
-    text-transform: uppercase; color: var(--amber-dim);
-    margin: 24px 0 16px;
-  }
-
-  .options-actions {
-    display: flex; gap: 10px; margin-top: 28px;
-  }
-  .options-actions .btn { flex: 1; }
-
-  /* ════════════════════════════════════════════════════════════
-     SCREEN: Test Scenario
-  ════════════════════════════════════════════════════════════ */
-  #screen-test-scenario {
-    width: 100%; height: 100%;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--bg);
-  }
-
-  .scenario-panel {
-    width: 520px;
-    background: var(--bg-panel);
-    border: 1px solid var(--border-accent);
-    padding: 36px 40px;
-  }
-
-  .scenario-title {
-    font-family: var(--serif); font-size: 18px; font-weight: 600;
-    letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--amber); margin-bottom: 6px;
-  }
-  .scenario-desc {
-    font-family: var(--body); font-style: italic; font-size: 14px;
-    color: var(--text-dim); margin-bottom: 24px;
-  }
-
-  .scenario-list {
-    display: flex; flex-direction: column; gap: 6px;
-    margin-bottom: 24px;
-  }
-
-  .scenario-item {
-    border: 1px solid var(--border);
-    background: var(--bg-raised);
-    padding: 12px 14px;
-    cursor: pointer;
-    transition: border-color 0.12s, background 0.12s;
-  }
-  .scenario-item:hover { border-color: var(--amber-dim); background: #1e1e22; }
-  .scenario-item.selected { border-color: var(--amber); background: rgba(74,63,40,0.2); }
-
-  .scenario-item-name {
-    font-family: var(--serif); font-size: 13px; font-weight: 600;
-    letter-spacing: 0.1em; color: var(--parchment); margin-bottom: 3px;
-  }
-  .scenario-item-desc {
-    font-family: var(--body); font-style: italic; font-size: 13px;
-    color: var(--text-dim);
-  }
-
-  .scenario-actions { display: flex; gap: 10px; }
-  .scenario-actions .btn { flex: 1; }
-
-  /* ════════════════════════════════════════════════════════════
-     SCREEN: Game (stub — Steps 2+ will build this out)
-  ════════════════════════════════════════════════════════════ */
-  #screen-game {
-    width: 100%; height: 100%;
-    display: flex; flex-direction: column;
-    background: var(--bg);
-  }
-
-  /* Toolbar */
-  #toolbar {
-    height: 44px; min-height: 44px;
-    background: var(--bg-panel);
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center;
-    padding: 0 16px; gap: 24px;
-    flex-shrink: 0;
-  }
-
-  .toolbar-logo {
-    font-family: var(--serif); font-size: 15px; font-weight: 700;
-    letter-spacing: 0.18em; color: var(--amber);
-    margin-right: 8px;
-  }
-  .toolbar-sep {
-    width: 1px; height: 20px;
-    background: var(--border);
-  }
-  .toolbar-stat {
-    display: flex; align-items: center; gap: 6px;
-    font-family: var(--mono); font-size: 11px;
-  }
-  .toolbar-stat-label {
-    color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase;
-  }
-  .toolbar-stat-value {
-    color: var(--text-bright); letter-spacing: 0.05em;
-  }
-  .toolbar-stat-value.gold { color: var(--amber); }
-
-  .toolbar-spacer { flex: 1; }
-
-  .toolbar-btn {
-    padding: 5px 18px;
-    background: transparent;
-    border: 1px solid var(--border-accent);
-    color: var(--parchment);
-    font-family: var(--serif); font-size: 11px; font-weight: 600;
-    letter-spacing: 0.15em; text-transform: uppercase;
-    cursor: pointer;
-    transition: background 0.12s, border-color 0.12s, color 0.12s;
-    outline: none;
-  }
-  .toolbar-btn:hover {
-    background: var(--amber-dim); border-color: var(--amber); color: var(--amber-bright);
-  }
-  .toolbar-btn.save-btn { font-size: 10px; padding: 4px 12px; }
-  .toolbar-btn.devmode-btn { border-color: var(--green); color: var(--green-bright); }
-  .toolbar-btn.devmode-btn.active {
-    background: rgba(42,90,48,0.3); border-color: var(--green-bright);
-  }
-
-  /* Canvas area (stub) */
-  #canvas-area {
-    flex: 1; position: relative; overflow: hidden;
-    background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .canvas-stub {
-    text-align: center;
-    font-family: var(--mono); font-size: 12px;
-    color: var(--text-dim); letter-spacing: 0.08em;
-    line-height: 2;
-  }
-  .canvas-stub strong {
-    display: block; font-family: var(--serif); font-size: 16px;
-    color: var(--parchment); letter-spacing: 0.12em; margin-bottom: 8px;
-  }
+  /* Map overlay labels are drawn on the canvas itself */
 
   /* Dev panel */
-  #dev-panel {
-    position: absolute; top: 8px; right: 8px;
-    width: 360px; max-height: calc(100% - 16px);
-    background: rgba(14,14,15,0.95);
-    border: 1px solid var(--green);
-    overflow-y: auto;
-    font-family: var(--mono); font-size: 11px;
-    color: var(--green-bright);
-    padding: 12px 14px;
-    line-height: 1.7;
-    pointer-events: auto;
-  }
-  #dev-panel h3 {
-    font-family: var(--serif); font-size: 12px;
-    color: var(--green-bright); letter-spacing: 0.15em;
-    text-transform: uppercase; margin-bottom: 8px;
-    border-bottom: 1px solid var(--green);
-    padding-bottom: 6px;
-  }
-  #dev-panel pre {
-    white-space: pre-wrap; word-break: break-all;
-    font-size: 10px; color: #5a8a5a;
-  }
+  #dev-panel { position:absolute; top:8px; right:8px; width:360px; max-height:calc(100% - 16px); background:rgba(14,14,15,0.95); border:1px solid var(--green); overflow-y:auto; font-family:var(--mono); font-size:11px; color:var(--green-bright); padding:12px 14px; line-height:1.7; pointer-events:auto; z-index:10; }
+  #dev-panel h3 { font-family:var(--serif); font-size:12px; color:var(--green-bright); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:8px; border-bottom:1px solid var(--green); padding-bottom:6px; }
+  #dev-panel pre { white-space:pre-wrap; word-break:break-all; font-size:10px; color:#5a8a5a; }
 
-  /* Bottom panel (stub) */
-  #bottom-panel {
-    height: 140px; min-height: 140px;
-    background: var(--bg-panel);
-    border-top: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .bottom-stub {
-    font-family: var(--mono); font-size: 11px;
-    color: var(--text-dim); letter-spacing: 0.08em;
-  }
+  /* Bottom panel */
+  #bottom-panel { height:140px; min-height:140px; background:var(--bg-panel); border-top:1px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .bottom-stub  { font-family:var(--mono); font-size:11px; color:var(--text-dim); letter-spacing:0.08em; }
 
-  /* ── Toast notifications ─────────────────────────────────── */
-  #toast-container {
-    position: fixed; bottom: 160px; left: 50%;
-    transform: translateX(-50%);
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-    pointer-events: none; z-index: 9999;
-  }
-  .toast {
-    padding: 9px 18px;
-    background: var(--bg-panel);
-    border: 1px solid var(--border-accent);
-    font-family: var(--mono); font-size: 11px;
-    color: var(--parchment); letter-spacing: 0.08em;
-    animation: toast-in 0.2s ease, toast-out 0.3s ease 2.5s forwards;
-    pointer-events: none;
-  }
-  .toast.error { border-color: var(--red); color: var(--red-bright); }
-  .toast.success { border-color: var(--green-bright); color: var(--green-bright); }
-  @keyframes toast-in  { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes toast-out { from { opacity: 1; } to { opacity: 0; } }
+  /* Mini-legend */
+  #map-legend { position:absolute; bottom:12px; left:12px; background:rgba(14,14,15,0.85); border:1px solid var(--border); padding:8px 12px; font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:0.06em; line-height:1.8; pointer-events:none; }
+  #map-legend span { display:inline-block; width:10px; height:10px; margin-right:6px; vertical-align:middle; }
+
+  /* Toast */
+  #toast-container { position:fixed; bottom:160px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; pointer-events:none; z-index:9999; }
+  .toast { padding:9px 18px; background:var(--bg-panel); border:1px solid var(--border-accent); font-family:var(--mono); font-size:11px; color:var(--parchment); letter-spacing:0.08em; animation:toast-in 0.2s ease, toast-out 0.3s ease 2.5s forwards; pointer-events:none; }
+  .toast.error   { border-color:var(--red);         color:var(--red-bright); }
+  .toast.success { border-color:var(--green-bright); color:var(--green-bright); }
+  @keyframes toast-in  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes toast-out { from{opacity:1} to{opacity:0} }
 </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════════
-     SCREEN: Launch Menu
-════════════════════════════════════════════════ -->
+<!-- Launch Menu -->
 <div id="screen-launch">
   <div class="launch-inner">
     <div class="launch-title">IRONBOUND</div>
     <div class="launch-subtitle">Mercenary Guild Management</div>
-
     <div class="rule">MAIN MENU</div>
     <div style="margin-bottom:20px"></div>
-
     <div class="launch-buttons">
       <button class="btn btn-primary" id="btn-new-game">Start New Game</button>
       <button class="btn" id="btn-load-game">Load Game</button>
       <button class="btn" id="btn-test-scenario">Launch Test Scenario</button>
     </div>
-
     <div class="launch-error" id="launch-error"></div>
   </div>
-
-  <!-- Hidden file input for load -->
   <input type="file" id="file-load-input" accept=".json" style="display:none">
-
-  <div class="launch-version">v0.1 — Step 1</div>
+  <div class="launch-version">v0.2 — Step 2</div>
 </div>
 
-<!-- ════════════════════════════════════════════════
-     SCREEN: World Options
-════════════════════════════════════════════════ -->
+<!-- World Options -->
 <div id="screen-world-options" class="hidden">
   <div class="options-panel">
     <div class="options-title">World Options</div>
     <div class="options-desc">Configure the parameters of the new world. All fields have defaults — you may confirm immediately.</div>
-
     <div class="rule">ORGANIZATION</div>
-
     <div style="margin-top:16px"></div>
-
     <div class="field-group">
       <label for="opt-org-name">Organization Name</label>
       <input type="text" id="opt-org-name" value="The Guild" maxlength="40">
       <div class="field-hint">The name of your mercenary guild.</div>
       <div class="field-error" id="err-org-name">Name cannot be empty.</div>
     </div>
-
     <div class="field-group">
       <label for="opt-gold">Starting Gold</label>
       <input type="number" id="opt-gold" value="4200" min="0">
       <div class="field-hint">Your guild's initial gold balance.</div>
     </div>
-
     <div class="field-group">
       <label for="opt-chars">Starting Characters</label>
       <input type="number" id="opt-chars" value="0" min="0" max="9">
-      <div class="field-hint">Recruits placed in your roster at game start (0 – 9).</div>
+      <div class="field-hint">Recruits placed in your roster at game start (0–9).</div>
       <div class="field-error" id="err-chars">Must be between 0 and 9.</div>
     </div>
-
     <div class="options-section-title">World</div>
-
     <div class="field-group">
       <label for="opt-map-size">Map Size</label>
       <input type="number" id="opt-map-size" value="128" min="64" max="256">
-      <div class="field-hint">Width and height of the world map in tile units (64 – 256). Larger maps increase travel distances.</div>
+      <div class="field-hint">Width and height in tile units (64–256).</div>
       <div class="field-error" id="err-map-size">Must be between 64 and 256.</div>
     </div>
-
     <div class="field-group">
       <label for="opt-target-pois">Target World POIs</label>
       <input type="number" id="opt-target-pois" value="20" min="10" max="50">
-      <div class="field-hint">How many POIs the world attempts to sustain simultaneously (10 – 50).</div>
+      <div class="field-hint">POIs the world sustains simultaneously (10–50).</div>
       <div class="field-error" id="err-target-pois">Must be between 10 and 50.</div>
     </div>
-
     <div class="field-group">
       <label for="opt-known-pois">Target Publicly Known POIs</label>
       <input type="number" id="opt-known-pois" value="8" min="6">
-      <div class="field-hint">POIs that spawn as Discovered for all organizations by default (6 – Target world POIs).</div>
+      <div class="field-hint">POIs spawning as Discovered by default (6–Target world POIs).</div>
       <div class="field-error" id="err-known-pois">Must be between 6 and Target world POIs.</div>
     </div>
-
     <div class="options-actions">
       <button class="btn" id="btn-options-back">Cancel</button>
-      <button class="btn btn-primary" id="btn-options-confirm">Confirm & Start</button>
+      <button class="btn btn-primary" id="btn-options-confirm">Confirm &amp; Start</button>
     </div>
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════════
-     SCREEN: Test Scenario
-════════════════════════════════════════════════ -->
+<!-- Test Scenario -->
 <div id="screen-test-scenario" class="hidden">
   <div class="scenario-panel">
     <div class="scenario-title">Test Scenarios</div>
     <div class="scenario-desc">Select a pre-defined scenario to test a specific system or mechanic.</div>
-
     <div class="scenario-list" id="scenario-list"></div>
-
     <div class="scenario-actions">
       <button class="btn" id="btn-scenario-back">Back</button>
       <button class="btn btn-primary" id="btn-scenario-launch" disabled>Launch Scenario</button>
@@ -551,420 +238,869 @@
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════════
-     SCREEN: Game
-════════════════════════════════════════════════ -->
+<!-- Game Screen -->
 <div id="screen-game" class="hidden">
-
-  <!-- Toolbar -->
   <div id="toolbar">
     <span class="toolbar-logo">IRONBOUND</span>
     <div class="toolbar-sep"></div>
-
-    <div class="toolbar-stat">
-      <span class="toolbar-stat-label">Turn</span>
-      <span class="toolbar-stat-value" id="tb-turn">1</span>
-    </div>
-    <div class="toolbar-stat">
-      <span class="toolbar-stat-label">Day</span>
-      <span class="toolbar-stat-value" id="tb-day">1</span>
-    </div>
-    <div class="toolbar-stat">
-      <span class="toolbar-stat-label">Gold</span>
-      <span class="toolbar-stat-value gold" id="tb-gold">0</span>
-    </div>
-    <div class="toolbar-stat">
-      <span class="toolbar-stat-label">Roster</span>
-      <span class="toolbar-stat-value" id="tb-roster">0</span>
-    </div>
-
+    <div class="toolbar-stat"><span class="toolbar-stat-label">Turn</span><span class="toolbar-stat-value" id="tb-turn">1</span></div>
+    <div class="toolbar-stat"><span class="toolbar-stat-label">Day</span><span class="toolbar-stat-value" id="tb-day">1</span></div>
+    <div class="toolbar-stat"><span class="toolbar-stat-label">Gold</span><span class="toolbar-stat-value gold" id="tb-gold">0</span></div>
+    <div class="toolbar-stat"><span class="toolbar-stat-label">Roster</span><span class="toolbar-stat-value" id="tb-roster">0</span></div>
     <div class="toolbar-spacer"></div>
-
     <button class="toolbar-btn devmode-btn" id="btn-devmode">DEV</button>
     <button class="toolbar-btn save-btn" id="btn-save">Save</button>
     <button class="toolbar-btn" id="btn-end-turn">End Turn</button>
   </div>
 
-  <!-- Canvas / main area -->
   <div id="canvas-area">
-    <div class="canvas-stub">
-      <strong>Global Map</strong>
-      World generation renders here in Step 2.<br>
-      GameState initialised — save/load active.
+    <canvas id="map-canvas"></canvas>
+
+    <div id="city-popup">
+      <div class="popup-name" id="popup-city-name">—</div>
+      <div class="popup-hq hidden" id="popup-city-hq">⬡ HEADQUARTERS</div>
+      <div class="popup-coords" id="popup-city-coords"></div>
     </div>
 
-    <!-- Dev panel -->
+    <div id="map-legend">
+      <span style="background:#2d4a2a"></span>Forest &nbsp;
+      <span style="background:#3a3a28"></span>Plains &nbsp;
+      <span style="background:#3a3530"></span>Hills &nbsp;
+      <span style="background:#1a2a3a"></span>Water
+    </div>
+
     <div id="dev-panel" class="hidden">
       <h3>⬡ Dev Mode — Game State</h3>
       <pre id="dev-state-dump"></pre>
     </div>
   </div>
 
-  <!-- Bottom panel -->
   <div id="bottom-panel">
     <div class="bottom-stub">Context panel — Step 4+</div>
   </div>
 </div>
 
-<!-- Toast container -->
 <div id="toast-container"></div>
 
-<!-- ════════════════════════════════════════════════
-     JAVASCRIPT
-════════════════════════════════════════════════ -->
 <script>
 'use strict';
 
-/* ══════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    CONSTANTS
-══════════════════════════════════════════════════════════════ */
-const VERSION        = '0.1-step1';
+═══════════════════════════════════════════════════ */
+const VERSION        = '0.2-step2';
 const AUTOSAVE_KEY   = 'ironbound_autosave';
-const AUTOSAVE_EVERY = 5; // turns
+const AUTOSAVE_EVERY = 5;
 
-/* ══════════════════════════════════════════════════════════════
-   GAME STATE — factory functions matching Section 11.2 schema
-══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   TIME HELPERS
+═══════════════════════════════════════════════════ */
+const TIME = {
+  TURNS_PER_DAY:  6,
+  DAYS_PER_WEEK:  7,
+  DAYS_PER_MONTH: 30,
+  turnToDay:   t => Math.floor((t - 1) / 6) + 1,
+  turnToWeek:  t => Math.floor((TIME.turnToDay(t) - 1) / 7) + 1,
+  turnToMonth: t => Math.floor((TIME.turnToDay(t) - 1) / 30) + 1,
+  isFirstTurnOfDay:   t => ((t - 1) % 6) === 0,
+  isFirstTurnOfWeek:  t => TIME.isFirstTurnOfDay(t) && ((TIME.turnToDay(t) - 1) % 7 === 0),
+  isFirstTurnOfMonth: t => TIME.isFirstTurnOfDay(t) && ((TIME.turnToDay(t) - 1) % 30 === 0),
+  isUpkeepTurn: t => { const d = TIME.turnToDay(t); return ((d-1)%30)===29 && TIME.isFirstTurnOfDay(t); },
+};
 
-function makeId() {
-  return Math.random().toString(36).slice(2, 10);
+/* ═══════════════════════════════════════════════════
+   SEEDED PRNG  (Mulberry32 — deterministic per seed)
+═══════════════════════════════════════════════════ */
+function makePRNG(seed) {
+  let s = seed >>> 0;
+  return {
+    next() {
+      s += 0x6D2B79F5;
+      let t = Math.imul(s ^ (s >>> 15), 1 | s);
+      t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    },
+    int(lo, hi) { return Math.floor(this.next() * (hi - lo + 1)) + lo; },
+    pick(arr)   { return arr[this.int(0, arr.length - 1)]; },
+  };
 }
 
-function makeHungerState() {
-  return { stage: 'Hunger', charges: 0 };
+/* ═══════════════════════════════════════════════════
+   SIMPLEX-LIKE NOISE  (value noise, 2 octaves)
+   Sufficient for terrain generation without a library.
+═══════════════════════════════════════════════════ */
+function makeNoise(seed) {
+  const rng = makePRNG(seed);
+  const SIZE = 256;
+  const table = new Float32Array(SIZE * SIZE);
+  for (let i = 0; i < table.length; i++) table[i] = rng.next();
+
+  function sample(x, y) {
+    const xi = Math.floor(x) & (SIZE - 1);
+    const yi = Math.floor(y) & (SIZE - 1);
+    const xf = x - Math.floor(x);
+    const yf = y - Math.floor(y);
+    const u  = xf * xf * (3 - 2 * xf); // smoothstep
+    const v  = yf * yf * (3 - 2 * yf);
+    const a  = table[ yi         * SIZE + xi];
+    const b  = table[ yi         * SIZE + ((xi + 1) & (SIZE - 1))];
+    const c  = table[((yi + 1) & (SIZE - 1)) * SIZE + xi];
+    const d  = table[((yi + 1) & (SIZE - 1)) * SIZE + ((xi + 1) & (SIZE - 1))];
+    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+  }
+
+  return function noise(x, y) {
+    // Two octaves: coarse + fine detail
+    return sample(x * 0.015, y * 0.015) * 0.65
+         + sample(x * 0.045, y * 0.045) * 0.35;
+  };
 }
+
+/* ═══════════════════════════════════════════════════
+   CITY NAMES
+═══════════════════════════════════════════════════ */
+const CITY_PREFIXES = ['Iron','Stone','Red','Ash','Gold','Silver','Dark','Crow','Wolf','Bear','Storm','Frost'];
+const CITY_SUFFIXES = ['hold','ford','gate','bridge','haven','wall','keep','march','vale','wick','crest','moor'];
+function randomCityName(rng) {
+  return rng.pick(CITY_PREFIXES) + rng.pick(CITY_SUFFIXES);
+}
+
+/* ═══════════════════════════════════════════════════
+   GAME STATE — factory functions
+═══════════════════════════════════════════════════ */
+function makeId() { return Math.random().toString(36).slice(2, 10); }
+function makeHungerState() { return { stage:'Hunger', charges:0 }; }
 
 function makeRecruit(overrides = {}) {
   return {
-    id:             makeId(),
-    name:           overrides.name           ?? 'Unknown',
-    portrait:       overrides.portrait       ?? 'default',
-    race:           overrides.race           ?? 'human',
-    level:          overrides.level          ?? 5,
-    upkeepBaseRate: overrides.upkeepBaseRate ?? 10,
-    traits:         overrides.traits         ?? [],
-    characteristics: {
-      health:            overrides.health         ?? 100,
-      regeneration:      overrides.regeneration   ?? 5,
-      movementSpeed:     overrides.movementSpeed  ?? 10,
-      baseCarryCapacity: overrides.carry          ?? 7,
-      strength:          overrides.strength       ?? 10,
-      dexterity:         overrides.dexterity      ?? 10,
-      perception:        overrides.perception     ?? 8,
-      loyalty:           overrides.loyalty        ?? 15,
-    },
-    equipment: {
-      garment:  null,
-      head:     null,
-      backpack: null,
-      trinket:  null,
-      trinket2: null,
-    },
-    inventory:    [],
-    statusEffects:[],
-    wounds:       [],
-    hunger:       makeHungerState(),
-    incapacitated:null,
-    state:        'Available',
+    id: makeId(), name: overrides.name ?? 'Unknown', portrait:'default', race:'human',
+    level: overrides.level ?? 5, upkeepBaseRate: 10, traits:[],
+    characteristics:{ health:100, regeneration:5, movementSpeed:10, baseCarryCapacity:7, strength:10, dexterity:10, perception:8, loyalty:15 },
+    equipment:{ garment:null, head:null, backpack:null, trinket:null, trinket2:null },
+    inventory:[], statusEffects:[], wounds:[], hunger:makeHungerState(), incapacitated:null, state:'Available',
   };
 }
 
 function makeGroup(overrides = {}) {
   return {
-    id:             makeId(),
-    name:           overrides.name       ?? 'New Group',
-    role:           overrides.role       ?? 'Scout',
-    memberIds:      overrides.memberIds  ?? [],
-    locationPoiId:  null,
-    locationZoneId: null,
-    currentCityId:  overrides.cityId     ?? null,
-    inTransitTo:    null,
-    schedule:       [false, false, false, false, false, true], // turn 6 = rest
-    taskList:       [],
-    config: {
-      zoneTravelAllowed:           true,
-      giveUpTurnCount:             7,
-      overrideMaintenanceLifecycle:false,
-    },
+    id:makeId(), name: overrides.name ?? 'New Group', role:'Scout', memberIds:[],
+    locationPoiId:null, locationZoneId:null, currentCityId: overrides.cityId ?? null, inTransitTo:null,
+    schedule:[false,false,false,false,false,true], taskList:[],
+    config:{ zoneTravelAllowed:true, giveUpTurnCount:7, overrideMaintenanceLifecycle:false },
   };
 }
 
 function makeOrganization(opts = {}) {
   return {
-    id:            makeId(),
-    name:          opts.name    ?? 'The Guild',
-    gold:          opts.gold    ?? 4200,
-    hqCityId:      opts.hqCityId ?? '',
-    criminalRecord:[],
-    recruits:      [],
-    groups:        [],
-    inventory: {
-      food:      [],
-      equipment: [],
-      weapons:   [],
-      misc:      [],
-      forSale:   [],
-    },
-  };
-}
-
-function makeWorld(opts = {}) {
-  return {
-    tiles:  [],  // populated in Step 2
-    cities: [],  // populated in Step 2
-    pois:   [],  // populated in Step 3
-    // Generation parameters stored for reference
-    _mapSize:          opts.mapSize         ?? 128,
-    _targetPois:       opts.targetPois      ?? 20,
-    _targetKnownPois:  opts.targetKnownPois ?? 8,
+    id:makeId(), name: opts.name ?? 'The Guild', gold: opts.gold ?? 4200,
+    hqCityId: opts.hqCityId ?? '',
+    criminalRecord:[], recruits:[], groups:[],
+    inventory:{ food:[], equipment:[], weapons:[], misc:[], forSale:[] },
   };
 }
 
 function makeGameState(opts = {}) {
-  const org = makeOrganization({
-    name:    opts.orgName ?? 'The Guild',
-    gold:    opts.gold    ?? 4200,
-    hqCityId:'',          // assigned during world gen in Step 2
-  });
-
-  const state = {
-    turn:          1,
-    world:         makeWorld({
-      mapSize:         opts.mapSize         ?? 128,
-      targetPois:      opts.targetPois      ?? 20,
-      targetKnownPois: opts.targetKnownPois ?? 8,
-    }),
-    organizations: [org],
-    playerOrgId:   org.id,
-    // Meta — not part of core schema but useful
-    _version:   VERSION,
-    _devMode:   false,
-    _autosaveTurn: 0,
+  const org = makeOrganization({ name: opts.orgName ?? 'The Guild', gold: opts.gold ?? 4200 });
+  return {
+    turn:1,
+    world:{ tiles:[], cities:[], pois:[],
+      _mapSize: opts.mapSize ?? 128, _targetPois: opts.targetPois ?? 20, _targetKnownPois: opts.targetKnownPois ?? 8,
+      _seed: opts.seed ?? (Math.random() * 0xFFFFFFFF | 0),
+    },
+    organizations:[org], playerOrgId: org.id,
+    _version:VERSION, _devMode:false, _autosaveTurn:0,
   };
-
-  return state;
 }
 
-/* ══════════════════════════════════════════════════════════════
-   TIME HELPERS  (Section 2)
-══════════════════════════════════════════════════════════════ */
-const TIME = {
-  TURNS_PER_DAY:   6,
-  DAYS_PER_WEEK:   7,
-  DAYS_PER_MONTH:  30,
-  turnToDay:  t => Math.floor((t - 1) / 6) + 1,
-  turnToWeek: t => Math.floor((TIME.turnToDay(t) - 1) / 7) + 1,
-  turnToMonth:t => Math.floor((TIME.turnToDay(t) - 1) / 30) + 1,
-  isFirstTurnOfDay:   t => ((t - 1) % 6) === 0,
-  isLastTurnOfDay:    t => (t % 6) === 0,
-  isFirstTurnOfWeek:  t => TIME.isFirstTurnOfDay(t) && ((TIME.turnToDay(t) - 1) % 7 === 0),
-  isFirstTurnOfMonth: t => TIME.isFirstTurnOfDay(t) && ((TIME.turnToDay(t) - 1) % 30 === 0),
-  // Upkeep fires on first turn of last day of each month
-  isUpkeepTurn: t => {
-    const day = TIME.turnToDay(t);
-    const dayInMonth = ((day - 1) % 30) + 1;
-    return dayInMonth === 30 && TIME.isFirstTurnOfDay(t);
-  },
-};
+/* ═══════════════════════════════════════════════════
+   WORLD GENERATION  (Section 10)
+═══════════════════════════════════════════════════ */
+function generateWorld(gs) {
+  const world  = gs.world;
+  const SIZE   = world._mapSize;
+  const seed   = world._seed;
+  const rng    = makePRNG(seed);
+  const noise  = makeNoise(seed ^ 0xDEADBEEF);
 
-/* ══════════════════════════════════════════════════════════════
+  /* 1 — Terrain tiles */
+  world.tiles = [];
+  for (let y = 0; y < SIZE; y++) {
+    for (let x = 0; x < SIZE; x++) {
+      // Edge bias: push edges toward water
+      const ex = Math.min(x, SIZE - 1 - x) / (SIZE * 0.15);
+      const ey = Math.min(y, SIZE - 1 - y) / (SIZE * 0.15);
+      const edgeFactor = Math.min(1, Math.min(ex, ey));
+      const n = noise(x, y) * edgeFactor;
+
+      let terrainType;
+      if      (n < 0.25) terrainType = 'water';
+      else if (n < 0.42) terrainType = 'hills';
+      else if (n < 0.62) terrainType = 'plains';
+      else               terrainType = 'forest';
+
+      world.tiles.push({ x, y, terrainType });
+    }
+  }
+
+  /* Helper: get terrain at (x,y) */
+  function terrainAt(x, y) {
+    if (x < 0 || y < 0 || x >= SIZE || y >= SIZE) return 'water';
+    return world.tiles[y * SIZE + x].terrainType;
+  }
+
+  /* 2 — Cities: 3 cities with guaranteed spacing (Section 10)
+     Divide map into 3 horizontal bands, place one city in each band
+     on non-water tiles, ensuring minimum distance between any two. */
+  const MIN_CITY_DIST = SIZE * 0.28;
+  const placed = [];
+
+  for (let band = 0; band < 3; band++) {
+    const xMin = Math.floor(SIZE * 0.12);
+    const xMax = Math.floor(SIZE * 0.88);
+    const yMin = Math.floor(SIZE * (0.1 + band * 0.27));
+    const yMax = Math.floor(SIZE * (0.35 + band * 0.27));
+
+    let attempts = 0, cx, cy;
+    do {
+      cx = rng.int(xMin, xMax);
+      cy = rng.int(yMin, yMax);
+      attempts++;
+    } while (
+      (terrainAt(cx, cy) === 'water' ||
+       placed.some(p => Math.hypot(p.x - cx, p.y - cy) < MIN_CITY_DIST)) &&
+      attempts < 400
+    );
+
+    // If we couldn't find a non-water tile, nudge until we do
+    if (terrainAt(cx, cy) === 'water') {
+      for (let r = 1; r < 20; r++) {
+        for (const [dx, dy] of [[r,0],[-r,0],[0,r],[0,-r]]) {
+          if (terrainAt(cx+dx, cy+dy) !== 'water') { cx += dx; cy += dy; break; }
+        }
+        if (terrainAt(cx, cy) !== 'water') break;
+      }
+    }
+
+    placed.push({ id: makeId(), name: randomCityName(rng), x: cx, y: cy });
+  }
+
+  world.cities = placed;
+
+  /* 3 — HQ city: random among the 3 */
+  const hqCity = rng.pick(world.cities);
+  gs.organizations[0].hqCityId = hqCity.id;
+
+  return gs;
+}
+
+/* ═══════════════════════════════════════════════════
    GLOBAL STATE
-══════════════════════════════════════════════════════════════ */
-let GS = null; // the live GameState object
+═══════════════════════════════════════════════════ */
+let GS = null;
+function playerOrg() { return GS.organizations.find(o => o.id === GS.playerOrgId); }
 
-function playerOrg() {
-  return GS.organizations.find(o => o.id === GS.playerOrgId);
-}
-
-/* ══════════════════════════════════════════════════════════════
-   SAVE / LOAD  (Section 11.3)
-══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   SAVE / LOAD
+═══════════════════════════════════════════════════ */
 function saveGame() {
   if (!GS) return;
   const json = JSON.stringify(GS, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
+  const blob = new Blob([json], { type:'application/json' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
-  a.href     = url;
-  a.download = `ironbound_save_turn${GS.turn}.json`;
-  a.click();
+  a.href = url; a.download = `ironbound_save_turn${GS.turn}.json`; a.click();
   URL.revokeObjectURL(url);
   showToast('Game saved.', 'success');
 }
-
 function autosave() {
   if (!GS) return;
-  try {
-    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(GS));
-  } catch(e) {
-    // localStorage may be full or unavailable — silently ignore
-  }
+  try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(GS)); } catch(e) {}
 }
-
 function loadFromJson(json) {
-  let parsed;
-  try { parsed = JSON.parse(json); } catch(e) { return null; }
-  // Basic structural validation
-  if (!parsed || typeof parsed.turn !== 'number' || !parsed.world || !Array.isArray(parsed.organizations)) {
-    return null;
-  }
-  return parsed;
+  let p; try { p = JSON.parse(json); } catch(e) { return null; }
+  if (!p || typeof p.turn !== 'number' || !p.world || !Array.isArray(p.organizations)) return null;
+  return p;
 }
-
 function loadGameFromFile(file) {
-  const reader = new FileReader();
-  reader.onload = e => {
+  const r = new FileReader();
+  r.onload = e => {
     const state = loadFromJson(e.target.result);
-    if (!state) {
-      showLaunchError('Invalid or corrupted save file. Please select a valid Ironbound save.');
-      return;
-    }
+    if (!state) { showLaunchError('Invalid or corrupted save file.'); return; }
     GS = state;
-    showScreen('game');
-    updateToolbar();
+    enterGame();
     showToast('Save loaded — Turn ' + GS.turn, 'success');
   };
-  reader.onerror = () => {
-    showLaunchError('Could not read the file. Please try again.');
-  };
-  reader.readAsText(file);
+  r.onerror = () => showLaunchError('Could not read the file. Please try again.');
+  r.readAsText(file);
 }
 
-/* ══════════════════════════════════════════════════════════════
-   TURN ADVANCE  (stub — full wiring in Step 10)
-══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   TURN ADVANCE (stub — full in Step 10)
+═══════════════════════════════════════════════════ */
 function advanceTurn() {
   if (!GS) return;
   GS.turn++;
-
-  // Autosave every N turns
-  if ((GS.turn - GS._autosaveTurn) >= AUTOSAVE_EVERY) {
-    autosave();
-    GS._autosaveTurn = GS.turn;
-  }
-
+  if ((GS.turn - GS._autosaveTurn) >= AUTOSAVE_EVERY) { autosave(); GS._autosaveTurn = GS.turn; }
   updateToolbar();
   if (GS._devMode) refreshDevPanel();
   showToast('Turn ' + GS.turn);
 }
 
-/* ══════════════════════════════════════════════════════════════
-   TEST SCENARIOS  (Section 12.3)
-══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   TEST SCENARIOS
+═══════════════════════════════════════════════════ */
 const TEST_SCENARIOS = [
   {
-    id:   'empty_world',
-    name: 'Empty World',
-    desc: 'Initialises a bare GameState with default world options. Tests state schema and save/load pipeline.',
-    build: () => makeGameState({ orgName: 'Test Guild', gold: 9999 }),
+    id:'world_gen', name:'World Generation',
+    desc:'Generates a full 128×128 world with terrain and 3 cities. Tests map rendering, pan/zoom, and city interaction.',
+    build() {
+      const s = makeGameState({ orgName:'Test Guild', gold:9999, mapSize:128 });
+      return generateWorld(s);
+    },
   },
   {
-    id:   'single_recruit',
-    name: 'Single Recruit',
-    desc: 'One recruit in the roster at HQ. Tests character schema and toolbar roster count.',
-    build: () => {
-      const s = makeGameState({ orgName: 'Test Guild', gold: 5000 });
-      const org = s.organizations[0];
-      org.recruits.push(makeRecruit({ name: 'Aldric', level: 7, perception: 10 }));
-      return s;
+    id:'small_map', name:'Small Map (64×64)',
+    desc:'Generates a compact 64×64 world. Tests city spacing constraints on a small map.',
+    build() {
+      const s = makeGameState({ orgName:'Test Guild', gold:9999, mapSize:64 });
+      return generateWorld(s);
+    },
+  },
+  {
+    id:'large_map', name:'Large Map (256×256)',
+    desc:'Generates a 256×256 world. Tests rendering performance and city placement at max scale.',
+    build() {
+      const s = makeGameState({ orgName:'Test Guild', gold:9999, mapSize:256 });
+      return generateWorld(s);
     },
   },
 ];
 
-/* ══════════════════════════════════════════════════════════════
-   DEV MODE  (Section 14)
-══════════════════════════════════════════════════════════════ */
-function toggleDevMode() {
-  if (!GS) return;
-  GS._devMode = !GS._devMode;
-  const btn   = document.getElementById('btn-devmode');
-  const panel = document.getElementById('dev-panel');
-  btn.classList.toggle('active', GS._devMode);
-  panel.classList.toggle('hidden', !GS._devMode);
-  if (GS._devMode) refreshDevPanel();
+/* ═══════════════════════════════════════════════════
+   WEBGL MAP RENDERER
+═══════════════════════════════════════════════════ */
+const MapRenderer = (() => {
+  let gl, canvas;
+  let prog, aPos, aColor, uResolution, uOffset, uScale;
+  let terrainBuf, terrainCount;
+  let roadBuf, roadCount;
+  let cityBuf, cityCount;
+  let hqBuf,   hqCount;
+
+  // Viewport state
+  let vpOffset = { x:0, y:0 }; // world-space pan in tile units
+  let vpScale  = 1;             // pixels per tile
+  const MIN_SCALE = 1;
+  const MAX_SCALE = 24;
+
+  // Terrain colours (matching legend in HTML)
+  const TERRAIN_COLOR = {
+    forest: [0.176, 0.290, 0.165, 1],
+    plains: [0.227, 0.227, 0.157, 1],
+    hills:  [0.227, 0.212, 0.188, 1],
+    water:  [0.102, 0.165, 0.227, 1],
+  };
+
+  const CITY_COLOR  = [0.784, 0.565, 0.165, 1]; // amber
+  const HQ_COLOR    = [0.906, 0.690, 0.290, 1]; // amber-bright
+  const ROAD_COLOR  = [0.392, 0.353, 0.235, 0.7];
+
+  function compileShader(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(s)); return null; }
+    return s;
+  }
+
+  function createProgram(vsrc, fsrc) {
+    const p = gl.createProgram();
+    gl.attachShader(p, compileShader(gl.VERTEX_SHADER,   vsrc));
+    gl.attachShader(p, compileShader(gl.FRAGMENT_SHADER, fsrc));
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { console.error(gl.getProgramInfoLog(p)); return null; }
+    return p;
+  }
+
+  function init(canvasEl) {
+    canvas = canvasEl;
+    gl = canvas.getContext('webgl', { antialias:true, alpha:false });
+    if (!gl) { console.error('WebGL not available'); return false; }
+
+    const vsrc = `
+      attribute vec2 a_pos;
+      attribute vec4 a_color;
+      uniform vec2  u_resolution;
+      uniform vec2  u_offset;
+      uniform float u_scale;
+      varying vec4 v_color;
+      void main() {
+        vec2 world = (a_pos - u_offset) * u_scale;
+        vec2 clip  = (world / u_resolution) * 2.0 - 1.0;
+        gl_Position = vec4(clip.x, -clip.y, 0, 1);
+        v_color = a_color;
+      }
+    `;
+    const fsrc = `
+      precision mediump float;
+      varying vec4 v_color;
+      void main() { gl_FragColor = v_color; }
+    `;
+
+    prog = createProgram(vsrc, fsrc);
+    if (!prog) return false;
+
+    aPos       = gl.getAttribLocation(prog,  'a_pos');
+    aColor     = gl.getAttribLocation(prog,  'a_color');
+    uResolution= gl.getUniformLocation(prog, 'u_resolution');
+    uOffset    = gl.getUniformLocation(prog, 'u_offset');
+    uScale     = gl.getUniformLocation(prog, 'u_scale');
+
+    gl.useProgram(prog);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+    return true;
+  }
+
+  /* Build a buffer from an interleaved [x,y,r,g,b,a, ...] array */
+  function buildBuffer(data) {
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+    return buf;
+  }
+
+  /* Push a quad (two triangles) for a tile */
+  function pushQuad(arr, x, y, w, h, c) {
+    const x1=x, y1=y, x2=x+w, y2=y+h;
+    const verts = [x1,y1, x2,y1, x1,y2, x2,y1, x2,y2, x1,y2];
+    for (let i=0; i<6; i++) {
+      arr.push(verts[i*2], verts[i*2+1], c[0], c[1], c[2], c[3] ?? 1);
+    }
+  }
+
+  /* Push a thick line as a quad */
+  function pushLine(arr, x1, y1, x2, y2, thickness, c) {
+    const dx = x2 - x1, dy = y2 - y1;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    if (len < 0.001) return;
+    const nx = -dy / len * thickness * 0.5;
+    const ny =  dx / len * thickness * 0.5;
+    const pts = [x1+nx,y1+ny, x2+nx,y2+ny, x1-nx,y1-ny, x2+nx,y2+ny, x2-nx,y2-ny, x1-nx,y1-ny];
+    for (let i=0; i<6; i++) arr.push(pts[i*2], pts[i*2+1], c[0], c[1], c[2], c[3] ?? 1);
+  }
+
+  /* Push a diamond (rhombus) shape for a city marker */
+  function pushDiamond(arr, cx, cy, r, c) {
+    // Two triangles forming a diamond
+    const pts = [cx,cy-r, cx+r,cy, cx,cy+r, cx,cy-r, cx,cy+r, cx-r,cy];
+    for (let i=0; i<6; i++) arr.push(pts[i*2], pts[i*2+1], c[0], c[1], c[2], c[3] ?? 1);
+  }
+
+  /* Build all geometry from game state */
+  function buildGeometry(world) {
+    const SIZE = world._mapSize;
+
+    /* Terrain */
+    const tData = [];
+    for (const tile of world.tiles) {
+      pushQuad(tData, tile.x, tile.y, 1, 1, TERRAIN_COLOR[tile.terrainType]);
+    }
+    terrainBuf   = buildBuffer(tData);
+    terrainCount = tData.length / 6;
+
+    /* Roads between cities */
+    const rData = [];
+    const cities = world.cities;
+    for (let i=0; i<cities.length; i++) {
+      for (let j=i+1; j<cities.length; j++) {
+        pushLine(rData, cities[i].x+0.5, cities[i].y+0.5, cities[j].x+0.5, cities[j].y+0.5, 0.35, ROAD_COLOR);
+      }
+    }
+    roadBuf   = buildBuffer(rData);
+    roadCount = rData.length / 6;
+
+    /* City markers */
+    const cData = [];
+    const hData = [];
+    const org   = null; // will look up from GS at draw time
+    for (const city of cities) {
+      pushDiamond(cData, city.x + 0.5, city.y + 0.5, 1.2, CITY_COLOR);
+    }
+    cityBuf   = buildBuffer(cData);
+    cityCount = cData.length / 6;
+
+    /* HQ marker (slightly larger, brighter) — built separately so it's always on top */
+    hqBuf   = null;
+    hqCount = 0;
+  }
+
+  function rebuildHQ(world, hqCityId) {
+    const hqCity = world.cities.find(c => c.id === hqCityId);
+    if (!hqCity) return;
+    const hData = [];
+    pushDiamond(hData, hqCity.x + 0.5, hqCity.y + 0.5, 1.7, HQ_COLOR);
+    hqBuf   = buildBuffer(hData);
+    hqCount = hData.length / 6;
+  }
+
+  function bindAndDraw(buf, count) {
+    if (!buf || count === 0) return;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    const STRIDE = 6 * 4; // 6 floats * 4 bytes
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos,   2, gl.FLOAT, false, STRIDE, 0);
+    gl.enableVertexAttribArray(aColor);
+    gl.vertexAttribPointer(aColor, 4, gl.FLOAT, false, STRIDE, 2 * 4);
+    gl.drawArrays(gl.TRIANGLES, 0, count);
+  }
+
+  function resize() {
+    const dpr = window.devicePixelRatio || 1;
+    const w   = canvas.clientWidth;
+    const h   = canvas.clientHeight;
+    if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+      canvas.width  = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+    }
+  }
+
+  function draw(world) {
+    if (!gl || !world || !world.tiles.length) return;
+    resize();
+    const W = canvas.width, H = canvas.height;
+    gl.viewport(0, 0, W, H);
+    gl.clearColor(0.055, 0.055, 0.059, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    gl.uniform2f(uResolution, W, H);
+    gl.uniform2f(uOffset,     vpOffset.x, vpOffset.y);
+    gl.uniform1f(uScale,      vpScale);
+
+    bindAndDraw(terrainBuf, terrainCount);
+    bindAndDraw(roadBuf,    roadCount);
+    bindAndDraw(cityBuf,    cityCount);
+    bindAndDraw(hqBuf,      hqCount);
+  }
+
+  /* Fit the entire map into the viewport on first load */
+  function fitToView(mapSize) {
+    const W = canvas.clientWidth || 800;
+    const H = canvas.clientHeight || 600;
+    vpScale  = Math.min(W / mapSize, H / mapSize) * 0.92;
+    vpOffset.x = -(W / vpScale - mapSize) / 2;
+    vpOffset.y = -(H / vpScale - mapSize) / 2;
+  }
+
+  /* Convert screen pixel coords → world tile coords */
+  function screenToWorld(sx, sy) {
+    const dpr = window.devicePixelRatio || 1;
+    const x = sx * dpr / vpScale + vpOffset.x;
+    const y = sy * dpr / vpScale + vpOffset.y;
+    return { x, y };
+  }
+
+  /* Pan */
+  function pan(dx, dy) {
+    const dpr = window.devicePixelRatio || 1;
+    vpOffset.x -= dx * dpr / vpScale;
+    vpOffset.y -= dy * dpr / vpScale;
+  }
+
+  /* Zoom around a pivot point (screen coords) */
+  function zoom(factor, pivotX, pivotY) {
+    const oldScale = vpScale;
+    vpScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, vpScale * factor));
+    const sf = vpScale / oldScale - 1;
+    const dpr = window.devicePixelRatio || 1;
+    vpOffset.x += (pivotX * dpr / oldScale) * sf;
+    vpOffset.y += (pivotY * dpr / oldScale) * sf;
+  }
+
+  return { init, buildGeometry, rebuildHQ, draw, fitToView, screenToWorld, pan, zoom };
+})();
+
+/* ═══════════════════════════════════════════════════
+   CANVAS LABELS  (city names drawn on 2D overlay)
+═══════════════════════════════════════════════════ */
+const LabelRenderer = (() => {
+  let ctx2d, canvas2d;
+
+  function init() {
+    // We draw labels on a transparent 2D canvas layered over the WebGL canvas
+    canvas2d = document.createElement('canvas');
+    canvas2d.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';
+    document.getElementById('canvas-area').appendChild(canvas2d);
+    ctx2d = canvas2d.getContext('2d');
+  }
+
+  function draw(world, vpDraw) {
+    if (!world || !world.cities) return;
+    const dpr = window.devicePixelRatio || 1;
+    const W   = canvas2d.clientWidth;
+    const H   = canvas2d.clientHeight;
+    if (canvas2d.width !== Math.round(W*dpr) || canvas2d.height !== Math.round(H*dpr)) {
+      canvas2d.width  = Math.round(W*dpr);
+      canvas2d.height = Math.round(H*dpr);
+    }
+    ctx2d.clearRect(0, 0, canvas2d.width, canvas2d.height);
+
+    ctx2d.save();
+    ctx2d.scale(dpr, dpr);
+
+    const org = GS ? GS.organizations.find(o => o.id === GS.playerOrgId) : null;
+
+    for (const city of world.cities) {
+      const sx = (city.x + 0.5 - vpDraw.offset.x) * vpDraw.scale;
+      const sy = (city.y + 0.5 - vpDraw.offset.y) * vpDraw.scale;
+
+      if (sx < -60 || sx > W + 60 || sy < -20 || sy > H + 20) continue;
+
+      const isHQ = org && org.hqCityId === city.id;
+
+      // City name
+      ctx2d.font = `600 ${Math.max(9, Math.min(14, vpDraw.scale * 1.1))}px Cinzel, serif`;
+      ctx2d.textAlign = 'center';
+      ctx2d.textBaseline = 'top';
+
+      // Shadow
+      ctx2d.fillStyle = 'rgba(14,14,15,0.8)';
+      ctx2d.fillText(city.name, sx + 1, sy + vpDraw.scale * 2.4 + 1);
+      // Text
+      ctx2d.fillStyle = isHQ ? '#e8b04a' : '#d4b896';
+      ctx2d.fillText(city.name, sx, sy + vpDraw.scale * 2.4);
+
+      if (isHQ) {
+        const sz = Math.max(7, Math.min(9, vpDraw.scale * 0.7));
+        ctx2d.font = `${sz}px Share Tech Mono, monospace`;
+        ctx2d.fillStyle = '#c8902a';
+        ctx2d.fillText('⬡ HQ', sx, sy + vpDraw.scale * 2.4 + Math.max(11, Math.min(18, vpDraw.scale * 1.2)));
+      }
+    }
+
+    ctx2d.restore();
+  }
+
+  return { init, draw };
+})();
+
+/* ═══════════════════════════════════════════════════
+   RENDER LOOP
+═══════════════════════════════════════════════════ */
+let rafId = null;
+let vpState = { offset:{ x:0, y:0 }, scale:1 };
+
+function startRenderLoop() {
+  function frame() {
+    if (!GS || !GS.world.tiles.length) { rafId = requestAnimationFrame(frame); return; }
+    // Sync vpState for label renderer
+    // (MapRenderer owns offset/scale internally; we mirror them here)
+    MapRenderer.draw(GS.world);
+    LabelRenderer.draw(GS.world, vpState);
+    rafId = requestAnimationFrame(frame);
+  }
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(frame);
 }
 
-function refreshDevPanel() {
-  const el = document.getElementById('dev-state-dump');
-  if (!el) return;
-  // Show a compact view — omit tiles array (too large) for readability
-  const display = { ...GS, world: { ...GS.world, tiles: `[${GS.world.tiles.length} tiles]` } };
-  el.textContent = JSON.stringify(display, null, 2);
-}
+/* ═══════════════════════════════════════════════════
+   MAP INPUT  (pan & zoom)
+═══════════════════════════════════════════════════ */
+function initMapInput() {
+  const canvas = document.getElementById('map-canvas');
+  let dragging = false, lastX = 0, lastY = 0;
 
-/* ══════════════════════════════════════════════════════════════
-   TOOLBAR
-══════════════════════════════════════════════════════════════ */
-function updateToolbar() {
-  if (!GS) return;
-  const org = playerOrg();
-  document.getElementById('tb-turn').textContent  = GS.turn;
-  document.getElementById('tb-day').textContent   = TIME.turnToDay(GS.turn);
-  document.getElementById('tb-gold').textContent  = org ? org.gold.toLocaleString() : '0';
-  document.getElementById('tb-roster').textContent= org ? org.recruits.length : '0';
-}
+  canvas.addEventListener('mousedown', e => {
+    dragging = true; lastX = e.clientX; lastY = e.clientY;
+    canvas.classList.add('panning');
+    hidePopup();
+  });
+  window.addEventListener('mouseup', () => { dragging = false; canvas.classList.remove('panning'); });
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+    MapRenderer.pan(dx, dy);
+    const wp = MapRenderer.screenToWorld(0, 0);
+    vpState.offset = { x: -wp.x * 0 + MapRenderer._offset_x, y: MapRenderer._offset_y };
+    // Sync label offset from renderer internals via a small helper
+    syncVPState();
+    lastX = e.clientX; lastY = e.clientY;
+  });
 
-/* ══════════════════════════════════════════════════════════════
-   SCREEN MANAGEMENT
-══════════════════════════════════════════════════════════════ */
-const SCREENS = ['screen-launch', 'screen-world-options', 'screen-test-scenario', 'screen-game'];
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+    MapRenderer.zoom(factor, e.offsetX, e.offsetY);
+    syncVPState();
+  }, { passive:false });
 
-function showScreen(name) {
-  SCREENS.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.toggle('hidden', id !== 'screen-' + name);
+  canvas.addEventListener('click', e => {
+    if (Math.abs(e.clientX - lastX) > 4 || Math.abs(e.clientY - lastY) > 4) return;
+    handleMapClick(e.offsetX, e.offsetY, e.clientX, e.clientY);
   });
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* The renderer owns offset/scale; expose them for the label layer */
+MapRenderer._offset_x = 0;
+MapRenderer._offset_y = 0;
+MapRenderer._scale    = 1;
+const _origPan  = MapRenderer.pan.bind(MapRenderer);
+const _origZoom = MapRenderer.zoom.bind(MapRenderer);
+// Patch pan/zoom to mirror state
+MapRenderer.pan = function(dx, dy) {
+  _origPan(dx, dy);
+  syncVPState();
+};
+MapRenderer.zoom = function(f, px, py) {
+  _origZoom(f, px, py);
+  syncVPState();
+};
+
+/* We need the renderer to expose its current viewport for the label layer.
+   The simplest approach: expose a getVP() function from inside the closure. */
+// Re-implement getVP by deriving from screenToWorld(0,0) and scale
+function syncVPState() {
+  // vpScale and vpOffset are internal to MapRenderer closure.
+  // We compute them indirectly: world coords of screen origin and (1,1).
+  const wOrigin = MapRenderer.screenToWorld(0, 0);
+  const w1      = MapRenderer.screenToWorld(1, 0);
+  const scale   = 1 / (w1.x - wOrigin.x);
+  vpState.offset = { x: wOrigin.x, y: wOrigin.y };
+  vpState.scale  = scale;
+}
+
+/* ═══════════════════════════════════════════════════
+   CITY CLICK / POPUP
+═══════════════════════════════════════════════════ */
+const CITY_HIT_RADIUS = 2.5; // tile units
+
+function handleMapClick(sx, sy, clientX, clientY) {
+  if (!GS || !GS.world.cities.length) return;
+  const world = MapRenderer.screenToWorld(sx, sy);
+
+  for (const city of GS.world.cities) {
+    const dx = city.x + 0.5 - world.x;
+    const dy = city.y + 0.5 - world.y;
+    if (Math.sqrt(dx*dx + dy*dy) < CITY_HIT_RADIUS) {
+      showCityPopup(city, clientX, clientY);
+      return;
+    }
+  }
+  hidePopup();
+}
+
+function showCityPopup(city, clientX, clientY) {
+  const popup  = document.getElementById('city-popup');
+  const org    = playerOrg();
+  const isHQ   = org && org.hqCityId === city.id;
+
+  document.getElementById('popup-city-name').textContent   = city.name;
+  document.getElementById('popup-city-coords').textContent = `(${city.x}, ${city.y})`;
+
+  const hqEl = document.getElementById('popup-city-hq');
+  hqEl.classList.toggle('hidden', !isHQ);
+
+  // Position near cursor but keep within viewport
+  const area  = document.getElementById('canvas-area').getBoundingClientRect();
+  const left  = Math.min(clientX - area.left + 12, area.width  - 180);
+  const top   = Math.min(clientY - area.top  + 12, area.height - 100);
+  popup.style.left = left + 'px';
+  popup.style.top  = top  + 'px';
+  popup.classList.add('visible');
+  popup.style.pointerEvents = 'auto';
+}
+
+function hidePopup() {
+  document.getElementById('city-popup').classList.remove('visible');
+}
+
+/* ═══════════════════════════════════════════════════
+   ENTER GAME (initialise renderer after world gen)
+═══════════════════════════════════════════════════ */
+function enterGame() {
+  showScreen('game');
+  updateToolbar();
+
+  // Short defer to ensure canvas has layout dimensions
+  requestAnimationFrame(() => {
+    const canvas = document.getElementById('map-canvas');
+    if (!MapRenderer._initialised) {
+      MapRenderer.init(canvas);
+      LabelRenderer.init();
+      initMapInput();
+      MapRenderer._initialised = true;
+    }
+
+    if (GS.world.tiles.length) {
+      MapRenderer.buildGeometry(GS.world);
+      const org = playerOrg();
+      if (org) MapRenderer.rebuildHQ(GS.world, org.hqCityId);
+      MapRenderer.fitToView(GS.world._mapSize);
+      syncVPState();
+    }
+
+    startRenderLoop();
+  });
+}
+
+/* ═══════════════════════════════════════════════════
+   TOOLBAR & DEV
+═══════════════════════════════════════════════════ */
+function updateToolbar() {
+  if (!GS) return;
+  const org = playerOrg();
+  document.getElementById('tb-turn').textContent   = GS.turn;
+  document.getElementById('tb-day').textContent    = TIME.turnToDay(GS.turn);
+  document.getElementById('tb-gold').textContent   = org ? org.gold.toLocaleString() : '0';
+  document.getElementById('tb-roster').textContent = org ? org.recruits.length : '0';
+}
+function toggleDevMode() {
+  if (!GS) return;
+  GS._devMode = !GS._devMode;
+  document.getElementById('btn-devmode').classList.toggle('active', GS._devMode);
+  document.getElementById('dev-panel').classList.toggle('hidden', !GS._devMode);
+  if (GS._devMode) refreshDevPanel();
+}
+function refreshDevPanel() {
+  const el = document.getElementById('dev-state-dump');
+  if (!el) return;
+  const d = { ...GS, world:{ ...GS.world, tiles:`[${GS.world.tiles.length} tiles]` } };
+  el.textContent = JSON.stringify(d, null, 2);
+}
+
+/* ═══════════════════════════════════════════════════
+   SCREEN MANAGEMENT
+═══════════════════════════════════════════════════ */
+const SCREENS = ['screen-launch','screen-world-options','screen-test-scenario','screen-game'];
+function showScreen(name) {
+  SCREENS.forEach(id => { const el=document.getElementById(id); if(el) el.classList.toggle('hidden', id !== 'screen-'+name); });
+}
+
+/* ═══════════════════════════════════════════════════
    TOAST
-══════════════════════════════════════════════════════════════ */
-function showToast(msg, type = '') {
-  const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
-  toast.className = 'toast' + (type ? ' ' + type : '');
-  toast.textContent = msg;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 2900);
+═══════════════════════════════════════════════════ */
+function showToast(msg, type='') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast' + (type?' '+type:''); t.textContent = msg;
+  c.appendChild(t); setTimeout(() => t.remove(), 2900);
 }
 
-/* ══════════════════════════════════════════════════════════════
-   LAUNCH MENU LOGIC
-══════════════════════════════════════════════════════════════ */
-function showLaunchError(msg) {
-  const el = document.getElementById('launch-error');
-  el.textContent = msg;
-  el.classList.add('visible');
-}
-function clearLaunchError() {
-  document.getElementById('launch-error').classList.remove('visible');
-}
+/* ═══════════════════════════════════════════════════
+   LAUNCH MENU
+═══════════════════════════════════════════════════ */
+function showLaunchError(msg) { const e=document.getElementById('launch-error'); e.textContent=msg; e.classList.add('visible'); }
+function clearLaunchError()   { document.getElementById('launch-error').classList.remove('visible'); }
 
-document.getElementById('btn-new-game').addEventListener('click', () => {
-  clearLaunchError();
-  showScreen('world-options');
-});
+document.getElementById('btn-new-game').addEventListener('click', () => { clearLaunchError(); showScreen('world-options'); });
+document.getElementById('btn-load-game').addEventListener('click', () => { clearLaunchError(); document.getElementById('file-load-input').value=''; document.getElementById('file-load-input').click(); });
+document.getElementById('file-load-input').addEventListener('change', e => { const f=e.target.files[0]; if(f) loadGameFromFile(f); });
+document.getElementById('btn-test-scenario').addEventListener('click', () => { clearLaunchError(); buildScenarioList(); showScreen('test-scenario'); });
 
-document.getElementById('btn-load-game').addEventListener('click', () => {
-  clearLaunchError();
-  document.getElementById('file-load-input').value = '';
-  document.getElementById('file-load-input').click();
-});
-
-document.getElementById('file-load-input').addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (file) loadGameFromFile(file);
-});
-
-document.getElementById('btn-test-scenario').addEventListener('click', () => {
-  clearLaunchError();
-  buildScenarioList();
-  showScreen('test-scenario');
-});
-
-/* ══════════════════════════════════════════════════════════════
-   WORLD OPTIONS LOGIC
-══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   WORLD OPTIONS
+═══════════════════════════════════════════════════ */
 function getOptionsValues() {
   return {
     orgName:         document.getElementById('opt-org-name').value.trim(),
@@ -975,136 +1111,96 @@ function getOptionsValues() {
     targetKnownPois: parseInt(document.getElementById('opt-known-pois').value, 10),
   };
 }
-
 function validateOptions(v) {
-  const errs = {};
-  if (!v.orgName)                                errs['org-name']    = 'Name cannot be empty.';
-  if (isNaN(v.startingChars) || v.startingChars < 0 || v.startingChars > 9)
-                                                  errs['chars']       = 'Must be between 0 and 9.';
-  if (isNaN(v.mapSize) || v.mapSize < 64 || v.mapSize > 256)
-                                                  errs['map-size']    = 'Must be between 64 and 256.';
-  if (isNaN(v.targetPois) || v.targetPois < 10 || v.targetPois > 50)
-                                                  errs['target-pois'] = 'Must be between 10 and 50.';
-  if (isNaN(v.targetKnownPois) || v.targetKnownPois < 6 || v.targetKnownPois > v.targetPois)
-                                                  errs['known-pois']  = 'Must be between 6 and Target world POIs.';
-  return errs;
+  const e = {};
+  if (!v.orgName)                                                        e['org-name']    = 'Name cannot be empty.';
+  if (isNaN(v.startingChars)||v.startingChars<0||v.startingChars>9)     e['chars']       = 'Must be between 0 and 9.';
+  if (isNaN(v.mapSize)||v.mapSize<64||v.mapSize>256)                     e['map-size']    = 'Must be between 64 and 256.';
+  if (isNaN(v.targetPois)||v.targetPois<10||v.targetPois>50)             e['target-pois'] = 'Must be between 10 and 50.';
+  if (isNaN(v.targetKnownPois)||v.targetKnownPois<6||v.targetKnownPois>v.targetPois) e['known-pois'] = 'Must be between 6 and Target world POIs.';
+  return e;
 }
-
 function showOptionsErrors(errs) {
   ['org-name','chars','map-size','target-pois','known-pois'].forEach(key => {
-    const el = document.getElementById('err-' + key);
-    if (!el) return;
-    if (errs[key]) { el.textContent = errs[key]; el.classList.add('visible'); }
-    else             el.classList.remove('visible');
+    const el = document.getElementById('err-'+key); if(!el) return;
+    if (errs[key]) { el.textContent=errs[key]; el.classList.add('visible'); }
+    else el.classList.remove('visible');
   });
 }
-
-document.getElementById('btn-options-back').addEventListener('click', () => {
-  showScreen('launch');
-});
-
+document.getElementById('btn-options-back').addEventListener('click', () => showScreen('launch'));
 document.getElementById('btn-options-confirm').addEventListener('click', () => {
-  const v    = getOptionsValues();
-  const errs = validateOptions(v);
+  const v=getOptionsValues(), errs=validateOptions(v);
   showOptionsErrors(errs);
   if (Object.keys(errs).length > 0) return;
-
-  // Initialise game state
   GS = makeGameState(v);
-
-  // World generation stub — actual generation in Step 2
-  // For now just record the options on the world object (already done in makeWorld)
-
-  showScreen('game');
-  updateToolbar();
-  showToast('New game started — ' + v.orgName, 'success');
+  generateWorld(GS);
+  enterGame();
+  showToast('World generated — ' + v.orgName, 'success');
 });
 
-/* ══════════════════════════════════════════════════════════════
-   TEST SCENARIO LOGIC
-══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   TEST SCENARIOS
+═══════════════════════════════════════════════════ */
 let selectedScenarioId = null;
-
 function buildScenarioList() {
   selectedScenarioId = null;
   document.getElementById('btn-scenario-launch').disabled = true;
   const list = document.getElementById('scenario-list');
   list.innerHTML = '';
-
   TEST_SCENARIOS.forEach(s => {
     const item = document.createElement('div');
-    item.className = 'scenario-item';
-    item.dataset.id = s.id;
-    item.innerHTML = `<div class="scenario-item-name">${s.name}</div>
-                      <div class="scenario-item-desc">${s.desc}</div>`;
+    item.className = 'scenario-item'; item.dataset.id = s.id;
+    item.innerHTML = `<div class="scenario-item-name">${s.name}</div><div class="scenario-item-desc">${s.desc}</div>`;
     item.addEventListener('click', () => {
       document.querySelectorAll('.scenario-item').forEach(el => el.classList.remove('selected'));
-      item.classList.add('selected');
-      selectedScenarioId = s.id;
+      item.classList.add('selected'); selectedScenarioId = s.id;
       document.getElementById('btn-scenario-launch').disabled = false;
     });
     list.appendChild(item);
   });
 }
-
-document.getElementById('btn-scenario-back').addEventListener('click', () => {
-  showScreen('launch');
-});
-
+document.getElementById('btn-scenario-back').addEventListener('click',   () => showScreen('launch'));
 document.getElementById('btn-scenario-launch').addEventListener('click', () => {
-  const s = TEST_SCENARIOS.find(x => x.id === selectedScenarioId);
-  if (!s) return;
-  GS = s.build();
-  showScreen('game');
-  updateToolbar();
-  showToast('Scenario loaded: ' + s.name, 'success');
+  const s = TEST_SCENARIOS.find(x => x.id === selectedScenarioId); if(!s) return;
+  GS = s.build(); enterGame(); showToast('Scenario: ' + s.name, 'success');
 });
 
-/* ══════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    IN-GAME CONTROLS
-══════════════════════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 document.getElementById('btn-end-turn').addEventListener('click', advanceTurn);
 document.getElementById('btn-save').addEventListener('click', saveGame);
 document.getElementById('btn-devmode').addEventListener('click', toggleDevMode);
 
-/* ══════════════════════════════════════════════════════════════
-   AUTOSAVE ON UNLOAD
-══════════════════════════════════════════════════════════════ */
-window.addEventListener('beforeunload', () => {
-  if (GS) autosave();
+/* Close popup on Escape */
+window.addEventListener('keydown', e => { if (e.key === 'Escape') hidePopup(); });
+
+/* Resize handler */
+window.addEventListener('resize', () => {
+  if (GS && GS.world.tiles.length) syncVPState();
 });
 
-/* ══════════════════════════════════════════════════════════════
-   RESTORE AUTOSAVE NOTICE (optional quality-of-life)
-   If an autosave is found, add a subtle hint on the launch screen.
-══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   AUTOSAVE RESTORE
+═══════════════════════════════════════════════════ */
+window.addEventListener('beforeunload', () => { if (GS) autosave(); });
+
 (function checkAutosave() {
   try {
-    const raw = localStorage.getItem(AUTOSAVE_KEY);
-    if (!raw) return;
-    const s = JSON.parse(raw);
-    if (!s || typeof s.turn !== 'number') return;
-
-    // Append an autosave restore button below the load button
+    const raw = localStorage.getItem(AUTOSAVE_KEY); if (!raw) return;
+    const s = JSON.parse(raw); if (!s || typeof s.turn !== 'number') return;
     const btnLoad = document.getElementById('btn-load-game');
     const btnAuto = document.createElement('button');
     btnAuto.className = 'btn';
     btnAuto.innerHTML = `Restore Autosave <span style="font-family:var(--mono);font-size:10px;color:var(--amber-dim)"> — Turn ${s.turn}</span>`;
     btnLoad.parentNode.insertBefore(btnAuto, btnLoad.nextSibling);
-
     btnAuto.addEventListener('click', () => {
       clearLaunchError();
       const state = loadFromJson(raw);
-      if (!state) {
-        showLaunchError('Autosave data is corrupted and cannot be restored.');
-        return;
-      }
-      GS = state;
-      showScreen('game');
-      updateToolbar();
-      showToast('Autosave restored — Turn ' + GS.turn, 'success');
+      if (!state) { showLaunchError('Autosave data is corrupted.'); return; }
+      GS = state; enterGame(); showToast('Autosave restored — Turn ' + GS.turn, 'success');
     });
-  } catch(e) { /* ignore */ }
+  } catch(e) {}
 })();
 </script>
 </body>

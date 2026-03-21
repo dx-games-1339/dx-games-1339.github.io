@@ -1,1 +1,1111 @@
-INIT
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ironbound</title>
+<style>
+  /* ── Google Fonts ──────────────────────────────────────────── */
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap');
+
+  /* ── Design tokens ─────────────────────────────────────────── */
+  :root {
+    --bg:           #0e0e0f;
+    --bg-panel:     #141416;
+    --bg-raised:    #1c1c1f;
+    --bg-input:     #111113;
+    --border:       #2e2e33;
+    --border-accent:#4a3f28;
+    --amber:        #c8902a;
+    --amber-dim:    #7a5518;
+    --amber-bright: #e8b04a;
+    --parchment:    #d4b896;
+    --parchment-dim:#7a6a58;
+    --text:         #c8c0b0;
+    --text-dim:     #6a6260;
+    --text-bright:  #e8e0d0;
+    --red:          #8b3030;
+    --red-bright:   #c04040;
+    --green:        #2a5a30;
+    --green-bright: #3a8040;
+    --mono:         'Share Tech Mono', monospace;
+    --serif:        'Cinzel', serif;
+    --body:         'Crimson Pro', Georgia, serif;
+  }
+
+  /* ── Reset ─────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.5;
+    overflow: hidden;
+  }
+
+  /* ── Utility ────────────────────────────────────────────────── */
+  .hidden { display: none !important; }
+
+  /* ── Decorative rule ───────────────────────────────────────── */
+  .rule {
+    display: flex; align-items: center; gap: 12px;
+    color: var(--amber-dim);
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+  }
+  .rule::before, .rule::after {
+    content: ''; flex: 1; height: 1px; background: var(--border-accent);
+  }
+
+  /* ── Buttons ────────────────────────────────────────────────── */
+  .btn {
+    display: block; width: 100%;
+    padding: 11px 24px;
+    background: transparent;
+    border: 1px solid var(--border-accent);
+    color: var(--parchment);
+    font-family: var(--serif); font-size: 13px; font-weight: 600;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    outline: none;
+  }
+  .btn:hover {
+    background: var(--amber-dim);
+    border-color: var(--amber);
+    color: var(--amber-bright);
+  }
+  .btn:active { background: var(--amber); color: var(--bg); }
+  .btn:disabled {
+    opacity: 0.35; cursor: not-allowed;
+    background: transparent; border-color: var(--border); color: var(--text-dim);
+  }
+  .btn-primary {
+    background: var(--amber-dim);
+    border-color: var(--amber);
+    color: var(--amber-bright);
+  }
+  .btn-primary:hover {
+    background: var(--amber);
+    color: var(--bg);
+  }
+  .btn-danger {
+    border-color: var(--red);
+    color: var(--red-bright);
+  }
+  .btn-danger:hover { background: var(--red); color: #fff; }
+  .btn-sm {
+    width: auto; display: inline-block;
+    padding: 6px 16px; font-size: 11px;
+  }
+
+  /* ── Form elements ──────────────────────────────────────────── */
+  label {
+    display: block;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+    color: var(--parchment-dim); text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  input[type="text"], input[type="number"] {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-bright);
+    font-family: var(--mono); font-size: 13px;
+    padding: 8px 10px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input[type="text"]:focus, input[type="number"]:focus {
+    border-color: var(--amber-dim);
+  }
+  input[type="number"] { -moz-appearance: textfield; }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .field-hint {
+    font-family: var(--body); font-style: italic; font-size: 13px;
+    color: var(--text-dim); margin-top: 3px;
+  }
+  .field-error {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--red-bright); margin-top: 3px; display: none;
+  }
+  .field-error.visible { display: block; }
+  .field-group { margin-bottom: 18px; }
+
+  /* ── Scrollbar ───────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-accent); }
+
+  /* ════════════════════════════════════════════════════════════
+     SCREEN: Launch Menu
+  ════════════════════════════════════════════════════════════ */
+  #screen-launch {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    position: relative;
+    background: var(--bg);
+  }
+
+  /* Corner ornaments */
+  #screen-launch::before, #screen-launch::after {
+    content: '';
+    position: absolute;
+    width: 120px; height: 120px;
+    border-color: var(--border-accent);
+    border-style: solid;
+    pointer-events: none;
+  }
+  #screen-launch::before {
+    top: 32px; left: 32px;
+    border-width: 1px 0 0 1px;
+  }
+  #screen-launch::after {
+    bottom: 32px; right: 32px;
+    border-width: 0 1px 1px 0;
+  }
+
+  .launch-inner {
+    width: 360px;
+    display: flex; flex-direction: column;
+    gap: 0;
+  }
+
+  .launch-title {
+    font-family: var(--serif);
+    font-size: 52px; font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--amber);
+    text-align: center;
+    line-height: 1;
+    margin-bottom: 4px;
+    text-shadow: 0 0 40px rgba(200,144,42,0.25);
+  }
+
+  .launch-subtitle {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--parchment-dim);
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .launch-buttons { display: flex; flex-direction: column; gap: 8px; }
+
+  .launch-error {
+    margin-top: 12px; padding: 10px 14px;
+    border: 1px solid var(--red);
+    background: rgba(139,48,48,0.12);
+    font-family: var(--mono); font-size: 11px;
+    color: var(--red-bright); letter-spacing: 0.05em;
+    display: none;
+  }
+  .launch-error.visible { display: block; }
+
+  .launch-version {
+    position: absolute; bottom: 20px; right: 32px;
+    font-family: var(--mono); font-size: 10px;
+    color: var(--text-dim); letter-spacing: 0.1em;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     SCREEN: World Options
+  ════════════════════════════════════════════════════════════ */
+  #screen-world-options {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg);
+  }
+
+  .options-panel {
+    width: 520px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-accent);
+    padding: 36px 40px;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+
+  .options-title {
+    font-family: var(--serif); font-size: 18px; font-weight: 600;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--amber); margin-bottom: 6px;
+  }
+  .options-desc {
+    font-family: var(--body); font-style: italic; font-size: 14px;
+    color: var(--text-dim); margin-bottom: 28px;
+  }
+
+  .options-section-title {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--amber-dim);
+    margin: 24px 0 16px;
+  }
+
+  .options-actions {
+    display: flex; gap: 10px; margin-top: 28px;
+  }
+  .options-actions .btn { flex: 1; }
+
+  /* ════════════════════════════════════════════════════════════
+     SCREEN: Test Scenario
+  ════════════════════════════════════════════════════════════ */
+  #screen-test-scenario {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg);
+  }
+
+  .scenario-panel {
+    width: 520px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-accent);
+    padding: 36px 40px;
+  }
+
+  .scenario-title {
+    font-family: var(--serif); font-size: 18px; font-weight: 600;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--amber); margin-bottom: 6px;
+  }
+  .scenario-desc {
+    font-family: var(--body); font-style: italic; font-size: 14px;
+    color: var(--text-dim); margin-bottom: 24px;
+  }
+
+  .scenario-list {
+    display: flex; flex-direction: column; gap: 6px;
+    margin-bottom: 24px;
+  }
+
+  .scenario-item {
+    border: 1px solid var(--border);
+    background: var(--bg-raised);
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color 0.12s, background 0.12s;
+  }
+  .scenario-item:hover { border-color: var(--amber-dim); background: #1e1e22; }
+  .scenario-item.selected { border-color: var(--amber); background: rgba(74,63,40,0.2); }
+
+  .scenario-item-name {
+    font-family: var(--serif); font-size: 13px; font-weight: 600;
+    letter-spacing: 0.1em; color: var(--parchment); margin-bottom: 3px;
+  }
+  .scenario-item-desc {
+    font-family: var(--body); font-style: italic; font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .scenario-actions { display: flex; gap: 10px; }
+  .scenario-actions .btn { flex: 1; }
+
+  /* ════════════════════════════════════════════════════════════
+     SCREEN: Game (stub — Steps 2+ will build this out)
+  ════════════════════════════════════════════════════════════ */
+  #screen-game {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    background: var(--bg);
+  }
+
+  /* Toolbar */
+  #toolbar {
+    height: 44px; min-height: 44px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 16px; gap: 24px;
+    flex-shrink: 0;
+  }
+
+  .toolbar-logo {
+    font-family: var(--serif); font-size: 15px; font-weight: 700;
+    letter-spacing: 0.18em; color: var(--amber);
+    margin-right: 8px;
+  }
+  .toolbar-sep {
+    width: 1px; height: 20px;
+    background: var(--border);
+  }
+  .toolbar-stat {
+    display: flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: 11px;
+  }
+  .toolbar-stat-label {
+    color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .toolbar-stat-value {
+    color: var(--text-bright); letter-spacing: 0.05em;
+  }
+  .toolbar-stat-value.gold { color: var(--amber); }
+
+  .toolbar-spacer { flex: 1; }
+
+  .toolbar-btn {
+    padding: 5px 18px;
+    background: transparent;
+    border: 1px solid var(--border-accent);
+    color: var(--parchment);
+    font-family: var(--serif); font-size: 11px; font-weight: 600;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+    outline: none;
+  }
+  .toolbar-btn:hover {
+    background: var(--amber-dim); border-color: var(--amber); color: var(--amber-bright);
+  }
+  .toolbar-btn.save-btn { font-size: 10px; padding: 4px 12px; }
+  .toolbar-btn.devmode-btn { border-color: var(--green); color: var(--green-bright); }
+  .toolbar-btn.devmode-btn.active {
+    background: rgba(42,90,48,0.3); border-color: var(--green-bright);
+  }
+
+  /* Canvas area (stub) */
+  #canvas-area {
+    flex: 1; position: relative; overflow: hidden;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .canvas-stub {
+    text-align: center;
+    font-family: var(--mono); font-size: 12px;
+    color: var(--text-dim); letter-spacing: 0.08em;
+    line-height: 2;
+  }
+  .canvas-stub strong {
+    display: block; font-family: var(--serif); font-size: 16px;
+    color: var(--parchment); letter-spacing: 0.12em; margin-bottom: 8px;
+  }
+
+  /* Dev panel */
+  #dev-panel {
+    position: absolute; top: 8px; right: 8px;
+    width: 360px; max-height: calc(100% - 16px);
+    background: rgba(14,14,15,0.95);
+    border: 1px solid var(--green);
+    overflow-y: auto;
+    font-family: var(--mono); font-size: 11px;
+    color: var(--green-bright);
+    padding: 12px 14px;
+    line-height: 1.7;
+    pointer-events: auto;
+  }
+  #dev-panel h3 {
+    font-family: var(--serif); font-size: 12px;
+    color: var(--green-bright); letter-spacing: 0.15em;
+    text-transform: uppercase; margin-bottom: 8px;
+    border-bottom: 1px solid var(--green);
+    padding-bottom: 6px;
+  }
+  #dev-panel pre {
+    white-space: pre-wrap; word-break: break-all;
+    font-size: 10px; color: #5a8a5a;
+  }
+
+  /* Bottom panel (stub) */
+  #bottom-panel {
+    height: 140px; min-height: 140px;
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .bottom-stub {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--text-dim); letter-spacing: 0.08em;
+  }
+
+  /* ── Toast notifications ─────────────────────────────────── */
+  #toast-container {
+    position: fixed; bottom: 160px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    pointer-events: none; z-index: 9999;
+  }
+  .toast {
+    padding: 9px 18px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-accent);
+    font-family: var(--mono); font-size: 11px;
+    color: var(--parchment); letter-spacing: 0.08em;
+    animation: toast-in 0.2s ease, toast-out 0.3s ease 2.5s forwards;
+    pointer-events: none;
+  }
+  .toast.error { border-color: var(--red); color: var(--red-bright); }
+  .toast.success { border-color: var(--green-bright); color: var(--green-bright); }
+  @keyframes toast-in  { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes toast-out { from { opacity: 1; } to { opacity: 0; } }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════
+     SCREEN: Launch Menu
+════════════════════════════════════════════════ -->
+<div id="screen-launch">
+  <div class="launch-inner">
+    <div class="launch-title">IRONBOUND</div>
+    <div class="launch-subtitle">Mercenary Guild Management</div>
+
+    <div class="rule">MAIN MENU</div>
+    <div style="margin-bottom:20px"></div>
+
+    <div class="launch-buttons">
+      <button class="btn btn-primary" id="btn-new-game">Start New Game</button>
+      <button class="btn" id="btn-load-game">Load Game</button>
+      <button class="btn" id="btn-test-scenario">Launch Test Scenario</button>
+    </div>
+
+    <div class="launch-error" id="launch-error"></div>
+  </div>
+
+  <!-- Hidden file input for load -->
+  <input type="file" id="file-load-input" accept=".json" style="display:none">
+
+  <div class="launch-version">v0.1 — Step 1</div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     SCREEN: World Options
+════════════════════════════════════════════════ -->
+<div id="screen-world-options" class="hidden">
+  <div class="options-panel">
+    <div class="options-title">World Options</div>
+    <div class="options-desc">Configure the parameters of the new world. All fields have defaults — you may confirm immediately.</div>
+
+    <div class="rule">ORGANIZATION</div>
+
+    <div style="margin-top:16px"></div>
+
+    <div class="field-group">
+      <label for="opt-org-name">Organization Name</label>
+      <input type="text" id="opt-org-name" value="The Guild" maxlength="40">
+      <div class="field-hint">The name of your mercenary guild.</div>
+      <div class="field-error" id="err-org-name">Name cannot be empty.</div>
+    </div>
+
+    <div class="field-group">
+      <label for="opt-gold">Starting Gold</label>
+      <input type="number" id="opt-gold" value="4200" min="0">
+      <div class="field-hint">Your guild's initial gold balance.</div>
+    </div>
+
+    <div class="field-group">
+      <label for="opt-chars">Starting Characters</label>
+      <input type="number" id="opt-chars" value="0" min="0" max="9">
+      <div class="field-hint">Recruits placed in your roster at game start (0 – 9).</div>
+      <div class="field-error" id="err-chars">Must be between 0 and 9.</div>
+    </div>
+
+    <div class="options-section-title">World</div>
+
+    <div class="field-group">
+      <label for="opt-map-size">Map Size</label>
+      <input type="number" id="opt-map-size" value="128" min="64" max="256">
+      <div class="field-hint">Width and height of the world map in tile units (64 – 256). Larger maps increase travel distances.</div>
+      <div class="field-error" id="err-map-size">Must be between 64 and 256.</div>
+    </div>
+
+    <div class="field-group">
+      <label for="opt-target-pois">Target World POIs</label>
+      <input type="number" id="opt-target-pois" value="20" min="10" max="50">
+      <div class="field-hint">How many POIs the world attempts to sustain simultaneously (10 – 50).</div>
+      <div class="field-error" id="err-target-pois">Must be between 10 and 50.</div>
+    </div>
+
+    <div class="field-group">
+      <label for="opt-known-pois">Target Publicly Known POIs</label>
+      <input type="number" id="opt-known-pois" value="8" min="6">
+      <div class="field-hint">POIs that spawn as Discovered for all organizations by default (6 – Target world POIs).</div>
+      <div class="field-error" id="err-known-pois">Must be between 6 and Target world POIs.</div>
+    </div>
+
+    <div class="options-actions">
+      <button class="btn" id="btn-options-back">Cancel</button>
+      <button class="btn btn-primary" id="btn-options-confirm">Confirm & Start</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     SCREEN: Test Scenario
+════════════════════════════════════════════════ -->
+<div id="screen-test-scenario" class="hidden">
+  <div class="scenario-panel">
+    <div class="scenario-title">Test Scenarios</div>
+    <div class="scenario-desc">Select a pre-defined scenario to test a specific system or mechanic.</div>
+
+    <div class="scenario-list" id="scenario-list"></div>
+
+    <div class="scenario-actions">
+      <button class="btn" id="btn-scenario-back">Back</button>
+      <button class="btn btn-primary" id="btn-scenario-launch" disabled>Launch Scenario</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     SCREEN: Game
+════════════════════════════════════════════════ -->
+<div id="screen-game" class="hidden">
+
+  <!-- Toolbar -->
+  <div id="toolbar">
+    <span class="toolbar-logo">IRONBOUND</span>
+    <div class="toolbar-sep"></div>
+
+    <div class="toolbar-stat">
+      <span class="toolbar-stat-label">Turn</span>
+      <span class="toolbar-stat-value" id="tb-turn">1</span>
+    </div>
+    <div class="toolbar-stat">
+      <span class="toolbar-stat-label">Day</span>
+      <span class="toolbar-stat-value" id="tb-day">1</span>
+    </div>
+    <div class="toolbar-stat">
+      <span class="toolbar-stat-label">Gold</span>
+      <span class="toolbar-stat-value gold" id="tb-gold">0</span>
+    </div>
+    <div class="toolbar-stat">
+      <span class="toolbar-stat-label">Roster</span>
+      <span class="toolbar-stat-value" id="tb-roster">0</span>
+    </div>
+
+    <div class="toolbar-spacer"></div>
+
+    <button class="toolbar-btn devmode-btn" id="btn-devmode">DEV</button>
+    <button class="toolbar-btn save-btn" id="btn-save">Save</button>
+    <button class="toolbar-btn" id="btn-end-turn">End Turn</button>
+  </div>
+
+  <!-- Canvas / main area -->
+  <div id="canvas-area">
+    <div class="canvas-stub">
+      <strong>Global Map</strong>
+      World generation renders here in Step 2.<br>
+      GameState initialised — save/load active.
+    </div>
+
+    <!-- Dev panel -->
+    <div id="dev-panel" class="hidden">
+      <h3>⬡ Dev Mode — Game State</h3>
+      <pre id="dev-state-dump"></pre>
+    </div>
+  </div>
+
+  <!-- Bottom panel -->
+  <div id="bottom-panel">
+    <div class="bottom-stub">Context panel — Step 4+</div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- ════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ══════════════════════════════════════════════════════════════
+   CONSTANTS
+══════════════════════════════════════════════════════════════ */
+const VERSION        = '0.1-step1';
+const AUTOSAVE_KEY   = 'ironbound_autosave';
+const AUTOSAVE_EVERY = 5; // turns
+
+/* ══════════════════════════════════════════════════════════════
+   GAME STATE — factory functions matching Section 11.2 schema
+══════════════════════════════════════════════════════════════ */
+
+function makeId() {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+function makeHungerState() {
+  return { stage: 'Hunger', charges: 0 };
+}
+
+function makeRecruit(overrides = {}) {
+  return {
+    id:             makeId(),
+    name:           overrides.name           ?? 'Unknown',
+    portrait:       overrides.portrait       ?? 'default',
+    race:           overrides.race           ?? 'human',
+    level:          overrides.level          ?? 5,
+    upkeepBaseRate: overrides.upkeepBaseRate ?? 10,
+    traits:         overrides.traits         ?? [],
+    characteristics: {
+      health:            overrides.health         ?? 100,
+      regeneration:      overrides.regeneration   ?? 5,
+      movementSpeed:     overrides.movementSpeed  ?? 10,
+      baseCarryCapacity: overrides.carry          ?? 7,
+      strength:          overrides.strength       ?? 10,
+      dexterity:         overrides.dexterity      ?? 10,
+      perception:        overrides.perception     ?? 8,
+      loyalty:           overrides.loyalty        ?? 15,
+    },
+    equipment: {
+      garment:  null,
+      head:     null,
+      backpack: null,
+      trinket:  null,
+      trinket2: null,
+    },
+    inventory:    [],
+    statusEffects:[],
+    wounds:       [],
+    hunger:       makeHungerState(),
+    incapacitated:null,
+    state:        'Available',
+  };
+}
+
+function makeGroup(overrides = {}) {
+  return {
+    id:             makeId(),
+    name:           overrides.name       ?? 'New Group',
+    role:           overrides.role       ?? 'Scout',
+    memberIds:      overrides.memberIds  ?? [],
+    locationPoiId:  null,
+    locationZoneId: null,
+    currentCityId:  overrides.cityId     ?? null,
+    inTransitTo:    null,
+    schedule:       [false, false, false, false, false, true], // turn 6 = rest
+    taskList:       [],
+    config: {
+      zoneTravelAllowed:           true,
+      giveUpTurnCount:             7,
+      overrideMaintenanceLifecycle:false,
+    },
+  };
+}
+
+function makeOrganization(opts = {}) {
+  return {
+    id:            makeId(),
+    name:          opts.name    ?? 'The Guild',
+    gold:          opts.gold    ?? 4200,
+    hqCityId:      opts.hqCityId ?? '',
+    criminalRecord:[],
+    recruits:      [],
+    groups:        [],
+    inventory: {
+      food:      [],
+      equipment: [],
+      weapons:   [],
+      misc:      [],
+      forSale:   [],
+    },
+  };
+}
+
+function makeWorld(opts = {}) {
+  return {
+    tiles:  [],  // populated in Step 2
+    cities: [],  // populated in Step 2
+    pois:   [],  // populated in Step 3
+    // Generation parameters stored for reference
+    _mapSize:          opts.mapSize         ?? 128,
+    _targetPois:       opts.targetPois      ?? 20,
+    _targetKnownPois:  opts.targetKnownPois ?? 8,
+  };
+}
+
+function makeGameState(opts = {}) {
+  const org = makeOrganization({
+    name:    opts.orgName ?? 'The Guild',
+    gold:    opts.gold    ?? 4200,
+    hqCityId:'',          // assigned during world gen in Step 2
+  });
+
+  const state = {
+    turn:          1,
+    world:         makeWorld({
+      mapSize:         opts.mapSize         ?? 128,
+      targetPois:      opts.targetPois      ?? 20,
+      targetKnownPois: opts.targetKnownPois ?? 8,
+    }),
+    organizations: [org],
+    playerOrgId:   org.id,
+    // Meta — not part of core schema but useful
+    _version:   VERSION,
+    _devMode:   false,
+    _autosaveTurn: 0,
+  };
+
+  return state;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TIME HELPERS  (Section 2)
+══════════════════════════════════════════════════════════════ */
+const TIME = {
+  TURNS_PER_DAY:   6,
+  DAYS_PER_WEEK:   7,
+  DAYS_PER_MONTH:  30,
+  turnToDay:  t => Math.floor((t - 1) / 6) + 1,
+  turnToWeek: t => Math.floor((TIME.turnToDay(t) - 1) / 7) + 1,
+  turnToMonth:t => Math.floor((TIME.turnToDay(t) - 1) / 30) + 1,
+  isFirstTurnOfDay:   t => ((t - 1) % 6) === 0,
+  isLastTurnOfDay:    t => (t % 6) === 0,
+  isFirstTurnOfWeek:  t => TIME.isFirstTurnOfDay(t) && ((TIME.turnToDay(t) - 1) % 7 === 0),
+  isFirstTurnOfMonth: t => TIME.isFirstTurnOfDay(t) && ((TIME.turnToDay(t) - 1) % 30 === 0),
+  // Upkeep fires on first turn of last day of each month
+  isUpkeepTurn: t => {
+    const day = TIME.turnToDay(t);
+    const dayInMonth = ((day - 1) % 30) + 1;
+    return dayInMonth === 30 && TIME.isFirstTurnOfDay(t);
+  },
+};
+
+/* ══════════════════════════════════════════════════════════════
+   GLOBAL STATE
+══════════════════════════════════════════════════════════════ */
+let GS = null; // the live GameState object
+
+function playerOrg() {
+  return GS.organizations.find(o => o.id === GS.playerOrgId);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SAVE / LOAD  (Section 11.3)
+══════════════════════════════════════════════════════════════ */
+function saveGame() {
+  if (!GS) return;
+  const json = JSON.stringify(GS, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `ironbound_save_turn${GS.turn}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Game saved.', 'success');
+}
+
+function autosave() {
+  if (!GS) return;
+  try {
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(GS));
+  } catch(e) {
+    // localStorage may be full or unavailable — silently ignore
+  }
+}
+
+function loadFromJson(json) {
+  let parsed;
+  try { parsed = JSON.parse(json); } catch(e) { return null; }
+  // Basic structural validation
+  if (!parsed || typeof parsed.turn !== 'number' || !parsed.world || !Array.isArray(parsed.organizations)) {
+    return null;
+  }
+  return parsed;
+}
+
+function loadGameFromFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const state = loadFromJson(e.target.result);
+    if (!state) {
+      showLaunchError('Invalid or corrupted save file. Please select a valid Ironbound save.');
+      return;
+    }
+    GS = state;
+    showScreen('game');
+    updateToolbar();
+    showToast('Save loaded — Turn ' + GS.turn, 'success');
+  };
+  reader.onerror = () => {
+    showLaunchError('Could not read the file. Please try again.');
+  };
+  reader.readAsText(file);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TURN ADVANCE  (stub — full wiring in Step 10)
+══════════════════════════════════════════════════════════════ */
+function advanceTurn() {
+  if (!GS) return;
+  GS.turn++;
+
+  // Autosave every N turns
+  if ((GS.turn - GS._autosaveTurn) >= AUTOSAVE_EVERY) {
+    autosave();
+    GS._autosaveTurn = GS.turn;
+  }
+
+  updateToolbar();
+  if (GS._devMode) refreshDevPanel();
+  showToast('Turn ' + GS.turn);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TEST SCENARIOS  (Section 12.3)
+══════════════════════════════════════════════════════════════ */
+const TEST_SCENARIOS = [
+  {
+    id:   'empty_world',
+    name: 'Empty World',
+    desc: 'Initialises a bare GameState with default world options. Tests state schema and save/load pipeline.',
+    build: () => makeGameState({ orgName: 'Test Guild', gold: 9999 }),
+  },
+  {
+    id:   'single_recruit',
+    name: 'Single Recruit',
+    desc: 'One recruit in the roster at HQ. Tests character schema and toolbar roster count.',
+    build: () => {
+      const s = makeGameState({ orgName: 'Test Guild', gold: 5000 });
+      const org = s.organizations[0];
+      org.recruits.push(makeRecruit({ name: 'Aldric', level: 7, perception: 10 }));
+      return s;
+    },
+  },
+];
+
+/* ══════════════════════════════════════════════════════════════
+   DEV MODE  (Section 14)
+══════════════════════════════════════════════════════════════ */
+function toggleDevMode() {
+  if (!GS) return;
+  GS._devMode = !GS._devMode;
+  const btn   = document.getElementById('btn-devmode');
+  const panel = document.getElementById('dev-panel');
+  btn.classList.toggle('active', GS._devMode);
+  panel.classList.toggle('hidden', !GS._devMode);
+  if (GS._devMode) refreshDevPanel();
+}
+
+function refreshDevPanel() {
+  const el = document.getElementById('dev-state-dump');
+  if (!el) return;
+  // Show a compact view — omit tiles array (too large) for readability
+  const display = { ...GS, world: { ...GS.world, tiles: `[${GS.world.tiles.length} tiles]` } };
+  el.textContent = JSON.stringify(display, null, 2);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TOOLBAR
+══════════════════════════════════════════════════════════════ */
+function updateToolbar() {
+  if (!GS) return;
+  const org = playerOrg();
+  document.getElementById('tb-turn').textContent  = GS.turn;
+  document.getElementById('tb-day').textContent   = TIME.turnToDay(GS.turn);
+  document.getElementById('tb-gold').textContent  = org ? org.gold.toLocaleString() : '0';
+  document.getElementById('tb-roster').textContent= org ? org.recruits.length : '0';
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SCREEN MANAGEMENT
+══════════════════════════════════════════════════════════════ */
+const SCREENS = ['screen-launch', 'screen-world-options', 'screen-test-scenario', 'screen-game'];
+
+function showScreen(name) {
+  SCREENS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('hidden', id !== 'screen-' + name);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════════════════ */
+function showToast(msg, type = '') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast' + (type ? ' ' + type : '');
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 2900);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   LAUNCH MENU LOGIC
+══════════════════════════════════════════════════════════════ */
+function showLaunchError(msg) {
+  const el = document.getElementById('launch-error');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+function clearLaunchError() {
+  document.getElementById('launch-error').classList.remove('visible');
+}
+
+document.getElementById('btn-new-game').addEventListener('click', () => {
+  clearLaunchError();
+  showScreen('world-options');
+});
+
+document.getElementById('btn-load-game').addEventListener('click', () => {
+  clearLaunchError();
+  document.getElementById('file-load-input').value = '';
+  document.getElementById('file-load-input').click();
+});
+
+document.getElementById('file-load-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (file) loadGameFromFile(file);
+});
+
+document.getElementById('btn-test-scenario').addEventListener('click', () => {
+  clearLaunchError();
+  buildScenarioList();
+  showScreen('test-scenario');
+});
+
+/* ══════════════════════════════════════════════════════════════
+   WORLD OPTIONS LOGIC
+══════════════════════════════════════════════════════════════ */
+function getOptionsValues() {
+  return {
+    orgName:         document.getElementById('opt-org-name').value.trim(),
+    gold:            parseInt(document.getElementById('opt-gold').value, 10),
+    startingChars:   parseInt(document.getElementById('opt-chars').value, 10),
+    mapSize:         parseInt(document.getElementById('opt-map-size').value, 10),
+    targetPois:      parseInt(document.getElementById('opt-target-pois').value, 10),
+    targetKnownPois: parseInt(document.getElementById('opt-known-pois').value, 10),
+  };
+}
+
+function validateOptions(v) {
+  const errs = {};
+  if (!v.orgName)                                errs['org-name']    = 'Name cannot be empty.';
+  if (isNaN(v.startingChars) || v.startingChars < 0 || v.startingChars > 9)
+                                                  errs['chars']       = 'Must be between 0 and 9.';
+  if (isNaN(v.mapSize) || v.mapSize < 64 || v.mapSize > 256)
+                                                  errs['map-size']    = 'Must be between 64 and 256.';
+  if (isNaN(v.targetPois) || v.targetPois < 10 || v.targetPois > 50)
+                                                  errs['target-pois'] = 'Must be between 10 and 50.';
+  if (isNaN(v.targetKnownPois) || v.targetKnownPois < 6 || v.targetKnownPois > v.targetPois)
+                                                  errs['known-pois']  = 'Must be between 6 and Target world POIs.';
+  return errs;
+}
+
+function showOptionsErrors(errs) {
+  ['org-name','chars','map-size','target-pois','known-pois'].forEach(key => {
+    const el = document.getElementById('err-' + key);
+    if (!el) return;
+    if (errs[key]) { el.textContent = errs[key]; el.classList.add('visible'); }
+    else             el.classList.remove('visible');
+  });
+}
+
+document.getElementById('btn-options-back').addEventListener('click', () => {
+  showScreen('launch');
+});
+
+document.getElementById('btn-options-confirm').addEventListener('click', () => {
+  const v    = getOptionsValues();
+  const errs = validateOptions(v);
+  showOptionsErrors(errs);
+  if (Object.keys(errs).length > 0) return;
+
+  // Initialise game state
+  GS = makeGameState(v);
+
+  // World generation stub — actual generation in Step 2
+  // For now just record the options on the world object (already done in makeWorld)
+
+  showScreen('game');
+  updateToolbar();
+  showToast('New game started — ' + v.orgName, 'success');
+});
+
+/* ══════════════════════════════════════════════════════════════
+   TEST SCENARIO LOGIC
+══════════════════════════════════════════════════════════════ */
+let selectedScenarioId = null;
+
+function buildScenarioList() {
+  selectedScenarioId = null;
+  document.getElementById('btn-scenario-launch').disabled = true;
+  const list = document.getElementById('scenario-list');
+  list.innerHTML = '';
+
+  TEST_SCENARIOS.forEach(s => {
+    const item = document.createElement('div');
+    item.className = 'scenario-item';
+    item.dataset.id = s.id;
+    item.innerHTML = `<div class="scenario-item-name">${s.name}</div>
+                      <div class="scenario-item-desc">${s.desc}</div>`;
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.scenario-item').forEach(el => el.classList.remove('selected'));
+      item.classList.add('selected');
+      selectedScenarioId = s.id;
+      document.getElementById('btn-scenario-launch').disabled = false;
+    });
+    list.appendChild(item);
+  });
+}
+
+document.getElementById('btn-scenario-back').addEventListener('click', () => {
+  showScreen('launch');
+});
+
+document.getElementById('btn-scenario-launch').addEventListener('click', () => {
+  const s = TEST_SCENARIOS.find(x => x.id === selectedScenarioId);
+  if (!s) return;
+  GS = s.build();
+  showScreen('game');
+  updateToolbar();
+  showToast('Scenario loaded: ' + s.name, 'success');
+});
+
+/* ══════════════════════════════════════════════════════════════
+   IN-GAME CONTROLS
+══════════════════════════════════════════════════════════════ */
+document.getElementById('btn-end-turn').addEventListener('click', advanceTurn);
+document.getElementById('btn-save').addEventListener('click', saveGame);
+document.getElementById('btn-devmode').addEventListener('click', toggleDevMode);
+
+/* ══════════════════════════════════════════════════════════════
+   AUTOSAVE ON UNLOAD
+══════════════════════════════════════════════════════════════ */
+window.addEventListener('beforeunload', () => {
+  if (GS) autosave();
+});
+
+/* ══════════════════════════════════════════════════════════════
+   RESTORE AUTOSAVE NOTICE (optional quality-of-life)
+   If an autosave is found, add a subtle hint on the launch screen.
+══════════════════════════════════════════════════════════════ */
+(function checkAutosave() {
+  try {
+    const raw = localStorage.getItem(AUTOSAVE_KEY);
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    if (!s || typeof s.turn !== 'number') return;
+
+    // Append an autosave restore button below the load button
+    const btnLoad = document.getElementById('btn-load-game');
+    const btnAuto = document.createElement('button');
+    btnAuto.className = 'btn';
+    btnAuto.innerHTML = `Restore Autosave <span style="font-family:var(--mono);font-size:10px;color:var(--amber-dim)"> — Turn ${s.turn}</span>`;
+    btnLoad.parentNode.insertBefore(btnAuto, btnLoad.nextSibling);
+
+    btnAuto.addEventListener('click', () => {
+      clearLaunchError();
+      const state = loadFromJson(raw);
+      if (!state) {
+        showLaunchError('Autosave data is corrupted and cannot be restored.');
+        return;
+      }
+      GS = state;
+      showScreen('game');
+      updateToolbar();
+      showToast('Autosave restored — Turn ' + GS.turn, 'success');
+    });
+  } catch(e) { /* ignore */ }
+})();
+</script>
+</body>
+</html>

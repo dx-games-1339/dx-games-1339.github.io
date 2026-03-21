@@ -110,6 +110,8 @@ Each step produces a working, runnable `index.html` that builds directly on the 
 - Daily schedule: 6-turn pattern, default turn 6 as rest turn, configurable per group
 - Groups can be split or merged at HQ or in the same POI zone
 
+- **POI popup stale data fix** — when a POI popup is open and the player clicks End Turn, the popup displays the despawn timer value from before the turn advanced, making it immediately incorrect. `advanceTurn` is updated to close any open map popup before processing the turn, so the player always reopens the popup to see fresh data rather than reading a stale value.
+
 **Depends on:** Steps 1–4
 
 ---

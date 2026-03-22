@@ -309,6 +309,44 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 .body-card-name{font-family:var(--serif);font-size:12px;color:var(--red-bright);margin-bottom:2px;}
 .body-card-info{font-family:var(--mono);font-size:9px;color:var(--text-dim);}
 .hazard-tag{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;border:1px solid var(--red);color:var(--red-bright);margin-bottom:4px;display:inline-block;}
+/* ── Step 9: Hunger, Market, Storeroom ── */
+.hunger-bar-wrap{display:flex;align-items:center;gap:6px;margin-top:3px;}
+.hunger-stage-label{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;min-width:72px;}
+.hunger-stage-label.hunger{color:var(--text-dim);}
+.hunger-stage-label.starvation{color:var(--amber);}
+.hunger-stage-label.famine{color:var(--red-bright);}
+.hunger-bar-track{flex:1;height:5px;background:var(--bg-input);border:1px solid var(--border);position:relative;}
+.hunger-bar-fill{position:absolute;top:0;left:0;height:100%;}
+.hunger-bar-fill.hunger{background:#4a4a28;}
+.hunger-bar-fill.starvation{background:var(--amber-dim);}
+.hunger-bar-fill.famine{background:var(--red);}
+.hunger-charges{font-family:var(--mono);font-size:9px;color:var(--text-dim);min-width:44px;text-align:right;}
+/* Market */
+.market-section-title{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-dim);margin:14px 0 6px;}
+.market-item-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);}
+.market-item-row:last-child{border-bottom:none;}
+.market-item-name{font-family:var(--serif);font-size:12px;color:var(--parchment);flex:1;}
+.market-item-desc{font-family:var(--body);font-style:italic;font-size:11px;color:var(--text-dim);flex:1;}
+.market-item-range{font-family:var(--mono);font-size:10px;color:var(--amber);min-width:70px;text-align:right;}
+.market-item-add{padding:3px 10px;background:transparent;border:1px solid var(--border-accent);color:var(--parchment);font-family:var(--mono);font-size:9px;cursor:pointer;outline:none;transition:background .1s;}
+.market-item-add:hover{background:var(--amber-dim);border-color:var(--amber);}
+.for-purchase-box{background:var(--bg-raised);border:1px solid var(--border-accent);padding:10px 12px;margin-top:10px;}
+.for-purchase-title{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-dim);margin-bottom:8px;}
+.purchase-staged-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-family:var(--mono);font-size:10px;color:var(--text);}
+.purchase-staged-row button{padding:1px 6px;background:transparent;border:1px solid var(--red);color:var(--red-bright);font-size:9px;cursor:pointer;outline:none;}
+.for-purchase-total{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:6px;}
+.for-purchase-total span{color:var(--amber-bright);}
+.for-purchase-taxmax{font-family:var(--mono);font-size:10px;color:var(--red-bright);margin-top:2px;}
+/* Storeroom */
+.storeroom-section{margin-bottom:16px;}
+.storeroom-item-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);}
+.storeroom-item-name{font-family:var(--serif);font-size:12px;color:var(--parchment);flex:1;}
+.storeroom-item-range{font-family:var(--mono);font-size:10px;color:var(--amber);min-width:70px;text-align:right;}
+.storeroom-move-btn{padding:2px 8px;background:transparent;border:1px solid var(--border-accent);color:var(--parchment-dim);font-family:var(--mono);font-size:9px;cursor:pointer;outline:none;}
+.storeroom-move-btn:hover{border-color:var(--amber);color:var(--amber-bright);}
+.for-sale-box{background:var(--bg-raised);border:1px solid var(--border-accent);padding:10px 12px;}
+.for-sale-total{font-family:var(--mono);font-size:11px;color:var(--amber);margin:6px 0;}
+.upkeep-warning{background:rgba(139,48,48,.15);border:1px solid var(--red);padding:8px 12px;font-family:var(--mono);font-size:10px;color:var(--red-bright);margin-bottom:10px;}
 @keyframes toast-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes toast-out{from{opacity:1}to{opacity:0}}
 </style>
@@ -328,7 +366,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
     <div class="launch-error" id="launch-error"></div>
   </div>
   <input type="file" id="file-load-input" accept=".json" style="display:none">
-  <div class="launch-version">v0.8.1 — Step 8.1 Maintenance</div>
+  <div class="launch-version">v0.9 — Step 9</div>
 </div>
 <!-- WORLD OPTIONS -->
 <div id="screen-world-options" class="hidden">
@@ -467,7 +505,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 <script>
 'use strict';
 /* ═══════════════ CONSTANTS ═══════════════ */
-const VERSION='0.8.1-step8_1',AUTOSAVE_KEY='ironbound_autosave',AUTOSAVE_EVERY=5;
+const VERSION='0.9-step9',AUTOSAVE_KEY='ironbound_autosave',AUTOSAVE_EVERY=5;
 const PLAYER_FACTION='player';
 
 /* ═══════════════ TIME ═══════════════ */
@@ -599,6 +637,11 @@ function advanceGroupTravel(group,world,org){
     const{type,targetId}=group.inTransitTo;
     if(type==='city'){
       group.currentCityId=targetId;
+      // Transfer non-equipped inventory to storeroom on HQ arrival (Section 9.4.1)
+      const arrOrg=GS?.organizations.find(o=>o.id===GS.playerOrgId);
+      if(arrOrg&&arrOrg.hqCityId===targetId){
+        transferItemsToStoreroom(group,arrOrg);
+      }
     } else {
       group.locationPoiId=targetId;
       // On arrival at a POI, enter the entry zone
@@ -657,21 +700,28 @@ const ACTIONS={
     factors:[{s:'dexterity',m:1.5},{s:'level',m:0.5}],
     requiresTarget:true,barClass:'conceal',
   },
+  eat:{
+    label:'Eat',apCost:5,threshold:5,  // very fast — near-instant
+    fixedProgress:5,
+    barClass:'rest',
+  },
 };
 
 /* Progress per attempt for a given recruit.
-   Chest wounds apply strDexPerMult to STR/DEX/PER characteristics (Section 5.8). */
+   Chest wounds apply strDexPerMult (Section 5.8).
+   Hunger stages (Starvation/Famine) also reduce STR/DEX/PER (Section 5.6.1). */
 function progressPerAttempt(recruit,actionType){
   const def=ACTIONS[actionType];if(!def)return 0;
   if(def.fixedProgress!==undefined)return def.fixedProgress;
   const ch=recruit.characteristics;
-  // Apply strDexPerMult wound modifier to relevant characteristics
-  const mods=computeWoundModifiers(recruit);
+  const wMods=computeWoundModifiers(recruit);
+  const hMods=computeHungerModifiers(recruit);
+  const sdpMult=wMods.strDexPerMult*hMods.strDexPerMult;
   const effective={
     ...ch,
-    strength:  Math.round(ch.strength   * mods.strDexPerMult),
-    dexterity: Math.round(ch.dexterity  * mods.strDexPerMult),
-    perception:Math.round(ch.perception * mods.strDexPerMult),
+    strength:  Math.round(ch.strength   * sdpMult),
+    dexterity: Math.round(ch.dexterity  * sdpMult),
+    perception:Math.round(ch.perception * sdpMult),
   };
   return def.factors.reduce((s,f)=>s+(effective[f.s]??0)*f.m,0);
 }
@@ -805,10 +855,233 @@ function applyHide(recruit,group){
   return[`Hidden: bound now ${group._hideUpperBound}`];
 }
 
-/* Rest effect — stub for Step 9 (hunger + loyalty) */
+/* ══════════════════════════════════════════════════════════
+   STEP 9 — HUNGER SYSTEM, FOOD, UPKEEP, ECONOMY
+══════════════════════════════════════════════════════════ */
+
+/* ── Hunger stage definitions (Section 5.6.1) ── */
+const HUNGER_STAGES = {
+  Hunger:     { maxCharges:120, gainPerTurn:20, strDexPerMult:1.00, loyaltyPerTurn:0 },
+  Starvation: { maxCharges:300, gainPerTurn:20, strDexPerMult:0.80, loyaltyPerTurn:-1 },
+  Famine:     { maxCharges:100, gainPerTurn:20, strDexPerMult:0.20, loyaltyPerTurn:-2 },
+};
+const HUNGER_ORDER = ['Hunger','Starvation','Famine'];
+
+/* Ensure recruit has a valid hunger object */
+function ensureHunger(recruit){
+  if(!recruit.hunger||!recruit.hunger.stage)
+    recruit.hunger={stage:'Hunger',charges:0};
+}
+
+/* Hunger modifiers for progressPerAttempt — integrated like strDexPerMult */
+function computeHungerModifiers(recruit){
+  ensureHunger(recruit);
+  const stage=HUNGER_STAGES[recruit.hunger.stage];
+  return stage?{strDexPerMult:stage.strDexPerMult}:{strDexPerMult:1};
+}
+
+/* ── Consume food value from a recruit's hunger state (Section 5.6.2) ──
+   Returns the amount actually consumed (remainder if hunger already 0) */
+function applyFoodValue(recruit, foodValue){
+  ensureHunger(recruit);
+  let remaining=foodValue;
+  while(remaining>0){
+    const stageIdx=HUNGER_ORDER.indexOf(recruit.hunger.stage);
+    if(stageIdx<0) break;
+    if(recruit.hunger.charges<=0&&stageIdx===0){remaining=0;break;} // fully fed
+    if(recruit.hunger.charges>0){
+      const consume=Math.min(remaining,recruit.hunger.charges);
+      recruit.hunger.charges-=consume;remaining-=consume;
+    }
+    if(recruit.hunger.charges<=0&&stageIdx>0){
+      // Regress to previous stage at that stage's max
+      recruit.hunger.stage=HUNGER_ORDER[stageIdx-1];
+      recruit.hunger.charges=HUNGER_STAGES[recruit.hunger.stage].maxCharges;
+    } else {
+      break;
+    }
+  }
+}
+
+/* ── Rest eating (Section 5.6.2) ── */
 function applyRest(recruit){
-  // Full rest eating mechanic in Step 9
-  return[];
+  ensureHunger(recruit);
+  if(recruit.hunger.stage==='Hunger'&&recruit.hunger.charges<=20)return[];
+  const food=getBestFoodItems(recruit.inventory);
+  if(!food.length)return[];
+  const msgs=[];let loyaltyBonus=0,ateAny=false;
+  // Eat until charges ≤ 20 in Hunger
+  while(true){
+    const isHunger=recruit.hunger.stage==='Hunger';
+    const target=isHunger?20:0;
+    if(isHunger&&recruit.hunger.charges<=target) break;
+    const item=food.shift();if(!item)break;
+    const foodTag=item.tags.find(t=>t.type==='Food');if(!foodTag)continue;
+    applyFoodValue(recruit, foodTag.value);
+    // Remove from inventory
+    const idx=recruit.inventory.findIndex(i=>i.id===item.id);
+    if(idx>=0)recruit.inventory.splice(idx,1);
+    ateAny=true;
+    const delicious=item.tags.find(t=>t.type==='Delicious');
+    if(delicious)loyaltyBonus+=delicious.value;
+  }
+  if(ateAny){
+    const total=1+loyaltyBonus;
+    recruit.characteristics.loyalty=Math.min(30,recruit.characteristics.loyalty+total);
+    if(loyaltyBonus>0)msgs.push(`Rested & ate well (+${total} loyalty)`);
+    else msgs.push('Rested & ate (+1 loyalty)');
+  }
+  return msgs;
+}
+
+/* Return food items sorted: highest Delicious first, then highest Food value */
+function getBestFoodItems(inventory){
+  return inventory
+    .filter(i=>i.tags&&i.tags.some(t=>t.type==='Food'))
+    .sort((a,b)=>{
+      const da=(a.tags.find(t=>t.type==='Delicious')?.value??0);
+      const db=(b.tags.find(t=>t.type==='Delicious')?.value??0);
+      if(db!==da)return db-da;
+      const fa=(a.tags.find(t=>t.type==='Food')?.value??0);
+      const fb=(b.tags.find(t=>t.type==='Food')?.value??0);
+      return fb-fa;
+    });
+}
+
+/* ── Eat action effect ── */
+function applyEat(recruit){
+  ensureHunger(recruit);
+  const food=getBestFoodItems(recruit.inventory);
+  if(!food.length)return['No food in inventory'];
+  const item=food[0];
+  const foodTag=item.tags.find(t=>t.type==='Food');if(!foodTag)return[];
+  applyFoodValue(recruit,foodTag.value);
+  const idx=recruit.inventory.findIndex(i=>i.id===item.id);
+  if(idx>=0)recruit.inventory.splice(idx,1);
+  return[`Ate ${item.name} (−${foodTag.value} hunger)`];
+}
+
+/* ── Per-turn hunger accumulation (Section 5.6.1) ── */
+function processHunger(gs){
+  const org=playerOrg();if(!org)return[];
+  const events=[];
+  for(const recruit of org.recruits){
+    if(recruit.state==='Dead')continue;
+    ensureHunger(recruit);
+    const stageDef=HUNGER_STAGES[recruit.hunger.stage];
+    if(!stageDef)continue;
+
+    // Gain charges
+    recruit.hunger.charges+=stageDef.gainPerTurn;
+
+    // Loyalty drain from starvation/famine
+    if(stageDef.loyaltyPerTurn<0){
+      recruit.characteristics.loyalty=Math.max(0,recruit.characteristics.loyalty+stageDef.loyaltyPerTurn);
+    }
+
+    // Check progression
+    if(recruit.hunger.charges>=stageDef.maxCharges){
+      const stageIdx=HUNGER_ORDER.indexOf(recruit.hunger.stage);
+      if(stageIdx<HUNGER_ORDER.length-1){
+        recruit.hunger.stage=HUNGER_ORDER[stageIdx+1];
+        recruit.hunger.charges=0;
+        events.push(`${recruit.name.split(' ')[0]}: ${recruit.hunger.stage}`);
+      } else {
+        // Famine → Starved to Death
+        recruit.hunger.stage='Starved';
+        recruit.statusEffects.push({type:'StarvedToDeath',charges:1,maxCharges:1});
+        // Find zone/poi for body placement
+        let zone=null,poi=null;
+        for(const g of org.groups){
+          if(!g.memberIds.includes(recruit.id))continue;
+          poi=gs.world.pois.find(p=>p.id===g.locationPoiId)??null;
+          zone=poi?.zones.find(z=>z.id===g.locationZoneId)??null;
+          break;
+        }
+        killCharacter(recruit,zone,poi,'starvation');
+        events.push(`${recruit.name.split(' ')[0]}: starved to death`);
+        continue;
+      }
+    }
+
+    // Auto-eat: if Hunger charges > 80 and has food, assign eat action (Section 5.6.2)
+    if(recruit.hunger.stage==='Hunger'&&recruit.hunger.charges>80){
+      const hasFood=recruit.inventory.some(i=>i.tags&&i.tags.some(t=>t.type==='Food'));
+      if(hasFood&&(!recruit._zoneAction||recruit._zoneAction.type!=='eat')){
+        if(!recruit._zoneAction)recruit._zoneAction={type:null,targetObjectId:null,progress:0};
+        recruit._zoneAction.type='eat';recruit._zoneAction.targetObjectId=null;recruit._zoneAction.progress=0;
+      }
+    }
+  }
+  return events;
+}
+
+/* ── Upkeep deduction (Section 5.7) ── */
+function processUpkeep(gs){
+  const org=playerOrg();if(!org)return[];
+  let total=0;
+  for(const r of org.recruits){
+    let rate=r.upkeepBaseRate;
+    if(r.traits.includes('Greedy'))rate=Math.ceil(rate*1.10);
+    total+=rate*r.level;
+  }
+  if(total===0)return[];
+  org.gold=Math.max(0,org.gold-total);
+  gs._ledger.push({turn:gs.turn,desc:`Monthly upkeep (${org.recruits.length} recruits)`,amount:-total});
+  return[`Upkeep: −${total} gold`];
+}
+
+/* ── Items flow: return from POI to Storeroom (Section 9.4.1) ── */
+function transferItemsToStoreroom(group, org){
+  for(const rid of group.memberIds){
+    const r=org.recruits.find(r=>r.id===rid);if(!r)continue;
+    const nonEquipped=[...r.inventory];
+    r.inventory=[];
+    for(const item of nonEquipped){
+      // Sort into storeroom sections
+      const isFood=item.tags&&item.tags.some(t=>t.type==='Food');
+      if(isFood)org.inventory.food.push(item);
+      else org.inventory.misc.push(item);
+    }
+  }
+}
+
+/* ── Market item catalogue ── */
+function makeItem(opts){
+  return{id:makeId(),name:opts.name,type:opts.type??'misc',goldValueMin:opts.goldMin,goldValueMax:opts.goldMax,tags:opts.tags??[],size:opts.size??1};
+}
+
+const MARKET_STOCK_PERMANENT=[
+  makeItem({name:'Basic Rations',type:'food',goldMin:3,goldMax:6,tags:[{type:'Food',value:30}],size:1}),
+  makeItem({name:'Dried Meat',type:'food',goldMin:6,goldMax:12,tags:[{type:'Food',value:50}],size:1}),
+  makeItem({name:'Salted Fish',type:'food',goldMin:4,goldMax:9,tags:[{type:'Food',value:40}],size:1}),
+  makeItem({name:'Hard Bread',type:'food',goldMin:2,goldMax:5,tags:[{type:'Food',value:20}],size:1}),
+  makeItem({name:'Fine Meal',type:'food',goldMin:12,goldMax:22,tags:[{type:'Food',value:60},{type:'Delicious',value:2}],size:1}),
+  makeItem({name:'Herb Bundle',type:'misc',goldMin:5,goldMax:15,tags:[],size:1}),
+  makeItem({name:'Rope',type:'tool',goldMin:3,goldMax:7,tags:[],size:2}),
+  makeItem({name:'Torch',type:'tool',goldMin:2,goldMax:4,tags:[{type:'LightSource',value:40}],size:1}),
+];
+
+function generateRotatingStock(weekSeed){
+  const rng=makePRNG(weekSeed);
+  const rotatingPool=[
+    makeItem({name:'Smoked Game',type:'food',goldMin:14,goldMax:28,tags:[{type:'Food',value:70},{type:'Delicious',value:3}],size:1}),
+    makeItem({name:'Aged Cheese',type:'food',goldMin:10,goldMax:20,tags:[{type:'Food',value:55},{type:'Delicious',value:1}],size:1}),
+    makeItem({name:'Bandage Kit',type:'medical',goldMin:20,goldMax:40,tags:[{type:'Medical',value:1}],size:1}),
+    makeItem({name:'Hunting Knife',type:'weapon',goldMin:25,goldMax:50,tags:[{type:'Sharp',value:80}],size:2}),
+    makeItem({name:'Leather Vest',type:'armour',goldMin:30,goldMax:65,tags:[],size:3}),
+    makeItem({name:'Lantern',type:'tool',goldMin:15,goldMax:30,tags:[{type:'LightSource',value:70}],size:2}),
+    makeItem({name:'Iron Rations',type:'food',goldMin:8,goldMax:16,tags:[{type:'Food',value:45}],size:1}),
+  ];
+  // Pick 3–4 items for this week's rotation
+  const count=rng.int(3,4);
+  const picked=[];
+  const pool=[...rotatingPool];
+  for(let i=0;i<count&&pool.length;i++){
+    const idx=rng.int(0,pool.length-1);
+    picked.push({...pool.splice(idx,1)[0],id:makeId()});
+  }
+  return picked;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1325,6 +1598,7 @@ function runCharacterZoneAction(recruit,zone,poi,rng,turnEvents){
         if(group)msgs=applyHide(recruit,group);
       }
       else if(za.type==='rest')msgs=applyRest(recruit);
+      else if(za.type==='eat')msgs=applyEat(recruit);
       else if(za.type==='treat'&&za.targetObjectId){
         // targetObjectId encodes 'recruitId:woundId'
         const[tRid,wId]=za.targetObjectId.split(':');
@@ -1538,18 +1812,22 @@ function advanceTurn(){
   const actionEvents=processZoneActions(GS); // Step 7
   const woundEvents=advanceWounds(GS);       // Step 8
   const incapEvents=processIncapacitation(GS); // Step 8
+  const hungerEvents=processHunger(GS);      // Step 9
 
   if(TIME.isFirstTurnOfWeek(GS.turn)){refreshHirePool(GS);showToast('Weekly rotation — new recruits available');}
 
-  // Monthly operations: Disloyal loyalty deduction (Section 5.5.2)
+  // Monthly operations
   if(TIME.isUpkeepTurn(GS.turn)){
     const org=playerOrg();
     if(org){
+      // Disloyal loyalty deduction (Section 5.5.2)
       for(const r of org.recruits){
-        if(r.traits.includes('Disloyal')&&!r.traits.includes('Loyal')){
-          r.characteristics.loyalty=Math.max(0, r.characteristics.loyalty-5);
-        }
+        if(r.traits.includes('Disloyal')&&!r.traits.includes('Loyal'))
+          r.characteristics.loyalty=Math.max(0,r.characteristics.loyalty-5);
       }
+      // Upkeep deduction (Section 5.7)
+      const upkeepMsgs=processUpkeep(GS);
+      if(upkeepMsgs.length)showToast(upkeepMsgs[0]);
     }
   }
   if((GS.turn-GS._autosaveTurn)>=AUTOSAVE_EVERY){autosave();GS._autosaveTurn=GS.turn;}
@@ -1574,7 +1852,7 @@ function advanceTurn(){
   // Fix 2: refresh popup in-place if one is open
   if(_openPopupPoiId)refreshPOIPopup();
 
-  const allExtra=[...arrivals,...(actionEvents.length?[`${actionEvents.length} action event${actionEvents.length>1?'s':''}`]:[]),...woundEvents,...incapEvents].filter(Boolean);
+  const allExtra=[...arrivals,...(actionEvents.length?[`${actionEvents.length} action event${actionEvents.length>1?'s':''}`]:[]),...woundEvents,...incapEvents,...hungerEvents].filter(Boolean);
   const parts=[`Turn ${GS.turn}`,...(expired>0?[`${expired} POI${expired>1?'s':''} expired`]:[]),...(allExtra.length>3?[`${allExtra.length} events`]:allExtra)];
   showToast(parts.join(' — '));
 }
@@ -1826,8 +2104,21 @@ function woundSummaryHTML(recruit){
   } else if(recruit.incapacitated){
     h+=`<span class="char-status-incap">INCAP ${recruit.incapacitated.charges}/${recruit.incapacitated.maxCharges}</span>`;
   }
-  h+=`<span class="char-status-hp ${hpClass} " style="margin-left:auto">HP ${effH}/${maxH}</span>
+  h+=`<span class="char-status-hp ${hpClass}" style="margin-left:auto">HP ${effH}/${maxH}</span>
     </div>`;
+
+  // Hunger bar (Step 9)
+  ensureHunger(recruit);
+  const hStage=recruit.hunger.stage??'Hunger';
+  const hDef=HUNGER_STAGES[hStage]??HUNGER_STAGES.Hunger;
+  const hPct=Math.round((recruit.hunger.charges/Math.max(1,hDef.maxCharges))*100);
+  const hClass=hStage==='Famine'?'famine':hStage==='Starvation'?'starvation':'hunger';
+  h+=`<div class="hunger-bar-wrap">
+    <span class="hunger-stage-label ${hClass}">${hStage}</span>
+    <div class="hunger-bar-track"><div class="hunger-bar-fill ${hClass}" style="width:${hPct}%"></div></div>
+    <span class="hunger-charges">${recruit.hunger.charges}/${hDef.maxCharges}</span>
+  </div>`;
+
   if(wounds.length){
     h+='<div class="wound-list">';
     for(const w of wounds){
@@ -1915,6 +2206,7 @@ function renderZoneSidebar(zone,poi){
         <button class="zone-action-btn${za.type==='scout_zone'?' active-action':''}" data-action="scout_zone">Scout Zone</button>
         <button class="zone-action-btn${za.type==='rest'?' active-action':''}" data-action="rest">Rest</button>
         <button class="zone-action-btn${za.type==='hide'?' active-action':''}" data-action="hide">Hide</button>
+        <button class="zone-action-btn${za.type==='eat'?' active-action':''}" data-action="eat" ${!selRecruit.inventory.some(i=>i.tags&&i.tags.some(t=>t.type==='Food'))?'disabled title="No food in inventory"':''}>Eat</button>
       </div>`;
 
     // Search For picker
@@ -2266,16 +2558,16 @@ function openCityPanel(cid){
   renderCityPanel(cid,isHQ?'roster':'market');
   document.getElementById('city-overlay').classList.remove('hidden');
 }
-function closeCityPanel(){document.getElementById('city-overlay').classList.add('hidden');_openCityId=null;_openCityTabId=null;}
+function closeCityPanel(){document.getElementById('city-overlay').classList.add('hidden');_openCityId=null;_openCityTabId=null;_purchaseCart=[];}
 function renderCityPanel(cid,tabId){
   _openCityId=cid;_openCityTabId=tabId;
   document.querySelectorAll('.city-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tabId));
   const content=document.getElementById('city-content'),org=playerOrg();
   switch(tabId){
-    case'market':content.innerHTML='<div class="panel-title">Market</div><div class="panel-subtitle">Purchase food, equipment, and weapons.</div><div class="stub-panel"><strong>Market</strong>Implemented in Step 9.</div>';break;
+    case'market':content.innerHTML=renderMarketPanel(org,cid);wireMarketButtons(org);break;
     case'tavern':content.innerHTML=renderTavernPanel(org);wireHireButtons(org);break;
     case'roster':content.innerHTML=renderRosterPanel(org);break;
-    case'storeroom':content.innerHTML='<div class="panel-title">Storeroom</div><div class="panel-subtitle">Items stored at headquarters.</div><div class="stub-panel"><strong>Storeroom</strong>Implemented in Step 9.</div>';break;
+    case'storeroom':content.innerHTML=renderStoreroomPanel(org);wireStoreroomButtons(org);break;
     case'ledger':content.innerHTML=renderLedgerPanel();break;
     case'groups':content.innerHTML=renderGroupManagerPanel(org,cid);wireGroupManagerButtons(org,cid);break;
     case'staff':content.innerHTML=renderStaffPanel(org);break;
@@ -2302,24 +2594,24 @@ function wireHireButtons(org){
 function renderRosterPanel(org){
   if(!org.recruits.length)return'<div class="panel-title">Roster</div><div class="panel-subtitle">All guild recruits.</div><div class="stub-panel"><strong>Empty Roster</strong>Hire from the Tavern.</div>';
   let h=`<div class="panel-title">Roster</div><div class="panel-subtitle">${org.recruits.length} recruit${org.recruits.length!==1?'s':''} on file.</div>
-  <table class="roster-table"><thead><tr><th>Name</th><th>Lvl</th><th>BaseHP</th><th>EffHP</th><th>Wounds</th><th>STR</th><th>DEX</th><th>PER</th><th>SPD</th><th>Traits</th><th>State</th><th>Action</th></tr></thead><tbody>`;
+  <table class="roster-table"><thead><tr><th>Name</th><th>Lvl</th><th>BaseHP</th><th>EffHP</th><th>Wounds</th><th>Hunger</th><th>STR</th><th>DEX</th><th>PER</th><th>SPD</th><th>Traits</th><th>State</th></tr></thead><tbody>`;
   for(const r of org.recruits){
     const th=r.traits.map(t=>`<span class="trait-badge">${t}</span>`).join('');
     const sc=r.state==='Dead'?'deployed':r.state==='Available'?'available':'deployed';
     const stateLabel=r.state==='Dead'?'<span style="color:var(--text-dim)">Dead</span>':r.incapacitated?'<span style="color:var(--red-bright)">Incap</span>':`<span class="recruit-state ${sc}">${r.state}</span>`;
-    const effH=effectiveHealth(r);
-    const baseH=r.characteristics.health;
+    const effH=effectiveHealth(r);const baseH=r.characteristics.health;
     const effHColor=effH<=0?'color:var(--text-dim)':effH<baseH*.5?'color:var(--red-bright)':effH<baseH*.8?'color:var(--amber)':'color:var(--green-bright)';
     const woundCount=(r.wounds||[]).length;
     const woundCell=woundCount>0?`<span style="color:var(--red-bright)">${woundCount}</span>`:'—';
-    const za=r._zoneAction??{type:null};
-    const actionLabel=za.type?ACTIONS[za.type]?.label??za.type:'—';
+    ensureHunger(r);
+    const hStage=r.hunger.stage??'Hunger';
+    const hColor=hStage==='Famine'?'color:var(--red-bright)':hStage==='Starvation'?'color:var(--amber)':'color:var(--text-dim)';
     h+=`<tr><td><span class="recruit-name">${r.name}</span></td><td><span class="recruit-level">${r.level}</span></td>
     <td>${baseH}</td><td style="${effHColor}">${effH}</td><td>${woundCell}</td>
+    <td style="font-family:var(--mono);font-size:9px;${hColor}">${hStage}</td>
     <td>${r.characteristics.strength}</td><td>${r.characteristics.dexterity}</td>
     <td>${r.characteristics.perception}</td><td>${r.characteristics.movementSpeed}</td>
-    <td>${th||'—'}</td><td>${stateLabel}</td>
-    <td style="font-family:var(--mono);font-size:9px;color:var(--text-dim)">${actionLabel}</td></tr>`;
+    <td>${th||'—'}</td><td>${stateLabel}</td></tr>`;
   }
   return h+'</tbody></table>';
 }
@@ -2379,6 +2671,236 @@ function disbandGroup(gid){
   org.groups=org.groups.filter(x=>x.id!==gid);if(_openGroupId===gid)closeGroupPanel();
   MapRenderer.rebuildGroups(GS.world,org);renderCityPanel(_openCityId,'groups');showToast('Group disbanded.');
 }
+/* ── Market panel (Section 9.5) ── */
+// Per-session purchase staging — not saved to GS (cleared on panel close)
+let _purchaseCart=[];
+
+function renderMarketPanel(org,cid){
+  const week=TIME.turnToWeek(GS.turn);
+  const rotSeed=(GS.world._seed^(week*0xDEAD1234))>>>0;
+  const rotating=generateRotatingStock(rotSeed);
+
+  function itemRowHTML(item,section){
+    const tags=item.tags.map(t=>`<span style="font-family:var(--mono);font-size:9px;color:var(--amber-dim)">${t.type}${t.value!=null?` (${t.value})`:''}</span>`).join(' ');
+    return`<div class="market-item-row">
+      <span class="market-item-name">${item.name}</span>
+      <span class="market-item-desc">${tags||'—'}</span>
+      <span class="market-item-range">⬡ ${item.goldValueMin}–${item.goldValueMax}</span>
+      <button class="market-item-add" data-item-id="${item.id}" data-section="${section}">+ Add</button>
+    </div>`;
+  }
+
+  let h=`<div class="panel-title">Market</div>
+  <div class="panel-subtitle">Purchase food, equipment, and weapons. Market tax: <strong style="color:var(--amber)">10%</strong></div>`;
+
+  h+=`<div class="market-section-title">Permanent Stock</div>`;
+  for(const item of MARKET_STOCK_PERMANENT) h+=itemRowHTML(item,'permanent');
+
+  h+=`<div class="market-section-title">Rotating Stock <span style="font-family:var(--mono);font-size:9px;color:var(--text-dim)">— Week ${week}</span></div>`;
+  if(!rotating.length) h+='<div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);padding:4px 0">No rotating items this week.</div>';
+  else for(const item of rotating) h+=itemRowHTML(item,'rotating');
+
+  // For Purchase box
+  const cartMin=_purchaseCart.reduce((s,i)=>s+i.goldValueMin,0);
+  const cartMax=_purchaseCart.reduce((s,i)=>s+i.goldValueMax,0);
+  const taxedMax=Math.ceil(cartMax*1.10);
+  const canAfford=_purchaseCart.length>0&&org.gold>=taxedMax;
+
+  h+=`<div class="for-purchase-box">
+    <div class="for-purchase-title">For Purchase</div>`;
+  if(!_purchaseCart.length){
+    h+='<div style="font-family:var(--body);font-style:italic;font-size:12px;color:var(--text-dim)">Add items from the stock above.</div>';
+  } else {
+    for(const item of _purchaseCart){
+      h+=`<div class="purchase-staged-row">
+        <span style="flex:1">${item.name}</span>
+        <span style="color:var(--amber)">⬡ ${item.goldValueMin}–${item.goldValueMax}</span>
+        <button class="rm-cart-btn" data-item-id="${item.id}">✕</button>
+      </div>`;
+    }
+    h+=`<div class="for-purchase-total">Total: <span>⬡ ${cartMin}–${cartMax}</span></div>
+    <div class="for-purchase-taxmax">Taxed max (worst case): ⬡ ${taxedMax}</div>`;
+  }
+  h+=`<button id="btn-buy" class="btn btn-primary btn-sm" style="margin-top:8px" ${(!canAfford)?'disabled':''}>
+    Buy ${_purchaseCart.length?`(⬡ ${taxedMax} max)`:''}
+  </button></div>`;
+  return h;
+}
+
+function wireMarketButtons(org){
+  // Add to cart
+  document.querySelectorAll('.market-item-add').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const id=btn.dataset.itemId;
+      const section=btn.dataset.section;
+      let item;
+      if(section==='permanent'){
+        const orig=MARKET_STOCK_PERMANENT.find(i=>i.id===id);
+        if(orig)item={...orig,id:makeId()};// new instance each time
+      } else {
+        const week=TIME.turnToWeek(GS.turn);
+        const rotSeed=(GS.world._seed^(week*0xDEAD1234))>>>0;
+        const rotating=generateRotatingStock(rotSeed);
+        item=rotating.find(i=>i.id===id);
+        if(item){item={...item,id:makeId()};}
+      }
+      if(item){_purchaseCart.push(item);renderCityPanel(_openCityId,'market');}
+    });
+  });
+  // Remove from cart
+  document.querySelectorAll('.rm-cart-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const id=btn.dataset.itemId;
+      const idx=_purchaseCart.findIndex(i=>i.id===id);
+      if(idx>=0){_purchaseCart.splice(idx,1);}
+      renderCityPanel(_openCityId,'market');
+    });
+  });
+  // Buy button
+  const buyBtn=document.getElementById('btn-buy');
+  if(buyBtn)buyBtn.addEventListener('click',()=>{
+    if(!_purchaseCart.length)return;
+    const cartMin=_purchaseCart.reduce((s,i)=>s+i.goldValueMin,0);
+    const cartMax=_purchaseCart.reduce((s,i)=>s+i.goldValueMax,0);
+    const taxedMax=Math.ceil(cartMax*1.10);
+    if(org.gold<taxedMax){showToast('Not enough gold for worst-case price.','error');return;}
+    // Roll price
+    const rng=makePRNG((GS.turn*0xC0FFEEE)>>>0);
+    const rolled=rng.int(cartMin,cartMax);
+    const final=Math.ceil(rolled*1.10);
+    org.gold-=final;
+    // Move items to storeroom
+    const names=_purchaseCart.map(i=>i.name);
+    for(const item of _purchaseCart){
+      const isFood=item.tags.some(t=>t.type==='Food');
+      if(isFood)org.inventory.food.push(item);
+      else org.inventory.misc.push(item);
+    }
+    GS._ledger.push({turn:GS.turn,desc:`Market purchase: ${names.join(', ')}`,amount:-final});
+    _purchaseCart=[];
+    updateToolbar();
+    renderCityPanel(_openCityId,'market');
+    showToast(`Purchased for ⬡ ${final} gold`,'success');
+  });
+}
+
+/* ── Storeroom panel (Section 9.4) ── */
+function renderStoreroomPanel(org){
+  const inv=org.inventory;
+  const forSale=inv.forSale??[];
+  const allItems=[...(inv.food??[]),...(inv.equipment??[]),...(inv.weapons??[]),...(inv.misc??[])];
+
+  // Upkeep preview
+  let upkeepTotal=0;
+  for(const r of org.recruits){
+    let rate=r.upkeepBaseRate;
+    if(r.traits.includes('Greedy'))rate=Math.ceil(rate*1.10);
+    upkeepTotal+=rate*r.level;
+  }
+  const turnsToUpkeep=TIME.isUpkeepTurn(GS.turn)?0:(() => {
+    let t=GS.turn;
+    while(!TIME.isUpkeepTurn(t)&&t-GS.turn<180)t++;
+    return t-GS.turn;
+  })();
+
+  let h=`<div class="panel-title">Storeroom</div>
+  <div class="panel-subtitle">Items stored at headquarters. Returning groups transfer inventory automatically.</div>`;
+
+  // Upkeep warning
+  if(upkeepTotal>0){
+    const warnColor=org.gold<upkeepTotal*2?'color:var(--red-bright)':'color:var(--amber-dim)';
+    h+=`<div class="upkeep-warning">Monthly upkeep: ⬡ ${upkeepTotal} — due in <span style="${warnColor}">${turnsToUpkeep} turn${turnsToUpkeep!==1?'s':''}</span></div>`;
+  }
+
+  // Main inventory
+  h+=`<div class="storeroom-section">
+    <div class="market-section-title">Inventory (${allItems.length} items)</div>`;
+  if(!allItems.length){
+    h+='<div style="font-family:var(--body);font-style:italic;font-size:13px;color:var(--text-dim);padding:8px 0">Empty. Purchase items from the Market or recover them from POIs.</div>';
+  } else {
+    for(const item of allItems){
+      const tags=item.tags.map(t=>`${t.type}${t.value!=null?`(${t.value})`:''}`).join(', ');
+      h+=`<div class="storeroom-item-row">
+        <span class="storeroom-item-name">${item.name}</span>
+        <span style="font-family:var(--mono);font-size:9px;color:var(--text-dim);flex:1">${tags||'—'}</span>
+        <span class="storeroom-item-range">⬡ ${item.goldValueMin}–${item.goldValueMax}</span>
+        <button class="storeroom-move-btn" data-item-id="${item.id}" data-dir="toSale">→ Sale</button>
+      </div>`;
+    }
+  }
+  h+='</div>';
+
+  // For Sale section
+  const saleMin=forSale.reduce((s,i)=>s+(i.goldValueMin??0),0);
+  const saleMax=forSale.reduce((s,i)=>s+(i.goldValueMax??0),0);
+  h+=`<div class="for-sale-box">
+    <div class="market-section-title" style="margin-top:0">For Sale (${forSale.length} items)</div>`;
+  if(!forSale.length){
+    h+='<div style="font-family:var(--body);font-style:italic;font-size:12px;color:var(--text-dim)">Stage items here to sell them.</div>';
+  } else {
+    for(const item of forSale){
+      h+=`<div class="storeroom-item-row">
+        <span class="storeroom-item-name">${item.name}</span>
+        <span class="storeroom-item-range">⬡ ${item.goldValueMin}–${item.goldValueMax}</span>
+        <button class="storeroom-move-btn" data-item-id="${item.id}" data-dir="fromSale">← Back</button>
+      </div>`;
+    }
+    h+=`<div class="for-sale-total">Total range: ⬡ ${saleMin}–${saleMax}</div>`;
+  }
+  h+=`<button id="btn-sell" class="btn btn-primary btn-sm" style="margin-top:8px" ${!forSale.length?'disabled':''}>
+    Sell All${forSale.length?` (⬡ ${saleMin}–${saleMax})`:''}
+  </button></div>`;
+  return h;
+}
+
+function wireStoreroomButtons(org){
+  if(!org.inventory.forSale)org.inventory.forSale=[];
+
+  // Move to/from For Sale
+  document.querySelectorAll('.storeroom-move-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const id=btn.dataset.itemId;
+      const dir=btn.dataset.dir;
+      const inv=org.inventory;
+      const allSections=[inv.food,inv.equipment,inv.weapons,inv.misc];
+
+      if(dir==='toSale'){
+        let found=false;
+        for(const sec of allSections){
+          const idx=sec.findIndex(i=>i.id===id);
+          if(idx>=0){inv.forSale.push(sec.splice(idx,1)[0]);found=true;break;}
+        }
+      } else {
+        const idx=(inv.forSale??[]).findIndex(i=>i.id===id);
+        if(idx>=0){
+          const item=inv.forSale.splice(idx,1)[0];
+          const isFood=item.tags&&item.tags.some(t=>t.type==='Food');
+          if(isFood)inv.food.push(item);else inv.misc.push(item);
+        }
+      }
+      renderCityPanel(_openCityId,'storeroom');
+    });
+  });
+
+  // Sell button
+  const sellBtn=document.getElementById('btn-sell');
+  if(sellBtn)sellBtn.addEventListener('click',()=>{
+    const forSale=org.inventory.forSale??[];
+    if(!forSale.length)return;
+    const saleMin=forSale.reduce((s,i)=>s+(i.goldValueMin??0),0);
+    const saleMax=forSale.reduce((s,i)=>s+(i.goldValueMax??0),0);
+    const rng=makePRNG(((GS.turn+1)*0xBEEFCAFE)>>>0);
+    const rolled=rng.int(saleMin,Math.max(saleMin,saleMax));
+    org.gold+=rolled;
+    const names=forSale.map(i=>i.name).join(', ');
+    GS._ledger.push({turn:GS.turn,desc:`Sold: ${names}`,amount:rolled});
+    org.inventory.forSale=[];
+    updateToolbar();
+    renderCityPanel(_openCityId,'storeroom');
+    showToast(`Sold for ⬡ ${rolled} gold`,'success');
+  });
+}
+
 function renderStaffPanel(org){
   const tasks=[{name:'Gather Rumors',effect:'No additional effect in v1 beyond public baseline.'},{name:'Develop Trading Connections',effect:'Increases Market inventory size and rare item chance.'},{name:'Train Recruits',effect:'Slowly improves unassigned recruits over time.'},{name:'Treat Wounded',effect:'Reduces recovery time for injured recruits.'}];
   let h='<div class="panel-title">Staff Assignments</div><div class="panel-subtitle">Assign recruits to passive HQ tasks.</div>';
@@ -2488,6 +3010,35 @@ function showToast(msg,type=''){const c=document.getElementById('toast-container
 
 /* ═══════════════ TEST SCENARIOS ═══════════════ */
 const TEST_SCENARIOS=[
+  {id:'hunger_test',name:'Hunger System Test',
+   desc:'Three recruits: one in Hunger, one in Starvation, one in Famine. Advance turns to watch stage progression and stat penalties. Open HQ → Roster to monitor hunger stage.',
+   build(){
+     const s=makeGameState({orgName:'Test Guild',gold:500,mapSize:128,targetPois:20,targetKnownPois:8});
+     s._startingChars=3;generateWorld(s);
+     const org=s.organizations[0];
+     if(org.recruits.length>=3){
+       org.recruits[0].hunger={stage:'Hunger',charges:90};
+       org.recruits[1].hunger={stage:'Starvation',charges:250};
+       org.recruits[2].hunger={stage:'Famine',charges:80};
+     }
+     return s;
+   }},
+  {id:'economy_test',name:'Economy & Market Test',
+   desc:'Starts with 9999 gold. Open HQ → Market to buy food and items. Check Storeroom for inventory and use For Sale to sell. Upkeep fires each month.',
+   build(){
+     const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:8});
+     s._startingChars=4;generateWorld(s);
+     return s;
+   }},
+  {id:'upkeep_test',name:'Upkeep Test',
+   desc:'Low gold (200), 3 recruits. Advance turns to the upkeep turn to see gold deducted and ledger entry recorded.',
+   build(){
+     const s=makeGameState({orgName:'Test Guild',gold:200,mapSize:128,targetPois:20,targetKnownPois:8});
+     s._startingChars=3;generateWorld(s);
+     // Fast-forward to near upkeep turn (turn 169 = first turn of last day of month 1)
+     s.turn=168;
+     return s;
+   }},
   {id:'wound_test',name:'Wound System Test',
    desc:'Group pre-placed in a hazardous cave system zone. Scout Zone to trigger hazard damage and observe wounds accumulating. Use Treat to bandage wounds.',
    build(){

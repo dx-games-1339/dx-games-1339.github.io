@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ironbound</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap');
+
+:root {
+  --bg:#0e0e0f; --bg-panel:#141416; --bg-raised:#1c1c1f; --bg-input:#111113;
+  --border:#2e2e33; --border-accent:#4a3f28;
+  --amber:#c8902a; --amber-dim:#7a5518; --amber-bright:#e8b04a;
+  --parchment:#d4b896; --parchment-dim:#7a6a58;
+  --text:#c8c0b0; --text-dim:#6a6260; --text-bright:#e8e0d0;
+  --red:#8b3030; --red-bright:#c04040;
+  --green:#2a5a30; --green-bright:#3a8040;
+  --title-green:#4a9a58;
+  --mono:'Share Tech Mono',monospace; --serif:'Cinzel',serif; --body:'Crimson Pro',Georgia,serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.5;overflow:hidden;}
+.hidden{display:none!important;}
+.rule{display:flex;align-items:center;gap:12px;color:var(--amber-dim);font-family:var(--mono);font-size:10px;letter-spacing:.12em;}
+.rule::before,.rule::after{content:'';flex:1;height:1px;background:var(--border-accent);}
+.btn{display:block;width:100%;padding:10px 20px;background:transparent;border:1px solid var(--border-accent);color:var(--parchment);font-family:var(--serif);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .15s,border-color .15s,color .15s;outline:none;}
+.btn:hover{background:var(--amber-dim);border-color:var(--amber);color:var(--amber-bright);}
+.btn:active{background:var(--amber);color:var(--bg);}
+.btn:disabled{opacity:.35;cursor:not-allowed;background:transparent;border-color:var(--border);color:var(--text-dim);}
+.btn-primary{background:var(--amber-dim);border-color:var(--amber);color:var(--amber-bright);}
+.btn-primary:hover{background:var(--amber);color:var(--bg);}
+.btn-danger{border-color:var(--red);color:var(--red-bright);}
+.btn-danger:hover{background:var(--red);color:#fff;}
+.btn-sm{width:auto;display:inline-block;padding:5px 14px;font-size:10px;}
+label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--parchment-dim);text-transform:uppercase;margin-bottom:5px;}
+input[type=text],input[type=number],select{width:100%;background:var(--bg-input);border:1px solid var(--border);color:var(--text-bright);font-family:var(--mono);font-size:13px;padding:7px 9px;outline:none;transition:border-color .15s;}
+input[type=text]:focus,input[type=number]:focus,select:focus{border-color:var(--amber-dim);}
+input[type=number]{-moz-appearance:textfield;}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236a6260'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
+.field-hint{font-family:var(--body);font-style:italic;font-size:13px;color:var(--text-dim);margin-top:3px;}
+.field-error{font-family:var(--mono);font-size:11px;color:var(--red-bright);margin-top:3px;display:none;}
+.field-error.visible{display:block;}
+.field-group{margin-bottom:16px;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border-accent);}
+
+/* ── LAUNCH ── */
+#screen-launch{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;background:var(--bg);}
+#screen-launch::before,#screen-launch::after{content:'';position:absolute;width:120px;height:120px;border-color:var(--border-accent);border-style:solid;pointer-events:none;}
+#screen-launch::before{top:32px;left:32px;border-width:1px 0 0 1px;}
+#screen-launch::after{bottom:32px;right:32px;border-width:0 1px 1px 0;}
+.launch-inner{width:360px;display:flex;flex-direction:column;}
+.launch-title{font-family:var(--serif);font-size:52px;font-weight:700;letter-spacing:.18em;color:var(--title-green);text-align:center;line-height:1;margin-bottom:4px;text-shadow:0 0 40px rgba(74,154,88,.3);}
+.launch-subtitle{font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--parchment-dim);text-align:center;margin-bottom:32px;}
+.launch-buttons{display:flex;flex-direction:column;gap:8px;}
+.launch-error{margin-top:12px;padding:10px 14px;border:1px solid var(--red);background:rgba(139,48,48,.12);font-family:var(--mono);font-size:11px;color:var(--red-bright);display:none;}
+.launch-error.visible{display:block;}
+.launch-version{position:absolute;bottom:20px;right:32px;font-family:var(--mono);font-size:10px;color:var(--text-dim);letter-spacing:.1em;}
+/* ── WORLD OPTIONS / SCENARIOS ── */
+#screen-world-options,#screen-test-scenario{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg);}
+.options-panel,.scenario-panel{background:var(--bg-panel);border:1px solid var(--border-accent);padding:32px 38px;}
+.options-panel{width:520px;max-height:92vh;overflow-y:auto;}
+.scenario-panel{width:520px;}
+.options-title,.scenario-title{font-family:var(--serif);font-size:17px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);margin-bottom:5px;}
+.options-desc,.scenario-desc{font-family:var(--body);font-style:italic;font-size:14px;color:var(--text-dim);margin-bottom:24px;}
+.options-section-title{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--amber-dim);margin:20px 0 14px;}
+.options-actions{display:flex;gap:10px;margin-top:24px;}.options-actions .btn{flex:1;}
+.scenario-list{display:flex;flex-direction:column;gap:6px;margin-bottom:20px;}
+.scenario-item{border:1px solid var(--border);background:var(--bg-raised);padding:11px 13px;cursor:pointer;transition:border-color .12s,background .12s;}
+.scenario-item:hover{border-color:var(--amber-dim);background:#1e1e22;}
+.scenario-item.selected{border-color:var(--amber);background:rgba(74,63,40,.2);}
+.scenario-item-name{font-family:var(--serif);font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--parchment);margin-bottom:2px;}
+.scenario-item-desc{font-family:var(--body);font-style:italic;font-size:12px;color:var(--text-dim);}
+.scenario-actions{display:flex;gap:10px;}.scenario-actions .btn{flex:1;}
+
+/* ── GAME SCREEN ── */
+#screen-game{width:100%;height:100%;display:flex;flex-direction:column;background:var(--bg);position:relative;}
+#toolbar{height:44px;min-height:44px;flex-shrink:0;background:var(--bg-panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:0;overflow:hidden;}
+.toolbar-logo{font-family:var(--serif);font-size:14px;font-weight:700;letter-spacing:.16em;color:var(--amber);flex-shrink:0;margin-right:8px;}
+.toolbar-sep{width:1px;height:20px;background:var(--border);flex-shrink:0;margin:0 8px;}
+.toolbar-stats{display:flex;align-items:center;gap:0;flex-shrink:1;overflow:hidden;}
+.toolbar-stat{display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;padding:0 8px;flex-shrink:1;white-space:nowrap;}
+.toolbar-stat-label{color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;}
+.toolbar-stat-value{color:var(--text-bright);}
+.toolbar-stat-value.gold{color:var(--amber);}
+.toolbar-spacer{flex:1;min-width:4px;}
+.toolbar-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.toolbar-btn{padding:4px 12px;background:transparent;border:1px solid var(--border-accent);color:var(--parchment);font-family:var(--serif);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .12s,border-color .12s,color .12s;outline:none;white-space:nowrap;}
+.toolbar-btn:hover{background:var(--amber-dim);border-color:var(--amber);color:var(--amber-bright);}
+.toolbar-btn.devmode-btn{border-color:var(--green);color:var(--green-bright);}
+.toolbar-btn.devmode-btn.active{background:rgba(42,90,48,.3);border-color:var(--green-bright);}
+.toolbar-btn.end-turn-btn{border-color:var(--amber);color:var(--amber-bright);font-weight:700;}
+.toolbar-btn.end-turn-btn:hover{background:var(--amber);color:var(--bg);}
+.toolbar-btn.exit-btn{border-color:var(--red);color:var(--red-bright);}
+.toolbar-btn.exit-btn:hover{background:var(--red);color:#fff;}
+#canvas-area{flex:1;position:relative;overflow:hidden;}
+#map-canvas{display:block;width:100%;height:100%;cursor:grab;}
+#map-canvas.panning{cursor:grabbing;}
+.map-popup{position:absolute;pointer-events:none;background:var(--bg-panel);border:1px solid var(--border-accent);padding:11px 14px;min-width:170px;max-width:230px;font-family:var(--mono);font-size:11px;display:none;z-index:5;}
+.map-popup.visible{display:block;}
+.map-popup .popup-name{font-family:var(--serif);font-size:13px;font-weight:600;letter-spacing:.12em;color:var(--parchment);margin-bottom:5px;}
+.map-popup .popup-tag{font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;}
+.map-popup .popup-tag.hq{color:var(--amber);}
+.map-popup .popup-tag.discovered{color:var(--amber-bright);}
+.map-popup .popup-tag.undiscovered{color:var(--text-dim);}
+.map-popup .popup-tag.dev-info{color:var(--green-bright);}
+.map-popup .popup-row{color:var(--text-dim);font-size:10px;margin-top:3px;}
+.map-popup .popup-row span{color:var(--text-bright);}
+#map-legend{position:absolute;bottom:12px;left:12px;background:rgba(14,14,15,.85);border:1px solid var(--border);padding:7px 11px;font-family:var(--mono);font-size:10px;color:var(--text-dim);letter-spacing:.06em;line-height:2;pointer-events:none;z-index:4;}
+#map-legend span{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:middle;}
+#dev-panel{position:absolute;top:8px;right:8px;width:340px;max-height:calc(100% - 16px);background:rgba(14,14,15,.95);border:1px solid var(--green);overflow-y:auto;font-family:var(--mono);font-size:10px;color:var(--green-bright);padding:10px 12px;line-height:1.7;pointer-events:auto;z-index:10;}
+#dev-panel h3{font-family:var(--serif);font-size:11px;color:var(--green-bright);letter-spacing:.15em;text-transform:uppercase;margin-bottom:7px;border-bottom:1px solid var(--green);padding-bottom:5px;}
+#dev-panel pre{white-space:pre-wrap;word-break:break-all;font-size:9px;color:#5a8a5a;}
+#bottom-panel{height:180px;min-height:180px;background:var(--bg-panel);border-top:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;}
+.bottom-stub{display:flex;align-items:center;justify-content:center;height:100%;font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:.08em;}
+/* Group Panel */
+#group-panel{display:flex;flex-direction:column;height:100%;overflow:hidden;}
+.gp-header{display:flex;align-items:center;gap:12px;padding:8px 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.gp-name{font-family:var(--serif);font-size:14px;font-weight:600;letter-spacing:.14em;color:var(--parchment);}
+.gp-role{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber-dim);margin-left:2px;}
+.gp-status{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-left:auto;}
+.gp-close{padding:2px 8px;background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:10px;cursor:pointer;outline:none;transition:border-color .1s,color .1s;}
+.gp-close:hover{border-color:var(--parchment);color:var(--parchment);}
+.gp-body{display:flex;flex:1;overflow:hidden;}
+.gp-members{flex:0 0 260px;overflow-y:auto;padding:8px 12px;border-right:1px solid var(--border);display:flex;flex-wrap:wrap;gap:4px;align-content:flex-start;}
+.gp-member-chip{font-family:var(--mono);font-size:9px;padding:2px 8px;border:1px solid var(--border);color:var(--text);background:var(--bg-raised);white-space:nowrap;}
+.gp-actions{flex:1;padding:8px 14px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;}
+.gp-section-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber-dim);margin-top:4px;}
+.gp-dest-row{display:flex;gap:6px;align-items:center;}
+.gp-dest-select{flex:1;font-size:10px;padding:4px 8px;}
+.gp-schedule{display:flex;gap:3px;margin-top:2px;}
+.sched-slot{width:22px;height:22px;border:1px solid var(--border);background:var(--bg-raised);font-family:var(--mono);font-size:8px;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .1s,border-color .1s,color .1s;user-select:none;}
+.sched-slot.rest{background:rgba(122,85,24,.25);border-color:var(--amber-dim);color:var(--amber);}
+.gp-transit-info{font-family:var(--mono);font-size:10px;color:var(--amber-dim);padding:3px 0;}
+.gp-transit-info span{color:var(--amber);}
+
+/* ── CITY OVERLAY ── */
+#city-overlay{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;background:var(--bg);}
+.city-header{display:flex;align-items:center;height:44px;min-height:44px;flex-shrink:0;background:var(--bg-panel);border-bottom:1px solid var(--border);padding:0 16px;}
+.city-header-name{font-family:var(--serif);font-size:16px;font-weight:600;letter-spacing:.16em;color:var(--parchment);}
+.city-header-hq{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--amber);margin-left:10px;text-transform:uppercase;}
+.city-header-spacer{flex:1;}
+.city-close-btn{padding:4px 14px;background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:10px;letter-spacing:.1em;cursor:pointer;text-transform:uppercase;outline:none;transition:border-color .12s,color .12s;}
+.city-close-btn:hover{border-color:var(--parchment);color:var(--parchment);}
+.city-body{display:flex;flex:1;overflow:hidden;}
+.city-tabs{width:160px;min-width:160px;flex-shrink:0;background:var(--bg-panel);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:12px 0;gap:2px;overflow-y:auto;}
+.city-tab{padding:9px 16px;cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);border-left:2px solid transparent;transition:color .12s,border-color .12s,background .12s;}
+.city-tab:hover{color:var(--parchment);background:rgba(255,255,255,.03);}
+.city-tab.active{color:var(--amber-bright);border-left-color:var(--amber);}
+.city-tab-section{padding:6px 16px 2px;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--border-accent);margin-top:6px;}
+.city-content{flex:1;overflow-y:auto;padding:24px 28px;}
+.panel-title{font-family:var(--serif);font-size:16px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-bottom:4px;}
+.panel-subtitle{font-family:var(--body);font-style:italic;font-size:14px;color:var(--text-dim);margin-bottom:20px;}
+.roster-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
+.roster-table th{text-align:left;color:var(--amber-dim);letter-spacing:.1em;text-transform:uppercase;font-size:9px;padding:4px 8px 8px;border-bottom:1px solid var(--border-accent);}
+.roster-table td{padding:8px 8px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;}
+.roster-table tr:hover td{background:rgba(255,255,255,.02);}
+.recruit-name{color:var(--parchment);font-size:12px;} .recruit-level{color:var(--amber);}
+.recruit-state{font-size:10px;padding:1px 6px;border:1px solid;text-transform:uppercase;letter-spacing:.06em;}
+.recruit-state.available{border-color:var(--green);color:var(--green-bright);}
+.recruit-state.deployed{border-color:var(--amber-dim);color:var(--amber);}
+.trait-badge{display:inline-block;font-size:9px;padding:1px 5px;border:1px solid var(--border-accent);color:var(--parchment-dim);margin-right:3px;margin-bottom:2px;text-transform:uppercase;letter-spacing:.06em;}
+.hire-grid{display:flex;flex-direction:column;gap:6px;}
+.hire-card{background:var(--bg-raised);border:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:14px;}
+.hire-card:hover{border-color:var(--amber-dim);}
+.hire-card-name{font-family:var(--serif);font-size:13px;color:var(--parchment);min-width:120px;}
+.hire-card-stats{flex:1;font-family:var(--mono);font-size:10px;color:var(--text-dim);}
+.hire-card-stats span{color:var(--text);}
+.hire-card-cost{font-family:var(--mono);font-size:12px;color:var(--amber);min-width:70px;text-align:right;}
+.hire-card-btn{flex-shrink:0;}
+.group-list{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.group-card{background:var(--bg-raised);border:1px solid var(--border);padding:10px 14px;}
+.group-card-header{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+.group-card-name{font-family:var(--serif);font-size:13px;color:var(--parchment);}
+.group-card-role{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber-dim);padding:1px 5px;border:1px solid var(--amber-dim);}
+.group-card-loc{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-left:auto;}
+.group-card-members{font-family:var(--mono);font-size:10px;color:var(--text-dim);}
+.group-card-members span{color:var(--text);}
+.group-create-form{background:var(--bg-raised);border:1px solid var(--border-accent);padding:14px 16px;margin-top:12px;}
+.group-create-title{font-family:var(--serif);font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--parchment);margin-bottom:10px;}
+.create-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
+.create-row label{margin-bottom:0;min-width:60px;}
+.member-select-grid{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0;}
+.member-toggle{font-family:var(--mono);font-size:10px;padding:3px 8px;border:1px solid var(--border);background:transparent;color:var(--text-dim);cursor:pointer;transition:border-color .1s,color .1s,background .1s;}
+.member-toggle.selected{border-color:var(--amber);color:var(--amber-bright);background:rgba(122,85,24,.2);}
+.member-toggle:disabled{opacity:.35;cursor:not-allowed;}
+.stub-panel{text-align:center;padding:48px 24px;color:var(--text-dim);font-family:var(--mono);font-size:11px;letter-spacing:.08em;line-height:2.2;}
+.stub-panel strong{display:block;font-family:var(--serif);font-size:14px;color:var(--parchment);margin-bottom:8px;letter-spacing:.12em;}
+.task-row{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--border);}
+.task-row:last-child{border-bottom:none;}
+.task-name{font-family:var(--serif);font-size:12px;font-weight:600;color:var(--parchment);min-width:180px;}
+.task-effect{font-family:var(--body);font-style:italic;font-size:13px;color:var(--text-dim);flex:1;}
+.task-count{font-family:var(--mono);font-size:11px;color:var(--text-dim);}
+.task-count span{color:var(--amber);}
+
+/* ── POI LAYOUT OVERLAY ── */
+#poi-overlay{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;background:var(--bg);}
+.poi-header{display:flex;align-items:center;height:44px;min-height:44px;flex-shrink:0;background:var(--bg-panel);border-bottom:1px solid var(--border);padding:0 16px;gap:12px;}
+.poi-header-name{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:.14em;color:var(--parchment);}
+.poi-header-type{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber-dim);}
+.poi-header-spacer{flex:1;}
+.poi-header-meta{font-family:var(--mono);font-size:10px;color:var(--text-dim);}
+.poi-header-meta span{color:var(--amber);}
+.poi-body{display:flex;flex:1;overflow:hidden;}
+/* Zone graph canvas */
+#poi-graph-canvas{display:block;cursor:pointer;}
+.poi-graph-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg);}
+/* Sidebar */
+.poi-sidebar{width:200px;min-width:200px;flex-shrink:0;background:var(--bg-panel);border-left:1px solid var(--border);padding:16px 14px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;}
+.poi-sidebar-section{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-dim);margin-bottom:6px;}
+.poi-sidebar-row{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:4px;}
+.poi-sidebar-row span{color:var(--text);}
+.poi-sidebar-row.dev{color:var(--green-bright);font-size:9px;}
+.poi-sidebar-hint{font-family:var(--body);font-style:italic;font-size:12px;color:var(--text-dim);margin-top:8px;line-height:1.5;}
+.poi-back-btn{padding:5px 12px;background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:10px;letter-spacing:.08em;cursor:pointer;text-transform:uppercase;outline:none;transition:border-color .12s,color .12s;flex-shrink:0;}
+.poi-back-btn:hover{border-color:var(--parchment);color:var(--parchment);}
+
+/* ── ZONE DETAIL OVERLAY ── */
+#zone-overlay{position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;background:var(--bg);}
+.zone-header{display:flex;align-items:center;height:44px;min-height:44px;flex-shrink:0;background:var(--bg-panel);border-bottom:1px solid var(--border);padding:0 16px;gap:12px;}
+.zone-header-name{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:.14em;color:var(--parchment);}
+.zone-header-state{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border:1px solid;}
+.zone-header-state.scouted{border-color:var(--green);color:var(--green-bright);}
+.zone-header-state.unknown{border-color:var(--text-dim);color:var(--text-dim);}
+.zone-header-spacer{flex:1;}
+.zone-header-conds{font-family:var(--mono);font-size:10px;color:var(--text-dim);}
+.zone-header-conds span{color:var(--amber-dim);}
+.zone-body{display:flex;flex:1;overflow:hidden;}
+.zone-objects-pane{flex:1;overflow-y:auto;padding:20px 24px;}
+.zone-sidebar{width:220px;min-width:220px;flex-shrink:0;background:var(--bg-panel);border-left:1px solid var(--border);padding:16px 14px;overflow-y:auto;}
+.zone-section-title{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-dim);margin:16px 0 8px;}
+.zone-section-title:first-child{margin-top:0;}
+.zone-unknown-msg{font-family:var(--body);font-style:italic;font-size:13px;color:var(--text-dim);padding:24px 0;}
+/* Object entry */
+.obj-entry{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.obj-entry:last-child{border-bottom:none;}
+.obj-icon{width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--text-dim);position:relative;}
+/* Square icon for non-living */
+.obj-icon.sq{background:var(--bg-raised);border:1px solid var(--border);}
+/* Rhombus icon for living — use CSS clip-path */
+.obj-icon.rh{background:var(--bg-raised);border:1px solid var(--amber-dim);clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);}
+.obj-icon.rh.dev-icon{border-color:var(--green);}
+.obj-info{flex:1;}
+.obj-name{font-family:var(--serif);font-size:13px;color:var(--parchment);margin-bottom:2px;}
+.obj-name.known-name{color:var(--text-dim);font-style:italic;}
+.obj-type{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);}
+.obj-tags{font-family:var(--mono);font-size:9px;color:var(--amber-dim);margin-top:2px;}
+.obj-gold{font-family:var(--mono);font-size:10px;color:var(--amber);margin-top:2px;}
+.obj-awareness{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;border:1px solid;margin-left:auto;flex-shrink:0;align-self:center;}
+.obj-awareness.located{border-color:var(--amber-bright);color:var(--amber-bright);}
+.obj-awareness.known{border-color:var(--parchment-dim);color:var(--parchment-dim);}
+.obj-awareness.undisc{border-color:var(--text-dim);color:var(--text-dim);}
+.obj-dev-vals{font-family:var(--mono);font-size:9px;color:var(--green-bright);margin-top:2px;}
+/* Zone actions sidebar */
+.zone-action-btn{display:block;width:100%;margin-bottom:6px;padding:6px 12px;background:transparent;border:1px solid var(--border-accent);color:var(--parchment);font-family:var(--mono);font-size:10px;letter-spacing:.08em;cursor:pointer;text-transform:uppercase;outline:none;transition:background .1s,border-color .1s,color .1s;text-align:left;}
+.zone-action-btn:hover{background:var(--amber-dim);border-color:var(--amber);color:var(--amber-bright);}
+.zone-action-btn:disabled{opacity:.35;cursor:not-allowed;}
+
+/* Confirm dialog */
+#confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:flex;align-items:center;justify-content:center;}
+.confirm-box{background:var(--bg-panel);border:1px solid var(--border-accent);padding:28px 32px;width:380px;text-align:center;}
+.confirm-title{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:.14em;color:var(--parchment);margin-bottom:10px;}
+.confirm-msg{font-family:var(--body);font-size:14px;color:var(--text-dim);margin-bottom:22px;line-height:1.6;}
+.confirm-actions{display:flex;gap:10px;}.confirm-actions .btn{flex:1;}
+/* Toast */
+#toast-container{position:fixed;bottom:196px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;z-index:9999;}
+.toast{padding:8px 16px;background:var(--bg-panel);border:1px solid var(--border-accent);font-family:var(--mono);font-size:11px;color:var(--parchment);letter-spacing:.08em;animation:toast-in .2s ease,toast-out .3s ease 2.5s forwards;pointer-events:none;}
+.toast.error{border-color:var(--red);color:var(--red-bright);}
+.toast.success{border-color:var(--green-bright);color:var(--green-bright);}
+@keyframes toast-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toast-out{from{opacity:1}to{opacity:0}}
+</style>
+</head>
+<body>
+<!-- ══ LAUNCH ══ -->
+<div id="screen-launch">
+  <div class="launch-inner">
+    <div class="launch-title">IRONBOUND</div>
+    <div class="launch-subtitle">Mercenary Guild Management</div>
+    <div class="rule">MAIN MENU</div><div style="margin-bottom:20px"></div>
+    <div class="launch-buttons">
+      <button class="btn btn-primary" id="btn-new-game">Start New Game</button>
+      <button class="btn" id="btn-load-game">Load Game</button>
+      <button class="btn" id="btn-test-scenario">Launch Test Scenario</button>
+    </div>
+    <div class="launch-error" id="launch-error"></div>
+  </div>
+  <input type="file" id="file-load-input" accept=".json" style="display:none">
+  <div class="launch-version">v0.6 — Step 6</div>
+</div>
+<!-- ══ WORLD OPTIONS ══ -->
+<div id="screen-world-options" class="hidden">
+  <div class="options-panel">
+    <div class="options-title">World Options</div>
+    <div class="options-desc">Configure the parameters of the new world. All fields have defaults.</div>
+    <div class="rule">ORGANIZATION</div><div style="margin-top:14px"></div>
+    <div class="field-group"><label for="opt-org-name">Organization Name</label><input type="text" id="opt-org-name" value="The Guild" maxlength="40"><div class="field-error" id="err-org-name">Name cannot be empty.</div></div>
+    <div class="field-group"><label for="opt-gold">Starting Gold</label><input type="number" id="opt-gold" value="4200" min="0"></div>
+    <div class="field-group"><label for="opt-chars">Starting Characters</label><input type="number" id="opt-chars" value="0" min="0" max="9"><div class="field-hint">Recruits placed in roster at game start (0–9).</div><div class="field-error" id="err-chars">Must be between 0 and 9.</div></div>
+    <div class="options-section-title">World</div>
+    <div class="field-group"><label for="opt-map-size">Map Size</label><input type="number" id="opt-map-size" value="128" min="64" max="256"><div class="field-hint">Width and height in tile units (64–256).</div><div class="field-error" id="err-map-size">Must be between 64 and 256.</div></div>
+    <div class="field-group"><label for="opt-target-pois">Target World POIs</label><input type="number" id="opt-target-pois" value="20" min="10" max="50"><div class="field-error" id="err-target-pois">Must be between 10 and 50.</div></div>
+    <div class="field-group"><label for="opt-known-pois">Target Publicly Known POIs</label><input type="number" id="opt-known-pois" value="8" min="6"><div class="field-hint">POIs spawning as Discovered by default (6–Target world POIs).</div><div class="field-error" id="err-known-pois">Must be between 6 and Target world POIs.</div></div>
+    <div class="options-actions"><button class="btn" id="btn-options-back">Cancel</button><button class="btn btn-primary" id="btn-options-confirm">Confirm &amp; Start</button></div>
+  </div>
+</div>
+<!-- ══ TEST SCENARIO ══ -->
+<div id="screen-test-scenario" class="hidden">
+  <div class="scenario-panel">
+    <div class="scenario-title">Test Scenarios</div>
+    <div class="scenario-desc">Select a pre-defined scenario to test a specific system.</div>
+    <div class="scenario-list" id="scenario-list"></div>
+    <div class="scenario-actions"><button class="btn" id="btn-scenario-back">Back</button><button class="btn btn-primary" id="btn-scenario-launch" disabled>Launch Scenario</button></div>
+  </div>
+</div>
+<!-- ══ GAME SCREEN ══ -->
+<div id="screen-game" class="hidden">
+  <div id="toolbar">
+    <span class="toolbar-logo">IRONBOUND</span>
+    <div class="toolbar-sep"></div>
+    <div class="toolbar-stats">
+      <div class="toolbar-stat"><span class="toolbar-stat-label">Turn</span>&nbsp;<span class="toolbar-stat-value" id="tb-turn">1</span></div>
+      <div class="toolbar-stat"><span class="toolbar-stat-label">Day</span>&nbsp;<span class="toolbar-stat-value" id="tb-day">1</span></div>
+      <div class="toolbar-stat"><span class="toolbar-stat-label">Gold</span>&nbsp;<span class="toolbar-stat-value gold" id="tb-gold">0</span></div>
+      <div class="toolbar-stat"><span class="toolbar-stat-label">Roster</span>&nbsp;<span class="toolbar-stat-value" id="tb-roster">0</span></div>
+      <div class="toolbar-stat"><span class="toolbar-stat-label">POIs</span>&nbsp;<span class="toolbar-stat-value" id="tb-pois">0</span></div>
+    </div>
+    <div class="toolbar-spacer"></div>
+    <div class="toolbar-actions">
+      <button class="toolbar-btn devmode-btn" id="btn-devmode">DEV</button>
+      <button class="toolbar-btn" id="btn-save">Save</button>
+      <button class="toolbar-btn end-turn-btn" id="btn-end-turn">End Turn</button>
+      <button class="toolbar-btn exit-btn" id="btn-exit">Exit</button>
+    </div>
+  </div>
+  <div id="canvas-area">
+    <canvas id="map-canvas"></canvas>
+    <div class="map-popup" id="map-popup">
+      <div class="popup-name" id="popup-name">—</div>
+      <div class="popup-tag"  id="popup-tag"></div>
+      <div class="popup-row"  id="popup-row1"></div>
+      <div class="popup-row"  id="popup-row2"></div>
+      <div class="popup-row"  id="popup-dev" style="display:none"></div>
+    </div>
+    <div id="map-legend">
+      <span style="background:#2d4a2a"></span>Forest &nbsp;<span style="background:#3a3a28"></span>Plains &nbsp;<span style="background:#3a3530"></span>Hills &nbsp;<span style="background:#1a2a3a"></span>Water
+    </div>
+    <div id="dev-panel" class="hidden"><h3>⬡ Dev Mode — Game State</h3><pre id="dev-state-dump"></pre></div>
+  </div>
+  <div id="bottom-panel">
+    <div class="bottom-stub" id="bottom-stub">Click a group token to open Group Panel · Click a Discovered POI to explore</div>
+    <div id="group-panel" class="hidden">
+      <div class="gp-header">
+        <span class="gp-name" id="gp-name">—</span><span class="gp-role" id="gp-role"></span>
+        <span class="gp-status" id="gp-status"></span><button class="gp-close" id="gp-close">✕</button>
+      </div>
+      <div class="gp-body">
+        <div class="gp-members" id="gp-members"></div>
+        <div class="gp-actions" id="gp-actions"></div>
+      </div>
+    </div>
+  </div>
+  <!-- CITY OVERLAY -->
+  <div id="city-overlay" class="hidden">
+    <div class="city-header">
+      <span class="city-header-name" id="city-header-name">City</span>
+      <span class="city-header-hq hidden" id="city-header-hq">⬡ HQ</span>
+      <div class="city-header-spacer"></div>
+      <button class="city-close-btn" id="btn-close-city">← Back to Map</button>
+    </div>
+    <div class="city-body">
+      <div class="city-tabs" id="city-tabs"></div>
+      <div class="city-content" id="city-content"></div>
+    </div>
+  </div>
+  <!-- POI LAYOUT OVERLAY -->
+  <div id="poi-overlay" class="hidden">
+    <div class="poi-header">
+      <button class="poi-back-btn" id="btn-close-poi">← Map</button>
+      <span class="poi-header-name" id="poi-header-name">POI</span>
+      <span class="poi-header-type" id="poi-header-type"></span>
+      <div class="poi-header-spacer"></div>
+      <span class="poi-header-meta">Despawn: <span id="poi-header-timer">—</span> turns</span>
+    </div>
+    <div class="poi-body">
+      <div class="poi-graph-wrap" id="poi-graph-wrap">
+        <canvas id="poi-graph-canvas"></canvas>
+      </div>
+      <div class="poi-sidebar" id="poi-sidebar"></div>
+    </div>
+  </div>
+  <!-- ZONE DETAIL OVERLAY -->
+  <div id="zone-overlay" class="hidden">
+    <div class="zone-header">
+      <button class="poi-back-btn" id="btn-close-zone">← Zones</button>
+      <span class="zone-header-name" id="zone-header-name">Zone</span>
+      <span class="zone-header-state" id="zone-header-state"></span>
+      <div class="zone-header-spacer"></div>
+      <span class="zone-header-conds" id="zone-header-conds"></span>
+    </div>
+    <div class="zone-body">
+      <div class="zone-objects-pane" id="zone-objects-pane"></div>
+      <div class="zone-sidebar" id="zone-sidebar"></div>
+    </div>
+  </div>
+</div>
+<!-- CONFIRM DIALOG -->
+<div id="confirm-overlay" class="hidden">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirm-title">Confirm</div>
+    <div class="confirm-msg"   id="confirm-msg"></div>
+    <div class="confirm-actions">
+      <button class="btn" id="confirm-cancel">Cancel</button>
+      <button class="btn btn-danger" id="confirm-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+<div id="toast-container"></div>
+
+<script>
+'use strict';
+/* ═══════════════════ CONSTANTS ═══════════════════ */
+const VERSION='0.6-step6',AUTOSAVE_KEY='ironbound_autosave',AUTOSAVE_EVERY=5;
+const PLAYER_FACTION='player';
+
+/* ═══════════════════ TIME ═══════════════════ */
+const TIME={
+  turnToDay:t=>Math.floor((t-1)/6)+1,
+  turnToWeek:t=>Math.floor((TIME.turnToDay(t)-1)/7)+1,
+  isFirstTurnOfDay:t=>((t-1)%6)===0,
+  isFirstTurnOfWeek:t=>TIME.isFirstTurnOfDay(t)&&((TIME.turnToDay(t)-1)%7===0),
+  isUpkeepTurn:t=>{const d=TIME.turnToDay(t);return((d-1)%30)===29&&TIME.isFirstTurnOfDay(t);},
+  dayTurnIndex:t=>(t-1)%6,
+};
+
+/* ═══════════════════ PRNG ═══════════════════ */
+function makePRNG(seed){
+  let s=seed>>>0;
+  return{next(){s+=0x6D2B79F5;let t=Math.imul(s^(s>>>15),1|s);t^=t+Math.imul(t^(t>>>7),61|t);return((t^(t>>>14))>>>0)/4294967296;},
+    int(lo,hi){return Math.floor(this.next()*(hi-lo+1))+lo;},
+    pick(a){return a[this.int(0,a.length-1)];},
+    float(lo,hi){return this.next()*(hi-lo)+lo;}};
+}
+
+/* ═══════════════════ NOISE ═══════════════════ */
+function makeNoise(seed){
+  const r=makePRNG(seed),SZ=256,t=new Float32Array(SZ*SZ);
+  for(let i=0;i<t.length;i++)t[i]=r.next();
+  function s(x,y){const xi=Math.floor(x)&(SZ-1),yi=Math.floor(y)&(SZ-1),xf=x-Math.floor(x),yf=y-Math.floor(y);const u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);const a=t[yi*SZ+xi],b=t[yi*SZ+((xi+1)&(SZ-1))],c=t[((yi+1)&(SZ-1))*SZ+xi],d=t[((yi+1)&(SZ-1))*SZ+((xi+1)&(SZ-1))];return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;}
+  return(x,y)=>s(x*.015,y*.015)*.65+s(x*.045,y*.045)*.35;
+}
+
+/* ═══════════════════ NAMES ═══════════════════ */
+const CITY_PFX=['Iron','Stone','Red','Ash','Gold','Silver','Dark','Crow','Wolf','Bear','Storm','Frost'];
+const CITY_SFX=['hold','ford','gate','bridge','haven','wall','keep','march','vale','wick','crest','moor'];
+const POI_ADJ=['Ancient','Forgotten','Cursed','Crumbling','Hidden','Haunted','Overgrown','Sunken'];
+const POI_NOUN=['Halls','Outpost','Den','Remains','Hollow','Depths','Sanctuary','Warrens'];
+const ZONE_NAMES=['Entry Hall','North Wing','East Passage','Vault','Inner Chamber','Deep Corridor','Outer Court',
+  'Collapsed Passage','Guard Post','Storage Room','Hidden Room','Lower Level','Upper Level','Main Hall',
+  'Side Chamber','Ruined Annex','Dark Hollow','Sunken Path','Overgrown Clearing','Rock Face'];
+const R_FIRST=['Aldric','Maren','Torvin','Sela','Brynn','Calder','Isra','Daven','Lyss','Ranek','Wren','Corvin','Tessa','Harken','Sove','Orin','Pell','Aida','Zuren','Feth'];
+const R_LAST=['Ashworth','Coldmere','Dunwall','Irenfeld','Blackthorn','Greaves','Hollow','Strant','Vorne','Embers','Crane','Dunmore','Ferris','Gale','Holst','Irith','Kael','Lorne','Mast','Nadren'];
+function cityName(rng){return rng.pick(CITY_PFX)+rng.pick(CITY_SFX);}
+function poiName(rng){return rng.pick(POI_ADJ)+' '+rng.pick(POI_NOUN);}
+function recruitName(rng){return rng.pick(R_FIRST)+' '+rng.pick(R_LAST);}
+
+/* ═══════════════════ TRAITS ═══════════════════ */
+const TRAIT_DEFS={Loyal:{exclusive:'Disloyal'},Disloyal:{exclusive:'Loyal'},Provident:{exclusive:null},Strong:{exclusive:'Weak'},Weak:{exclusive:'Strong'},Dexterous:{exclusive:'Clumsy'},Clumsy:{exclusive:'Dexterous'},Intelligent:{exclusive:null},Watchful:{exclusive:'Dumb'},Dumb:{exclusive:'Watchful'},Fast:{exclusive:'Slow'},Slow:{exclusive:'Fast'},Resilient:{exclusive:'Fragile'},Fragile:{exclusive:'Resilient'},Greedy:{exclusive:null}};
+const TRAIT_NAMES=Object.keys(TRAIT_DEFS);
+function applyTraits(chars,traits){
+  const c={...chars};
+  if(traits.includes('Intelligent'))c.level=Math.min(10,c.level+1);
+  if(traits.includes('Strong'))c.health+=2;if(traits.includes('Weak'))c.health-=2;
+  if(traits.includes('Resilient'))c.health+=10;if(traits.includes('Fragile'))c.health-=20;
+  if(traits.includes('Slow'))c.health+=5;
+  if(traits.includes('Fast'))c.health=Math.round(c.health*.90);
+  if(traits.includes('Strong'))c.strength=Math.round(c.strength*1.10);if(traits.includes('Weak'))c.strength=Math.round(c.strength*.85);
+  if(traits.includes('Dexterous'))c.dexterity=Math.round(c.dexterity*1.10);if(traits.includes('Clumsy'))c.dexterity=Math.round(c.dexterity*.85);
+  if(traits.includes('Watchful'))c.perception=Math.round(c.perception*1.15);if(traits.includes('Dumb'))c.perception=Math.round(c.perception*.70);
+  if(traits.includes('Intelligent'))c.perception=Math.round(c.perception*1.05);
+  if(traits.includes('Fast'))c.movementSpeed=Math.round(c.movementSpeed*1.20);if(traits.includes('Slow'))c.movementSpeed=Math.round(c.movementSpeed*.90);
+  if(traits.includes('Loyal'))c.loyalty=30;
+  return c;
+}
+function rollTraits(rng){
+  const roll=rng.next();if(roll<.40)return[];
+  const pool=[...TRAIT_NAMES],t1=rng.pick(pool);if(roll<.85)return[t1];
+  const excl=TRAIT_DEFS[t1].exclusive,pool2=pool.filter(t=>t!==t1&&t!==excl);
+  if(!pool2.length)return[t1];const t2=rng.pick(pool2);
+  if(TRAIT_DEFS[t2].exclusive===t1)return[t1];return[t1,t2];
+}
+
+/* ═══════════════════ RECRUIT FACTORY ═══════════════════ */
+function makeId(){return Math.random().toString(36).slice(2,10);}
+function generateRecruit(rng,level){
+  const lvl=level??rng.int(4,7);
+  const base={health:rng.int(90,130),regeneration:rng.int(3,8),movementSpeed:rng.int(8,12),baseCarryCapacity:rng.int(5,10),strength:rng.int(6,14),dexterity:rng.int(6,14),perception:rng.int(5,12),loyalty:rng.int(10,20),level:lvl};
+  const traits=rollTraits(rng),chars=applyTraits(base,traits);
+  const{level:fl,...rest}=chars;
+  let br=rng.int(8,14);if(traits.includes('Greedy'))br=Math.ceil(br*1.10);
+  return{id:makeId(),name:recruitName(rng),portrait:'default',race:'human',level:fl,upkeepBaseRate:br,traits,
+    characteristics:{health:rest.health,regeneration:rest.regeneration,movementSpeed:rest.movementSpeed,baseCarryCapacity:rest.baseCarryCapacity,strength:rest.strength,dexterity:rest.dexterity,perception:rest.perception,loyalty:Math.max(1,Math.min(30,rest.loyalty))},
+    equipment:{garment:null,head:null,backpack:null,trinket:null,trinket2:null},
+    inventory:[],statusEffects:[],wounds:[],hunger:{stage:'Hunger',charges:0},incapacitated:null,state:'Available'};
+}
+function generateHirePool(seed,count=6){const rng=makePRNG(seed),pool=[];for(let i=0;i<count;i++){const r=generateRecruit(rng);r._hiringCost=r.upkeepBaseRate*r.level*3;pool.push(r);}return pool;}
+function refreshHirePool(gs){const week=TIME.turnToWeek(gs.turn);gs._hirePoolSeed=(gs.world._seed^(week*0x9E3779B9))>>>0;gs._hirePool=generateHirePool(gs._hirePoolSeed);}
+
+/* ═══════════════════ GROUP FACTORY ═══════════════════ */
+function makeGroup(opts={}){
+  return{id:makeId(),name:opts.name??'New Group',role:opts.role??'Scout',memberIds:opts.memberIds??[],locationPoiId:null,locationZoneId:null,currentCityId:opts.cityId??null,inTransitTo:null,_transitProgress:0,schedule:[false,false,false,false,false,true],taskList:[],config:{zoneTravelAllowed:true,giveUpTurnCount:7,overrideMaintenanceLifecycle:false}};
+}
+function groupSpeed(group,org){if(!group.memberIds.length)return 10;let min=Infinity;for(const id of group.memberIds){const r=org.recruits.find(r=>r.id===id);if(r)min=Math.min(min,r.characteristics.movementSpeed);}return min===Infinity?10:min;}
+function locationCoords(type,id,world){if(type==='city'){const c=world.cities.find(c=>c.id===id);return c?{x:c.x+.5,y:c.y+.5}:null;}const p=world.pois.find(p=>p.id===id);return p?{x:p.x+.5,y:p.y+.5}:null;}
+function groupCoords(group,world){
+  if(group.currentCityId){const c=world.cities.find(c=>c.id===group.currentCityId);if(c)return{x:c.x+.5,y:c.y+.5};}
+  if(group.locationPoiId){const p=world.pois.find(p=>p.id===group.locationPoiId);if(p)return{x:p.x+.5,y:p.y+.5};}
+  if(group.inTransitTo&&group._transitFrom&&group._transitTo){const f=group._transitProgress??0;return{x:group._transitFrom.x+(group._transitTo.x-group._transitFrom.x)*f,y:group._transitFrom.y+(group._transitTo.y-group._transitFrom.y)*f};}
+  return null;
+}
+function turnsToTravel(group,type,id,world,org){const from=groupCoords(group,world),to=locationCoords(type,id,world);if(!from||!to)return null;return Math.ceil(Math.hypot(to.x-from.x,to.y-from.y)/groupSpeed(group,org));}
+function assignTravel(group,type,id,world,org){
+  const from=groupCoords(group,world),to=locationCoords(type,id,world);if(!from||!to)return;
+  group.inTransitTo={type,targetId:id};group._transitFrom={...from};group._transitTo={...to};
+  group._transitTotalDist=Math.hypot(to.x-from.x,to.y-from.y);group._transitProgress=0;
+  group.currentCityId=null;group.locationPoiId=null;group.locationZoneId=null;group.state='travelling';
+}
+function advanceGroupTravel(group,world,org){
+  if(!group.inTransitTo)return false;
+  const spd=groupSpeed(group,org),total=group._transitTotalDist??1;
+  group._transitProgress=Math.min(1,(group._transitProgress??0)+spd/total);
+  if(group._transitProgress>=1){
+    const{type,targetId}=group.inTransitTo;
+    if(type==='city')group.currentCityId=targetId;else group.locationPoiId=targetId;
+    group.inTransitTo=null;group._transitFrom=null;group._transitTo=null;group._transitProgress=0;group.state=undefined;
+    if(org)for(const id of group.memberIds){const r=org.recruits.find(r=>r.id===id);if(r)r.state='Available';}
+    return true;
+  }
+  return false;
+}
+
+/* ═══════════════════════════════════════════════════════
+   ZONE OBJECT GENERATION  (Sections 4.3.1, 8.4)
+═══════════════════════════════════════════════════════ */
+/* Object type data: [names[], discoverRange[lo,hi], visibilityRange[lo,hi], goldRange[min,max], isLiving] */
+const OBJ_TYPES={
+  Rock:       {names:['Stone formation','Boulder','Ore deposit','Rock outcrop','Rubble pile'],dv:[1,3],vv:[1,3],gold:[0,60],live:false},
+  Tree:       {names:['Ancient oak','Pine tree','Gnarled birch','Fallen trunk'],dv:[0,2],vv:[2,4],gold:[0,30],live:false},
+  Bush:       {names:['Dense thicket','Thornbush','Wild shrub','Berry bush'],dv:[0,2],vv:[2,4],gold:[5,25],live:false},
+  Plant:      {names:['Wild herbs','Flowering plant','Tall grass','Root cluster'],dv:[0,2],vv:[2,4],gold:[5,40],live:false},
+  Mushroom:   {names:['Mushroom cluster','Glowing cap','Dark fungus','Shelf fungi'],dv:[1,3],vv:[1,3],gold:[5,35],live:false},
+  'Fungal tree':{names:['Fungal growth','Massive mushroom','Spore colony'],dv:[0,2],vv:[3,4],gold:[10,50],live:false},
+  'Wooden house':{names:['Abandoned cabin','Collapsed shack','Derelict lodge'],dv:[0,1],vv:[3,4],gold:[20,180],live:false},
+  'Wooden barn': {names:['Dilapidated barn','Storage shed','Crumbling stable'],dv:[0,1],vv:[3,4],gold:[15,120],live:false},
+  'Stone house': {names:['Stone dwelling','Old watchtower','Guard post','Ruined keep'],dv:[0,1],vv:[3,4],gold:[30,240],live:false},
+  Pond:       {names:['Stagnant pool','Clear pond','Dark basin'],dv:[0,1],vv:[3,4],gold:[0,10],live:false},
+  River:      {names:['Shallow stream','Rocky creek','Hidden waterway'],dv:[0,1],vv:[3,4],gold:[0,5],live:false},
+};
+
+/* Placeholder names for Known-but-not-Located objects (Section 8.4.4) */
+const OBJ_PLACEHOLDER={
+  'Wooden house':'Unidentified building','Wooden barn':'Unidentified building','Stone house':'Unidentified building',
+  Rock:'Stone formation',Tree:'Large growth','Fungal tree':'Large growth',
+  Bush:'Vegetation',Plant:'Vegetation',Mushroom:'Small growth',
+  Pond:'Water source',River:'Water source',
+};
+
+/* POI-type affinity: which object types can spawn, weighted */
+const POI_OBJ_AFFINITY={
+  dungeon:      {Rock:4,'Stone house':3,Mushroom:2,'Fungal tree':1},
+  camp:         {Bush:3,Tree:3,Plant:3,Rock:2,Pond:1},
+  ruins:        {Rock:3,'Stone house':3,'Wooden house':2,'Wooden barn':2,Plant:1},
+  'forest zone':{Tree:4,Bush:3,Plant:3,Mushroom:2,Pond:2,River:1},
+  'cave system':{Rock:5,Mushroom:3,'Fungal tree':2,Pond:2,River:1},
+  'abandoned fort':{'Stone house':4,'Wooden barn':3,Rock:3,Plant:1},
+  mine:         {Rock:5,Mushroom:2,'Fungal tree':1,Pond:1},
+  shrine:       {'Stone house':3,Plant:3,Tree:2,Rock:2,Pond:1},
+};
+
+function weightedPickObjType(poiType,rng){
+  const aff=POI_OBJ_AFFINITY[poiType]||POI_OBJ_AFFINITY.ruins;
+  const keys=Object.keys(aff),total=keys.reduce((s,k)=>s+aff[k],0);
+  let r=rng.next()*total;
+  for(const k of keys){r-=aff[k];if(r<=0)return k;}
+  return keys[keys.length-1];
+}
+
+function generateZoneObject(rng,poiType){
+  const type=weightedPickObjType(poiType,rng);
+  const def=OBJ_TYPES[type];
+
+  // Section 4.3.1 — visibility generation
+  const dv=rng.int(def.dv[0],def.dv[1]);                        // _discover_value
+  const vv=rng.int(def.vv[0],def.vv[1]);                        // _visibility_value
+  const fvMax=Math.pow(2,dv)*300;                                // faction_visibility_max
+  const initAnchor=(fvMax/5)*vv;                                 // initial_objects_visibility
+  const visibility=Math.round(rng.float(initAnchor*.5,Math.max(initAnchor*.5,initAnchor)));
+  const upperBound=Math.round(rng.float(fvMax*.8,fvMax*1.2));
+
+  const goldMin=rng.int(def.gold[0],Math.max(def.gold[0],Math.floor(def.gold[1]*.5)));
+  const goldMax=rng.int(goldMin,def.gold[1]);
+
+  return{
+    id:makeId(),
+    name:rng.pick(def.names),
+    type,
+    size:rng.int(1,6),
+    discoverValue:dv,
+    visibilityValue:vv,
+    visibility,           // starting faction awareness value for new factions
+    upperBoundVisibility:upperBound,
+    goldValueMin:goldMin,
+    goldValueMax:goldMax,
+    tags:[],
+    specialActions:[],
+    isAlive:def.live,
+    factionAwareness:{},  // { [factionId]: number } — populated on zone entry
+  };
+}
+
+/* ═══════════════════════════════════════════════════════
+   ZONE GRAPH GENERATION  (Section 8.3)
+═══════════════════════════════════════════════════════ */
+/* Patterns: linear, branching, hub-and-spoke, complex */
+
+function selectGraphPattern(poiType,zoneCount,rng){
+  if(zoneCount<=4) return 'linear';
+  const table={
+    dungeon:['branching','complex'],camp:['linear','branching'],ruins:['branching','hub'],
+    'forest zone':['linear','branching'],'cave system':['branching','complex'],
+    'abandoned fort':['hub','complex'],mine:['linear','branching'],shrine:['hub','linear'],
+  };
+  const opts=table[poiType]||['linear','branching','hub','complex'];
+  return rng.pick(opts);
+}
+
+/* Returns an array of {zoneId,zoneId} passage pairs */
+function buildPassages(zoneIds,pattern,rng){
+  const n=zoneIds.length;
+  const passages=[];
+  const add=(a,b)=>{if(!passages.some(p=>(p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a)))passages.push([a,b]);};
+
+  if(pattern==='linear'){
+    for(let i=0;i<n-1;i++)add(zoneIds[i],zoneIds[i+1]);
+  } else if(pattern==='hub'){
+    const hub=zoneIds[0];
+    for(let i=1;i<n;i++)add(hub,zoneIds[i]);
+    // A couple of extra spoke-to-spoke connections
+    if(n>3)add(zoneIds[1],zoneIds[2]);
+  } else if(pattern==='branching'){
+    // Spine: 0→1→2
+    const spineLen=Math.min(3,Math.floor(n/2));
+    for(let i=0;i<spineLen-1;i++)add(zoneIds[i],zoneIds[i+1]);
+    // Branches off spine
+    for(let i=spineLen;i<n;i++){
+      const parent=zoneIds[rng.int(0,spineLen-1)];
+      add(parent,zoneIds[i]);
+    }
+  } else {
+    // Complex: random spanning tree + some extra edges
+    for(let i=1;i<n;i++){const p=zoneIds[rng.int(0,i-1)];add(zoneIds[i],p);}
+    const extra=Math.floor(n*.3);
+    for(let k=0;k<extra;k++){
+      const a=zoneIds[rng.int(0,n-1)],b=zoneIds[rng.int(0,n-1)];
+      if(a!==b)add(a,b);
+    }
+  }
+  return passages;
+}
+
+function generateZones(poi,rng){
+  const n=poi._zoneCount;
+  const poiType=poi.type;
+  const pattern=selectGraphPattern(poiType,n,rng);
+  const namePool=[...ZONE_NAMES];
+
+  const zones=[];
+  for(let i=0;i<n;i++){
+    const nameIdx=rng.int(0,namePool.length-1);
+    const name=namePool.splice(nameIdx,1)[0]||(namePool.length?namePool[0]:`Zone ${i+1}`);
+    const lightLevel=rng.int(20,90);
+    const size=rng.int(3,12);
+    // Generate zone objects
+    const objCount=Math.max(1,Math.round(size*.6)+rng.int(0,2));
+    const objects=[];
+    for(let j=0;j<objCount;j++)objects.push(generateZoneObject(rng,poiType));
+
+    zones.push({
+      id:makeId(),
+      name: i===0?'Entry Hall':name,
+      size,
+      lightLevel,
+      weatherEffects:[],
+      hazardConditions:[],
+      ownerFaction:null,
+      objects,
+      state: i===0?'Scouted':'Unknown',  // entry zone always scouted
+      factionAwareness:{},               // { [factionId]: { [objectId]: number } }
+    });
+  }
+
+  // Build passage graph
+  const ids=zones.map(z=>z.id);
+  const passages=buildPassages(ids,pattern,rng);
+
+  // Store adjacency on each zone for easy lookup
+  for(const zone of zones){
+    zone._passages=passages.filter(p=>p[0]===zone.id||p[1]===zone.id).map(p=>p[0]===zone.id?p[1]:p[0]);
+  }
+
+  poi.zones=zones;
+  poi._passages=passages;
+  poi._graphPattern=pattern;
+  poi._layoutPositions=null; // computed on first render
+
+  // Initialise player faction awareness for entry zone
+  if(zones.length>0)initFactionForZone(PLAYER_FACTION,zones[0]);
+}
+
+/* ═══════════════════════════════════════════════════════
+   AWARENESS SYSTEM  (Section 4.3.2)
+═══════════════════════════════════════════════════════ */
+function initFactionForZone(factionId,zone){
+  if(!zone.factionAwareness[factionId])zone.factionAwareness[factionId]={};
+  for(const obj of zone.objects){
+    if(zone.factionAwareness[factionId][obj.id]===undefined){
+      zone.factionAwareness[factionId][obj.id]=obj.visibility;
+    }
+  }
+}
+
+function getAwarenessState(factionId,zone,objId){
+  const obj=zone.objects.find(o=>o.id===objId);if(!obj)return'Undiscovered';
+  const fv=(zone.factionAwareness[factionId]??{})[objId]??0;
+  const ub=obj.upperBoundVisibility;
+  if(ub===0)return'Located';
+  if(fv>ub*.90)return'Located';
+  if(fv>=ub*.40)return'Known';
+  return'Undiscovered';
+}
+
+function enterZone(poi,zone){
+  if(zone.state==='Unknown')zone.state='Scouted';
+  initFactionForZone(PLAYER_FACTION,zone);
+}
+
+/* ═══════════════════════════════════════════════════════
+   LAYOUT ALGORITHM  (2D positions for zone graph)
+   BFS from entry zone, assign layers; spread evenly within layer
+═══════════════════════════════════════════════════════ */
+function computeLayoutPositions(poi,canvasW,canvasH){
+  const zones=poi.zones;if(!zones.length)return;
+  const pad=60,nodeR=22;
+  const layers=[];
+  const visited=new Set(),queue=[{id:zones[0].id,layer:0}];
+  const layerOf={};
+  visited.add(zones[0].id);layerOf[zones[0].id]=0;layers[0]=[zones[0].id];
+  while(queue.length){
+    const{id,layer}=queue.shift();
+    const zone=zones.find(z=>z.id===id);
+    for(const nid of(zone._passages||[])){
+      if(!visited.has(nid)){
+        visited.add(nid);layerOf[nid]=layer+1;
+        if(!layers[layer+1])layers[layer+1]=[];
+        layers[layer+1].push(nid);
+        queue.push({id:nid,layer:layer+1});
+      }
+    }
+  }
+  // Any unvisited (disconnected) go to last layer
+  for(const z of zones){
+    if(!visited.has(z.id)){
+      const last=layers.length;if(!layers[last])layers[last]=[];layers[last].push(z.id);layerOf[z.id]=last;
+    }
+  }
+  const numLayers=layers.length;
+  const usableH=canvasH-pad*2,usableW=canvasW-pad*2;
+  const layerH=numLayers>1?usableH/(numLayers-1):usableH/2;
+  const pos={};
+  layers.forEach((ids,li)=>{
+    const y=pad+(numLayers===1?usableH/2:li*layerH);
+    const w=ids.length;
+    ids.forEach((id,xi)=>{
+      const x=pad+(w===1?usableW/2:(xi/(w-1))*usableW);
+      pos[id]={x,y};
+    });
+  });
+  poi._layoutPositions=pos;
+}
+
+/* ═══════════════════════════════════════════════════════
+   ZONE GRAPH RENDERER  (2D canvas)
+═══════════════════════════════════════════════════════ */
+let _poiGraphCanvas=null,_poiGraphCtx=null;
+let _currentPoiId=null,_hoveredZoneId=null;
+
+function initPoiGraphCanvas(){
+  _poiGraphCanvas=document.getElementById('poi-graph-canvas');
+  _poiGraphCtx=_poiGraphCanvas.getContext('2d');
+  _poiGraphCanvas.addEventListener('mousemove',onPoiGraphMouseMove);
+  _poiGraphCanvas.addEventListener('click',onPoiGraphClick);
+}
+
+function resizePoiGraphCanvas(){
+  const wrap=document.getElementById('poi-graph-wrap');
+  const dpr=window.devicePixelRatio||1;
+  const w=wrap.clientWidth,h=wrap.clientHeight;
+  _poiGraphCanvas.style.width=w+'px';_poiGraphCanvas.style.height=h+'px';
+  _poiGraphCanvas.width=Math.round(w*dpr);_poiGraphCanvas.height=Math.round(h*dpr);
+}
+
+function drawPoiGraph(){
+  if(!_poiGraphCtx||!_currentPoiId)return;
+  const poi=GS?.world.pois.find(p=>p.id===_currentPoiId);
+  if(!poi||!poi.zones.length)return;
+
+  const dpr=window.devicePixelRatio||1;
+  const W=_poiGraphCanvas.width,H=_poiGraphCanvas.height;
+  const cW=W/dpr,cH=H/dpr;
+
+  if(!poi._layoutPositions)computeLayoutPositions(poi,cW,cH);
+  const pos=poi._layoutPositions;
+
+  const ctx=_poiGraphCtx;
+  ctx.clearRect(0,0,W,H);
+  ctx.save();ctx.scale(dpr,dpr);
+
+  const dev=GS?._devMode??false;
+
+  // Passages
+  for(const [a,b] of (poi._passages||[])){
+    const pa=pos[a],pb=pos[b];if(!pa||!pb)continue;
+    const aZone=poi.zones.find(z=>z.id===a),bZone=poi.zones.find(z=>z.id===b);
+    const bothKnown=(aZone?.state!=='Unknown')||(bZone?.state!=='Unknown')||dev;
+    ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);
+    ctx.strokeStyle=bothKnown?'#2e2e33':'#1c1c1f';ctx.lineWidth=2;ctx.stroke();
+  }
+
+  // Zone nodes
+  const NODE_R=22;
+  for(const zone of poi.zones){
+    const p=pos[zone.id];if(!p)continue;
+    const isHovered=zone.id===_hoveredZoneId;
+    const isScouted=zone.state==='Scouted';
+    const isEntry=poi.zones[0].id===zone.id;
+    const visible=isScouted||dev;
+
+    // Node fill
+    ctx.beginPath();ctx.arc(p.x,p.y,NODE_R,0,Math.PI*2);
+    if(isEntry){ctx.fillStyle=isScouted?'#2a3a2a':'#1c2a1c';}
+    else if(isScouted){ctx.fillStyle=isHovered?'#252520':'#1e1e18';}
+    else if(dev){ctx.fillStyle='#101a10';}
+    else{ctx.fillStyle='#141414';}
+    ctx.fill();
+
+    // Node border
+    ctx.beginPath();ctx.arc(p.x,p.y,NODE_R,0,Math.PI*2);
+    if(isEntry)ctx.strokeStyle='#4a8a3a';
+    else if(isScouted)ctx.strokeStyle=isHovered?'#c8902a':'#4a3f28';
+    else if(dev)ctx.strokeStyle='#2a4a2a';
+    else ctx.strokeStyle='#1e1e1e';
+    ctx.lineWidth=isHovered?2.5:1.5;ctx.stroke();
+
+    // Label / icon
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    if(visible){
+      ctx.font='600 10px Cinzel,serif';
+      ctx.fillStyle=isScouted?(isHovered?'#e8b04a':'#c8c0b0'):'#3a6a3a';
+      const label=zone.name.length>10?zone.name.slice(0,9)+'…':zone.name;
+      ctx.fillText(label,p.x,p.y-5);
+      // Object count
+      ctx.font='9px Share Tech Mono,monospace';
+      ctx.fillStyle=isScouted?'#7a6a58':'#2a4a2a';
+      const objs=zone.objects.length;
+      ctx.fillText(`${objs} obj`,p.x,p.y+7);
+      if(dev&&!isScouted){ctx.fillStyle='#3a8040';ctx.fillText('[DEV]',p.x,p.y+17);}
+    } else {
+      // Unknown zone
+      ctx.font='bold 16px Cinzel,serif';
+      ctx.fillStyle='#2a2a2a';
+      ctx.fillText('?',p.x,p.y);
+    }
+  }
+
+  ctx.restore();
+}
+
+function zoneAtPoint(poi,px,py){
+  if(!poi._layoutPositions)return null;
+  const dpr=window.devicePixelRatio||1;
+  const wx=px,wy=py; // already in CSS pixels from event.offsetX/Y
+  for(const zone of poi.zones){
+    const p=poi._layoutPositions[zone.id];if(!p)continue;
+    if(Math.hypot(p.x-wx,p.y-wy)<=24)return zone;
+  }
+  return null;
+}
+
+function onPoiGraphMouseMove(e){
+  if(!_currentPoiId||!GS)return;
+  const poi=GS.world.pois.find(p=>p.id===_currentPoiId);if(!poi)return;
+  const zone=zoneAtPoint(poi,e.offsetX,e.offsetY);
+  const newId=zone?.id??null;
+  if(newId!==_hoveredZoneId){_hoveredZoneId=newId;drawPoiGraph();}
+  _poiGraphCanvas.style.cursor=zone?'pointer':'default';
+}
+
+function onPoiGraphClick(e){
+  if(!_currentPoiId||!GS)return;
+  const poi=GS.world.pois.find(p=>p.id===_currentPoiId);if(!poi)return;
+  const zone=zoneAtPoint(poi,e.offsetX,e.offsetY);
+  if(!zone)return;
+  const dev=GS._devMode??false;
+  // Allow entering Unknown zones only in dev mode
+  if(zone.state==='Unknown'&&!dev){showToast('This zone is unexplored. Send a group to scout it first.','error');return;}
+  openZoneDetail(poi,zone);
+}
+
+/* ═══════════════════════════════════════════════════════
+   POI LAYOUT OVERLAY
+═══════════════════════════════════════════════════════ */
+function openPOILayout(poiId){
+  const poi=GS.world.pois.find(p=>p.id===poiId);if(!poi)return;
+  _currentPoiId=poiId;_hoveredZoneId=null;
+
+  // Generate zones if not yet done
+  if(!poi.zones||poi.zones.length===0){
+    const rng=makePRNG(poi.id.split('').reduce((h,c)=>Math.imul(31,h)+c.charCodeAt(0)|0,0));
+    generateZones(poi,rng);
+  }
+
+  document.getElementById('poi-header-name').textContent=poi.name;
+  document.getElementById('poi-header-type').textContent=poi.type;
+  document.getElementById('poi-header-timer').textContent=poi.despawnTimer;
+
+  renderPoiSidebar(poi);
+  document.getElementById('poi-overlay').classList.remove('hidden');
+
+  // Must resize then layout then draw
+  requestAnimationFrame(()=>{
+    resizePoiGraphCanvas();
+    poi._layoutPositions=null; // force recompute for new canvas size
+    drawPoiGraph();
+  });
+}
+
+function closePOILayout(){
+  document.getElementById('poi-overlay').classList.add('hidden');
+  _currentPoiId=null;_hoveredZoneId=null;
+}
+
+function renderPoiSidebar(poi){
+  const dev=GS._devMode??false;
+  let html=`<div class="poi-sidebar-section">POI Info</div>
+  <div class="poi-sidebar-row">Type: <span>${poi.type}</span></div>
+  <div class="poi-sidebar-row">Size: <span>${poi.size}</span></div>
+  <div class="poi-sidebar-row">Despawn: <span>${poi.despawnTimer} turns</span></div>
+  <div class="poi-sidebar-row">Zones: <span>${poi.zones.length}</span></div>`;
+  if(dev){
+    html+=`<div class="poi-sidebar-row dev">Pattern: ${poi._graphPattern??'?'}</div>`;
+    html+=`<div class="poi-sidebar-row dev">Discovered: ${poi.discovered}</div>`;
+  }
+  const scoutedCount=poi.zones.filter(z=>z.state==='Scouted').length;
+  html+=`<div class="poi-sidebar-section" style="margin-top:8px">Exploration</div>
+  <div class="poi-sidebar-row">Scouted: <span>${scoutedCount}/${poi.zones.length}</span></div>`;
+  html+=`<div class="poi-sidebar-hint">Click a zone node to view its contents.</div>`;
+  document.getElementById('poi-sidebar').innerHTML=html;
+}
+
+/* ═══════════════════════════════════════════════════════
+   ZONE DETAIL OVERLAY
+═══════════════════════════════════════════════════════ */
+let _currentZoneId=null;
+
+function openZoneDetail(poi,zone){
+  _currentZoneId=zone.id;
+  enterZone(poi,zone); // initialise awareness + mark Scouted
+  drawPoiGraph();
+
+  document.getElementById('zone-header-name').textContent=zone.name;
+  const stateEl=document.getElementById('zone-header-state');
+  stateEl.textContent=zone.state;stateEl.className='zone-header-state '+(zone.state==='Scouted'?'scouted':'unknown');
+  document.getElementById('zone-header-conds').innerHTML=`Light: <span>${zone.lightLevel}%</span>`;
+
+  renderZoneObjects(zone);
+  renderZoneSidebar(zone,poi);
+  document.getElementById('zone-overlay').classList.remove('hidden');
+}
+
+function closeZoneDetail(){
+  document.getElementById('zone-overlay').classList.add('hidden');
+  _currentZoneId=null;
+  // Refresh sidebar
+  if(_currentPoiId){
+    const poi=GS?.world.pois.find(p=>p.id===_currentPoiId);
+    if(poi)renderPoiSidebar(poi);
+  }
+}
+
+function renderZoneObjects(zone){
+  const dev=GS._devMode??false;
+  const factionId=PLAYER_FACTION;
+  const pane=document.getElementById('zone-objects-pane');
+  let html='';
+
+  const located=[],known=[],undisc=[];
+  for(const obj of zone.objects){
+    const state=getAwarenessState(factionId,zone,obj.id);
+    if(state==='Located')located.push(obj);
+    else if(state==='Known')known.push(obj);
+    else undisc.push(obj);
+  }
+
+  function objEntryHTML(obj,state,showFull){
+    const iconClass=obj.isAlive?'rh sq':'sq';
+    const devIconClass=dev&&state==='Undiscovered'?'dev-icon':'';
+    const letter=obj.isAlive?'♦':'■';
+    const displayName=showFull?obj.name:(OBJ_PLACEHOLDER[obj.type]??obj.type);
+    const awarenessClass=state==='Located'?'located':state==='Known'?'known':'undisc';
+    let h=`<div class="obj-entry">
+      <div class="obj-icon ${iconClass} ${devIconClass}">${letter}</div>
+      <div class="obj-info">
+        <div class="obj-name${!showFull?' known-name':''}">${displayName}</div>
+        <div class="obj-type">${showFull?obj.type:''}</div>`;
+    if(showFull&&obj.tags.length)h+=`<div class="obj-tags">${obj.tags.map(t=>t.name).join(' · ')}</div>`;
+    if(showFull&&obj.goldValueMax>0)h+=`<div class="obj-gold">⬡ ${obj.goldValueMin}–${obj.goldValueMax}</div>`;
+    if(dev){
+      const fv=(zone.factionAwareness[factionId]??{})[obj.id]??0;
+      h+=`<div class="obj-dev-vals">DV=${obj.discoverValue} VV=${obj.visibilityValue} vis=${obj.visibility} ub=${obj.upperBoundVisibility} fv=${fv}</div>`;
+    }
+    h+=`</div><span class="obj-awareness ${awarenessClass}">${state}</span></div>`;
+    return h;
+  }
+
+  if(located.length){
+    html+=`<div class="zone-section-title">Located (${located.length})</div>`;
+    for(const obj of located)html+=objEntryHTML(obj,'Located',true);
+  }
+  if(known.length){
+    html+=`<div class="zone-section-title">Known (${known.length})</div>`;
+    for(const obj of known)html+=objEntryHTML(obj,'Known',false);
+  }
+  if(!located.length&&!known.length&&!dev){
+    html+='<div class="zone-unknown-msg">Nothing has been observed in this zone yet. Scout to discover objects.</div>';
+  }
+  if(dev&&undisc.length){
+    html+=`<div class="zone-section-title" style="color:var(--green-bright)">Undiscovered — Dev Mode (${undisc.length})</div>`;
+    for(const obj of undisc)html+=objEntryHTML(obj,'Undiscovered',true);
+  }
+  pane.innerHTML=html;
+}
+
+function renderZoneSidebar(zone,poi){
+  const sb=document.getElementById('zone-sidebar');
+  let html=`<div class="zone-section-title">Zone Info</div>
+  <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:4px">Size: <span style="color:var(--text)">${zone.size}</span></div>
+  <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:4px">Light: <span style="color:var(--text)">${zone.lightLevel}%</span></div>`;
+  // Adjacent zones
+  html+=`<div class="zone-section-title" style="margin-top:12px">Adjacent Zones</div>`;
+  for(const adjId of(zone._passages||[])){
+    const adj=poi.zones.find(z=>z.id===adjId);if(!adj)continue;
+    const st=adj.state==='Scouted'?'Scouted':'Unknown';
+    html+=`<div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:3px">${adj.name} <span style="color:${st==='Scouted'?'var(--green-bright)':'var(--text-dim)'}">[${st}]</span></div>`;
+  }
+  html+=`<div class="zone-section-title" style="margin-top:12px">Actions (Step 7)</div>
+  <button class="zone-action-btn" disabled>Scout Zone</button>
+  <button class="zone-action-btn" disabled>Search For</button>
+  <button class="zone-action-btn" disabled>Rest</button>
+  <button class="zone-action-btn" disabled>Move</button>`;
+  sb.innerHTML=html;
+}
+
+/* ═══════════════════════════════════════════════════════
+   GAME STATE FACTORIES
+═══════════════════════════════════════════════════════ */
+function makeOrganization(opts={}){
+  return{id:makeId(),name:opts.name??'The Guild',gold:opts.gold??4200,hqCityId:opts.hqCityId??'',criminalRecord:[],recruits:[],groups:[],inventory:{food:[],equipment:[],weapons:[],misc:[],forSale:[]}};
+}
+function makeGameState(opts={}){
+  const org=makeOrganization({name:opts.orgName??'The Guild',gold:opts.gold??4200});
+  return{turn:1,world:{tiles:[],cities:[],pois:[],_mapSize:opts.mapSize??128,_targetPois:opts.targetPois??20,_targetKnownPois:opts.targetKnownPois??8,_seed:opts.seed??(Math.random()*0xFFFFFFFF|0),_poiSeed:0},
+    organizations:[org],playerOrgId:org.id,_hirePool:[],_hirePoolSeed:0,_version:VERSION,_devMode:false,_autosaveTurn:0,_ledger:[]};
+}
+
+/* ═══════════════════════════════════════════════════════
+   WORLD GENERATION  (Section 10)
+═══════════════════════════════════════════════════════ */
+const TERRAIN_AFFINITY={
+  forest:{dungeon:1,camp:3,ruins:2,'forest zone':5,'cave system':1,'abandoned fort':1,mine:1,shrine:2},
+  plains:{dungeon:1,camp:4,ruins:3,'forest zone':1,'cave system':0,'abandoned fort':3,mine:1,shrine:2},
+  hills: {dungeon:2,camp:2,ruins:2,'forest zone':1,'cave system':4,'abandoned fort':2,mine:4,shrine:2},
+  water: {dungeon:0,camp:0,ruins:0,'forest zone':0,'cave system':0,'abandoned fort':0,mine:0,shrine:0},
+};
+function weightedPickPOIType(terrain,rng){
+  const w=TERRAIN_AFFINITY[terrain]||TERRAIN_AFFINITY.plains;
+  const types=Object.keys(w).filter(t=>w[t]>0);
+  const total=types.reduce((s,t)=>s+w[t],0);
+  let r=rng.next()*total;for(const t of types){r-=w[t];if(r<=0)return t;}return types[types.length-1];
+}
+function rollPOISize(rng){const r=rng.next();return r<.55?'small':r<.90?'medium':'large';}
+function rollTimer(size,rng){if(size==='small')return rng.int(12,60);if(size==='medium')return rng.int(60,360);return rng.int(180,1080);}
+function rollZoneCount(size,rng){if(size==='small')return rng.int(3,6);if(size==='medium')return rng.int(6,12);return rng.int(12,20);}
+
+function spawnPOI(world,rng,discovered){
+  const SIZE=world._mapSize;
+  const citySet=new Set(world.cities.map(c=>`${c.x},${c.y}`));
+  const poiSet=new Set(world.pois.map(p=>`${p.x},${p.y}`));
+  const minDist=SIZE*.06;
+  let x,y,terrain,attempts=0;
+  do{
+    x=rng.int(2,SIZE-3);y=rng.int(2,SIZE-3);
+    terrain=world.tiles[y*SIZE+x]?.terrainType??'water';
+    const nearCity=world.cities.some(c=>Math.hypot(c.x-x,c.y-y)<minDist);
+    attempts++;if(terrain!=='water'&&!citySet.has(`${x},${y}`)&&!poiSet.has(`${x},${y}`)&&!nearCity)break;
+  }while(attempts<500);
+  if(terrain==='water')return null;
+  const size=rollPOISize(rng);
+  return{id:makeId(),name:poiName(rng),type:weightedPickPOIType(terrain,rng),size,x,y,
+    despawnTimer:rollTimer(size,rng),_zoneCount:rollZoneCount(size,rng),zones:[],discovered,visible:true};
+}
+
+function populatePOIs(gs){
+  const w=gs.world,needed=w._targetPois-w.pois.length;if(needed<=0)return;
+  w._poiSeed=((w._poiSeed^gs.turn)>>>0);
+  const rng=makePRNG(w._poiSeed+needed);
+  const currentKnown=w.pois.filter(p=>p.discovered).length;
+  for(let i=0;i<needed;i++){
+    const wantDisc=currentKnown+w.pois.slice(w._targetPois-needed).filter(p=>p.discovered).length<w._targetKnownPois;
+    const p=spawnPOI(w,rng,wantDisc);if(p)w.pois.push(p);
+  }
+}
+
+function generateWorld(gs){
+  const w=gs.world,SIZE=w._mapSize,seed=w._seed;
+  const rng=makePRNG(seed),noise=makeNoise(seed^0xDEADBEEF);
+  w.tiles=[];
+  for(let y=0;y<SIZE;y++)for(let x=0;x<SIZE;x++){
+    const ex=Math.min(x,SIZE-1-x)/(SIZE*.15),ey=Math.min(y,SIZE-1-y)/(SIZE*.15);
+    const n=noise(x,y)*Math.min(1,Math.min(ex,ey));
+    w.tiles.push({x,y,terrainType:n<.25?'water':n<.42?'hills':n<.62?'plains':'forest'});
+  }
+  function tAt(x,y){if(x<0||y<0||x>=SIZE||y>=SIZE)return'water';return w.tiles[y*SIZE+x].terrainType;}
+  const minD=SIZE*.28,placed=[];
+  for(let band=0;band<3;band++){
+    const xMin=Math.floor(SIZE*.12),xMax=Math.floor(SIZE*.88);
+    const yMin=Math.floor(SIZE*(.1+band*.27)),yMax=Math.floor(SIZE*(.35+band*.27));
+    let at=0,cx,cy;
+    do{cx=rng.int(xMin,xMax);cy=rng.int(yMin,yMax);at++;}
+    while((tAt(cx,cy)==='water'||placed.some(p=>Math.hypot(p.x-cx,p.y-cy)<minD))&&at<400);
+    if(tAt(cx,cy)==='water')for(let r=1;r<20;r++){for(const[dx,dy]of[[r,0],[-r,0],[0,r],[0,-r]]){if(tAt(cx+dx,cy+dy)!=='water'){cx+=dx;cy+=dy;break;}}if(tAt(cx,cy)!=='water')break;}
+    placed.push({id:makeId(),name:cityName(rng),x:cx,y:cy});
+  }
+  w.cities=placed;gs.organizations[0].hqCityId=rng.pick(w.cities).id;
+  w._poiSeed=seed^0xC0FFEE;populatePOIs(gs);
+  const oc=gs._startingChars??0;
+  if(oc>0){const rrng=makePRNG(seed^0xBEEF);for(let i=0;i<oc;i++)gs.organizations[0].recruits.push(generateRecruit(rrng));}
+  refreshHirePool(gs);return gs;
+}
+
+/* ═══════════════════ GLOBAL STATE ═══════════════════ */
+let GS=null;
+function playerOrg(){return GS.organizations.find(o=>o.id===GS.playerOrgId);}
+
+/* ═══════════════════ TURN ORDER ═══════════════════ */
+function worldConsistencyCheck(gs){
+  const w=gs.world,before=w.pois.length;
+  // If current open POI expires, close the layout
+  w.pois=w.pois.filter(p=>{p.despawnTimer--;return p.despawnTimer>0;});
+  if(_currentPoiId&&!w.pois.find(p=>p.id===_currentPoiId)){closePOILayout();closeZoneDetail();}
+  if(w.pois.length<w._targetPois)populatePOIs(gs);
+  return before-w.pois.length;
+}
+
+function processGroupTravel(gs){
+  const org=playerOrg();if(!org)return[];
+  const arrivals=[];
+  for(const g of org.groups){
+    if(!g.inTransitTo)continue;
+    if(gs.world.schedule?.[TIME.dayTurnIndex(gs.turn)])continue;
+    const slot=TIME.dayTurnIndex(gs.turn);
+    if(g.schedule[slot])continue;
+    const arrived=advanceGroupTravel(g,gs.world,org);
+    if(arrived){
+      const dest=g.currentCityId?gs.world.cities.find(c=>c.id===g.currentCityId)?.name:gs.world.pois.find(p=>p.id===g.locationPoiId)?.name;
+      arrivals.push(`${g.name} arrived at ${dest??'destination'}`);
+    }
+  }
+  return arrivals;
+}
+
+function advanceTurn(){
+  if(!GS)return;
+  hidePopup();
+  GS.turn++;
+  const expired=worldConsistencyCheck(GS);
+  const arrivals=processGroupTravel(GS);
+  if(TIME.isFirstTurnOfWeek(GS.turn)){refreshHirePool(GS);showToast('Weekly rotation — new recruits available');}
+  if((GS.turn-GS._autosaveTurn)>=AUTOSAVE_EVERY){autosave();GS._autosaveTurn=GS.turn;}
+  updateToolbar();
+  MapRenderer.rebuildPOIs(GS.world,GS._devMode);
+  MapRenderer.rebuildGroups(GS.world,playerOrg());
+  if(GS._devMode)refreshDevPanel();
+  // Update open POI header timer
+  if(_currentPoiId){
+    const poi=GS.world.pois.find(p=>p.id===_currentPoiId);
+    if(poi)document.getElementById('poi-header-timer').textContent=poi.despawnTimer;
+  }
+  if(!document.getElementById('city-overlay').classList.contains('hidden')&&_openCityId)renderCityPanel(_openCityId,_openCityTabId??'roster');
+  if(_openGroupId)renderGroupPanel(_openGroupId);
+  const parts=[`Turn ${GS.turn}`,...(expired>0?[`${expired} POI${expired>1?'s':''} expired`]:[]),...(arrivals.length?[arrivals.join(', ')]:[])];;
+  showToast(parts.join(' — '));
+}
+
+/* ═══════════════════ SAVE / LOAD ═══════════════════ */
+function saveGame(){
+  if(!GS)return;
+  const b=new Blob([JSON.stringify(GS,null,2)],{type:'application/json'});
+  const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`ironbound_save_turn${GS.turn}.json`;a.click();URL.revokeObjectURL(u);showToast('Game saved.','success');
+}
+function autosave(){if(!GS)return;try{localStorage.setItem(AUTOSAVE_KEY,JSON.stringify(GS));}catch(e){}}
+function loadFromJson(json){let p;try{p=JSON.parse(json);}catch(e){return null;}if(!p||typeof p.turn!=='number'||!p.world||!Array.isArray(p.organizations))return null;return p;}
+function loadGameFromFile(file){const r=new FileReader();r.onload=e=>{const s=loadFromJson(e.target.result);if(!s){showLaunchError('Invalid or corrupted save file.');return;}GS=s;enterGame();showToast('Save loaded — Turn '+GS.turn,'success');};r.onerror=()=>showLaunchError('Could not read the file.');r.readAsText(file);}
+
+/* ═══════════════════ EXIT / CONFIRM ═══════════════════ */
+function exitToMenu(){showConfirm('Exit to Menu','Unsaved progress will be lost. Return to the main menu?',()=>{autosave();GS=null;closeGroupPanel();closeCityPanel();closePOILayout();closeZoneDetail();showScreen('launch');showToast('Returned to main menu');});}
+let _confirmCb=null;
+function showConfirm(title,msg,onOk){_confirmCb=onOk;document.getElementById('confirm-title').textContent=title;document.getElementById('confirm-msg').textContent=msg;document.getElementById('confirm-overlay').classList.remove('hidden');}
+document.getElementById('confirm-cancel').addEventListener('click',()=>{document.getElementById('confirm-overlay').classList.add('hidden');_confirmCb=null;});
+document.getElementById('confirm-ok').addEventListener('click',()=>{document.getElementById('confirm-overlay').classList.add('hidden');if(_confirmCb){_confirmCb();_confirmCb=null;}});
+
+/* ═══════════════════ GROUP PANEL ═══════════════════ */
+let _openGroupId=null;
+function openGroupPanel(gid){_openGroupId=gid;document.getElementById('bottom-stub').classList.add('hidden');document.getElementById('group-panel').classList.remove('hidden');renderGroupPanel(gid);}
+function closeGroupPanel(){_openGroupId=null;document.getElementById('group-panel').classList.add('hidden');document.getElementById('bottom-stub').classList.remove('hidden');}
+document.getElementById('gp-close').addEventListener('click',closeGroupPanel);
+
+function renderGroupPanel(gid){
+  const org=playerOrg(),group=org?.groups.find(g=>g.id===gid);
+  if(!group){closeGroupPanel();return;}
+  document.getElementById('gp-name').textContent=group.name;
+  document.getElementById('gp-role').textContent=group.role;
+  let status='';
+  if(group.inTransitTo){const dest=group.inTransitTo.type==='city'?GS.world.cities.find(c=>c.id===group.inTransitTo.targetId)?.name:GS.world.pois.find(p=>p.id===group.inTransitTo.targetId)?.name;status=`→ ${dest??'?'} (${Math.round((group._transitProgress??0)*100)}%)`;}
+  else if(group.currentCityId){status='At: '+GS.world.cities.find(c=>c.id===group.currentCityId)?.name;}
+  else if(group.locationPoiId){status='At: '+GS.world.pois.find(p=>p.id===group.locationPoiId)?.name;}
+  document.getElementById('gp-status').textContent=status;
+  const membersEl=document.getElementById('gp-members');membersEl.innerHTML='';
+  if(!group.memberIds.length){membersEl.innerHTML='<span style="font-family:var(--mono);font-size:10px;color:var(--text-dim)">No members</span>';}
+  else for(const id of group.memberIds){const r=org.recruits.find(r=>r.id===id);if(!r)continue;const chip=document.createElement('div');chip.className='gp-member-chip';chip.textContent=r.name.split(' ')[0];chip.title=`${r.name} — SPD ${r.characteristics.movementSpeed}`;membersEl.appendChild(chip);}
+  const actEl=document.getElementById('gp-actions');actEl.innerHTML='';
+  const tLabel=document.createElement('div');tLabel.className='gp-section-label';tLabel.textContent='Travel';actEl.appendChild(tLabel);
+  if(group.inTransitTo){
+    const info=document.createElement('div');info.className='gp-transit-info';const turns=turnsToTravel(group,group.inTransitTo.type,group.inTransitTo.targetId,GS.world,org);const dest=group.inTransitTo.type==='city'?GS.world.cities.find(c=>c.id===group.inTransitTo.targetId)?.name:GS.world.pois.find(p=>p.id===group.inTransitTo.targetId)?.name;info.innerHTML=`→ <span>${dest??'?'}</span> ~<span>${turns??'?'}</span> turns`;actEl.appendChild(info);
+    const cb=document.createElement('button');cb.className='btn btn-sm btn-danger';cb.textContent='Cancel Travel';cb.addEventListener('click',()=>{group.inTransitTo=null;group._transitFrom=null;group._transitTo=null;group._transitProgress=0;group.state=undefined;renderGroupPanel(gid);MapRenderer.rebuildGroups(GS.world,org);});actEl.appendChild(cb);
+  } else {
+    const row=document.createElement('div');row.className='gp-dest-row';
+    const sel=document.createElement('select');sel.className='gp-dest-select';
+    const blank=document.createElement('option');blank.value='';blank.textContent='Select destination…';sel.appendChild(blank);
+    const cg=document.createElement('optgroup');cg.label='Cities';
+    for(const c of GS.world.cities){const o=document.createElement('option');o.value=`city:${c.id}`;o.textContent=c.name;cg.appendChild(o);}sel.appendChild(cg);
+    const dp=GS.world.pois.filter(p=>p.discovered);
+    if(dp.length){const pg=document.createElement('optgroup');pg.label='Discovered POIs';for(const p of dp){const o=document.createElement('option');o.value=`poi:${p.id}`;o.textContent=`${p.name} (${p.type})`;pg.appendChild(o);}sel.appendChild(pg);}
+    const goBtn=document.createElement('button');goBtn.className='btn btn-sm btn-primary gp-travel-btn';goBtn.textContent='Send';goBtn.disabled=true;
+    sel.addEventListener('change',()=>{goBtn.disabled=!sel.value;});
+    goBtn.addEventListener('click',()=>{
+      const[type,id]=sel.value.split(':');if(!type||!id)return;
+      const turns=turnsToTravel(group,type,id,GS.world,org);
+      assignTravel(group,type,id,GS.world,org);
+      for(const mid of group.memberIds){const r=org.recruits.find(r=>r.id===mid);if(r)r.state='Deployed';}
+      MapRenderer.rebuildGroups(GS.world,org);renderGroupPanel(gid);showToast(`${group.name} dispatched — ~${turns??'?'} turns`);
+    });
+    row.appendChild(sel);row.appendChild(goBtn);actEl.appendChild(row);
+    // Enter POI button if group is at a discovered POI
+    if(group.locationPoiId){
+      const epBtn=document.createElement('button');epBtn.className='btn btn-sm btn-primary';epBtn.style.marginTop='6px';epBtn.textContent='Enter POI';
+      epBtn.addEventListener('click',()=>{openPOILayout(group.locationPoiId);});
+      actEl.appendChild(epBtn);
+    }
+  }
+  const sLabel=document.createElement('div');sLabel.className='gp-section-label';sLabel.style.marginTop='8px';sLabel.textContent='Daily Schedule';actEl.appendChild(sLabel);
+  const schedRow=document.createElement('div');schedRow.className='gp-schedule';
+  for(let i=0;i<6;i++){const slot=document.createElement('div');slot.className='sched-slot'+(group.schedule[i]?' rest':'');slot.textContent=group.schedule[i]?'Z':(i+1).toString();slot.addEventListener('click',()=>{group.schedule[i]=!group.schedule[i];slot.classList.toggle('rest',group.schedule[i]);slot.textContent=group.schedule[i]?'Z':(i+1).toString();});schedRow.appendChild(slot);}
+  actEl.appendChild(schedRow);
+}
+
+/* ═══════════════════ CITY LAYOUT ═══════════════════ */
+let _openCityId=null,_openCityTabId=null;
+function openCityPanel(cid){
+  _openCityId=cid;_openCityTabId=null;
+  const city=GS.world.cities.find(c=>c.id===cid);if(!city)return;
+  const org=playerOrg(),isHQ=org&&org.hqCityId===cid;
+  document.getElementById('city-header-name').textContent=city.name;
+  document.getElementById('city-header-hq').classList.toggle('hidden',!isHQ);
+  const tabsEl=document.getElementById('city-tabs');tabsEl.innerHTML='';
+  function addSection(l){const s=document.createElement('div');s.className='city-tab-section';s.textContent=l;tabsEl.appendChild(s);}
+  function addTab(id,label){const t=document.createElement('div');t.className='city-tab';t.dataset.tab=id;t.textContent=label;t.addEventListener('click',()=>renderCityPanel(cid,id));tabsEl.appendChild(t);}
+  addSection('City');addTab('market','Market');addTab('tavern','Tavern');
+  if(isHQ){addSection('Headquarters');addTab('roster','Roster');addTab('storeroom','Storeroom');addTab('ledger','Ledger');addTab('groups','Groups');addTab('staff','Staff');}
+  renderCityPanel(cid,isHQ?'roster':'market');
+  document.getElementById('city-overlay').classList.remove('hidden');
+}
+function closeCityPanel(){document.getElementById('city-overlay').classList.add('hidden');_openCityId=null;_openCityTabId=null;}
+function renderCityPanel(cid,tabId){
+  _openCityId=cid;_openCityTabId=tabId;
+  document.querySelectorAll('.city-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tabId));
+  const content=document.getElementById('city-content'),org=playerOrg();
+  switch(tabId){
+    case'market':   content.innerHTML=renderMarketPanel();break;
+    case'tavern':   content.innerHTML=renderTavernPanel(org);wireHireButtons(org);break;
+    case'roster':   content.innerHTML=renderRosterPanel(org);break;
+    case'storeroom':content.innerHTML='<div class="panel-title">Storeroom</div><div class="panel-subtitle">Items stored at headquarters.</div><div class="stub-panel"><strong>Storeroom</strong>Item management implemented in Step 9.</div>';break;
+    case'ledger':   content.innerHTML=renderLedgerPanel();break;
+    case'groups':   content.innerHTML=renderGroupManagerPanel(org,cid);wireGroupManagerButtons(org,cid);break;
+    case'staff':    content.innerHTML=renderStaffPanel(org);break;
+    default:        content.innerHTML='<div class="stub-panel"><strong>Unknown Panel</strong></div>';
+  }
+}
+function renderMarketPanel(){return'<div class="panel-title">Market</div><div class="panel-subtitle">Purchase food, equipment, and weapons.</div><div class="stub-panel"><strong>Market</strong>Purchase mechanic implemented in Step 9.</div>';}
+function renderTavernPanel(org){
+  const pool=GS._hirePool||[],week=TIME.turnToWeek(GS.turn);
+  let h=`<div class="panel-title">Tavern</div><div class="panel-subtitle">Hire recruits. Pool refreshes each week. <span style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">Week ${week}</span></div><div class="hire-grid">`;
+  if(!pool.length)h+='<div class="stub-panel" style="padding:20px"><strong>Pool Exhausted</strong>No recruits until next week.</div>';
+  else for(const r of pool){const th=r.traits.map(t=>`<span class="trait-badge">${t}</span>`).join('');h+=`<div class="hire-card"><div class="hire-card-name">${r.name}</div><div class="hire-card-stats">Lvl <span>${r.level}</span> &nbsp;HP <span>${r.characteristics.health}</span> &nbsp;STR <span>${r.characteristics.strength}</span> &nbsp;DEX <span>${r.characteristics.dexterity}</span> &nbsp;PER <span>${r.characteristics.perception}</span> &nbsp;SPD <span>${r.characteristics.movementSpeed}</span>${th?`<br>${th}`:''}</div><div class="hire-card-cost">⬡ ${r._hiringCost}</div><div class="hire-card-btn"><button class="btn btn-sm btn-primary hire-btn" data-id="${r.id}" ${org.gold<r._hiringCost?'disabled':''}>Hire</button></div></div>`;}
+  return h+'</div>';
+}
+function wireHireButtons(org){
+  document.querySelectorAll('.hire-btn').forEach(btn=>{btn.addEventListener('click',()=>{
+    const rid=btn.dataset.id,recruit=(GS._hirePool||[]).find(r=>r.id===rid);if(!recruit)return;
+    if(org.gold<recruit._hiringCost){showToast('Not enough gold.','error');return;}
+    org.gold-=recruit._hiringCost;const{_hiringCost,...clean}=recruit;org.recruits.push(clean);
+    GS._ledger.push({turn:GS.turn,desc:`Hired ${recruit.name}`,amount:-recruit._hiringCost});
+    GS._hirePool=(GS._hirePool||[]).filter(r=>r.id!==rid);
+    updateToolbar();renderCityPanel(_openCityId,'tavern');showToast(`${recruit.name} hired for ${recruit._hiringCost} gold.`,'success');
+  });});
+}
+function renderRosterPanel(org){
+  if(!org.recruits.length)return'<div class="panel-title">Roster</div><div class="panel-subtitle">All guild recruits.</div><div class="stub-panel"><strong>Empty Roster</strong>Hire recruits from the Tavern.</div>';
+  let h=`<div class="panel-title">Roster</div><div class="panel-subtitle">${org.recruits.length} recruit${org.recruits.length!==1?'s':''} on file.</div><table class="roster-table"><thead><tr><th>Name</th><th>Lvl</th><th>HP</th><th>STR</th><th>DEX</th><th>PER</th><th>SPD</th><th>LYL</th><th>Traits</th><th>State</th></tr></thead><tbody>`;
+  for(const r of org.recruits){const th=r.traits.map(t=>`<span class="trait-badge">${t}</span>`).join('');const sc=r.state==='Available'?'available':'deployed';h+=`<tr><td><span class="recruit-name">${r.name}</span></td><td><span class="recruit-level">${r.level}</span></td><td>${r.characteristics.health}</td><td>${r.characteristics.strength}</td><td>${r.characteristics.dexterity}</td><td>${r.characteristics.perception}</td><td>${r.characteristics.movementSpeed}</td><td>${r.characteristics.loyalty}</td><td>${th||'—'}</td><td><span class="recruit-state ${sc}">${r.state}</span></td></tr>`;}
+  return h+'</tbody></table>';
+}
+function renderLedgerPanel(){
+  const entries=GS._ledger||[];
+  let h='<div class="panel-title">Ledger</div><div class="panel-subtitle">Gold income and expenditure log.</div>';
+  if(!entries.length)return h+'<div class="stub-panel"><strong>No entries yet.</strong></div>';
+  h+='<table class="roster-table"><thead><tr><th>Turn</th><th>Description</th><th>Amount</th></tr></thead><tbody>';
+  for(const e of [...entries].reverse()){const col=e.amount>=0?'color:var(--green-bright)':'color:var(--red-bright)';h+=`<tr><td>${e.turn}</td><td>${e.desc}</td><td style="${col}">${e.amount>=0?'+':''}${e.amount}</td></tr>`;}
+  return h+'</tbody></table>';
+}
+function renderGroupManagerPanel(org,cid){
+  const city=GS.world.cities.find(c=>c.id===cid);
+  let h=`<div class="panel-title">Group Manager</div><div class="panel-subtitle">Create and manage field groups. Groups start at ${city?.name??'this city'}.</div>`;
+  if(!org.groups.length){h+='<div class="stub-panel" style="padding:24px"><strong>No groups yet</strong>Create a group below.</div>';}
+  else{
+    h+='<div class="group-list">';
+    for(const g of org.groups){
+      const mn=g.memberIds.map(id=>org.recruits.find(r=>r.id===id)?.name.split(' ')[0]??'?').join(', ')||'—';
+      let loc='';
+      if(g.inTransitTo){const d=g.inTransitTo.type==='city'?GS.world.cities.find(c=>c.id===g.inTransitTo.targetId)?.name:GS.world.pois.find(p=>p.id===g.inTransitTo.targetId)?.name;loc=`→ ${d??'?'} (${Math.round((g._transitProgress??0)*100)}%)`;}
+      else if(g.currentCityId)loc=GS.world.cities.find(c=>c.id===g.currentCityId)?.name??'City';
+      else if(g.locationPoiId)loc=GS.world.pois.find(p=>p.id===g.locationPoiId)?.name??'POI';
+      h+=`<div class="group-card"><div class="group-card-header"><span class="group-card-name">${g.name}</span><span class="group-card-role">${g.role}</span><span class="group-card-loc">${loc}</span><button class="btn btn-sm btn-danger" style="margin-left:8px" onclick="disbandGroup('${g.id}')">Disband</button></div><div class="group-card-members">Members: <span>${mn}</span> (${g.memberIds.length}/9)</div></div>`;
+    }
+    h+='</div>';
+  }
+  const avail=org.recruits.filter(r=>r.state==='Available'&&!org.groups.some(g=>g.memberIds.includes(r.id)));
+  h+=`<div class="group-create-form"><div class="group-create-title">Create New Group</div>
+  <div class="create-row"><label>Name</label><input type="text" id="new-group-name" value="Group ${org.groups.length+1}" style="flex:1"></div>
+  <div class="create-row"><label>Role</label><select id="new-group-role" style="flex:1"><option value="Scout">Scout</option><option value="Combat">Combat</option><option value="Supply">Supply</option><option value="Rescue">Rescue</option></select></div>
+  <div style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber-dim);margin:8px 0 4px">Add Members</div>
+  <div class="member-select-grid" id="member-select-grid">`;
+  if(!avail.length)h+='<span style="font-family:var(--mono);font-size:10px;color:var(--text-dim)">No available recruits</span>';
+  else for(const r of avail)h+=`<button class="member-toggle" data-rid="${r.id}" title="Lvl ${r.level}">${r.name.split(' ')[0]}</button>`;
+  h+=`</div><button class="btn btn-sm btn-primary" id="btn-create-group" style="margin-top:8px">Create Group</button></div>`;
+  return h;
+}
+function wireGroupManagerButtons(org,cid){
+  document.querySelectorAll('.member-toggle').forEach(btn=>btn.addEventListener('click',()=>btn.classList.toggle('selected')));
+  const cb=document.getElementById('btn-create-group');if(!cb)return;
+  cb.addEventListener('click',()=>{
+    const name=document.getElementById('new-group-name')?.value.trim()||`Group ${org.groups.length+1}`;
+    const role=document.getElementById('new-group-role')?.value||'Scout';
+    const rids=[...document.querySelectorAll('.member-toggle.selected')].map(b=>b.dataset.rid);
+    if(!rids.length){showToast('Select at least one member.','error');return;}
+    if(rids.length>9){showToast('Max 9 members per group.','error');return;}
+    const g=makeGroup({name,role,memberIds:rids,cityId:cid});
+    org.groups.push(g);
+    for(const rid of rids){const r=org.recruits.find(r=>r.id===rid);if(r)r.state='Deployed';}
+    MapRenderer.rebuildGroups(GS.world,org);renderCityPanel(cid,'groups');
+    showToast(`${name} created.`,'success');
+  });
+}
+function disbandGroup(gid){
+  const org=playerOrg(),g=org.groups.find(g=>g.id===gid);if(!g)return;
+  if(g.inTransitTo){showToast('Cannot disband a group in transit.','error');return;}
+  for(const rid of g.memberIds){const r=org.recruits.find(r=>r.id===rid);if(r)r.state='Available';}
+  org.groups=org.groups.filter(x=>x.id!==gid);if(_openGroupId===gid)closeGroupPanel();
+  MapRenderer.rebuildGroups(GS.world,org);renderCityPanel(_openCityId,'groups');showToast('Group disbanded.');
+}
+function renderStaffPanel(org){
+  const tasks=[{name:'Gather Rumors',effect:'No additional effect in v1 beyond public baseline.'},{name:'Develop Trading Connections',effect:'Increases Market inventory size and rare item chance.'},{name:'Train Recruits',effect:'Slowly improves unassigned recruits over time.'},{name:'Treat Wounded',effect:'Reduces recovery time for injured recruits.'}];
+  let h='<div class="panel-title">Staff Assignments</div><div class="panel-subtitle">Assign recruits to passive HQ tasks.</div>';
+  for(const t of tasks){const a=org.recruits.filter(r=>r._hqTask===t.name).length;h+=`<div class="task-row"><div class="task-name">${t.name}</div><div class="task-effect">${t.effect}</div><div class="task-count">Assigned: <span>${a}</span></div></div>`;}
+  return h;
+}
+
+/* ═══════════════════ WEBGL MAP RENDERER ═══════════════════ */
+const MapRenderer=(()=>{
+  let gl,canvas,prog,aPos,aColor,uRes,uOff,uScale;
+  let tBuf,tCnt,rBuf,rCnt,cBuf,cCnt,hBuf,hCnt,pBuf,pCnt,puBuf,puCnt,pdBuf,pdCnt,gBuf,gCnt,routeBuf,routeCnt;
+  let vpO={x:0,y:0},vpS=1;
+  const MS=1,MX=24;
+  const TC={forest:[.176,.290,.165,1],plains:[.227,.227,.157,1],hills:[.227,.212,.188,1],water:[.102,.165,.227,1]};
+  const CC=[.784,.565,.165,1],HC=[.906,.690,.290,1],RC=[.392,.353,.235,.7];
+  const PD=[.850,.700,.300,1],PU=[.380,.340,.260,.85],PV=[.200,.700,.280,.90];
+  const RCOL={Scout:[.600,.800,.550,1],Combat:[.850,.420,.300,1],Supply:[.650,.620,.350,1],Rescue:[.450,.620,.850,1]};
+  const ROUTE_COLOR=[.600,.500,.250,.55],TOKEN_BORDER=[.900,.750,.450,1];
+  function cs(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);return s;}
+  function cp(vs,fs){const p=gl.createProgram();gl.attachShader(p,cs(gl.VERTEX_SHADER,vs));gl.attachShader(p,cs(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);return p;}
+  function init(c){
+    canvas=c;gl=c.getContext('webgl',{antialias:true,alpha:false});if(!gl)return false;
+    const vs=`attribute vec2 a_pos;attribute vec4 a_color;uniform vec2 u_res;uniform vec2 u_off;uniform float u_scale;varying vec4 v;void main(){vec2 w=(a_pos-u_off)*u_scale;vec2 cl=(w/u_res)*2.0-1.0;gl_Position=vec4(cl.x,-cl.y,0,1);v=a_color;}`;
+    const fs=`precision mediump float;varying vec4 v;void main(){gl_FragColor=v;}`;
+    prog=cp(vs,fs);aPos=gl.getAttribLocation(prog,'a_pos');aColor=gl.getAttribLocation(prog,'a_color');
+    uRes=gl.getUniformLocation(prog,'u_res');uOff=gl.getUniformLocation(prog,'u_off');uScale=gl.getUniformLocation(prog,'u_scale');
+    gl.useProgram(prog);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);return true;
+  }
+  function buf(d){const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(d),gl.STATIC_DRAW);return b;}
+  function quad(a,x,y,w,h,c){[[x,y],[x+w,y],[x,y+h],[x+w,y],[x+w,y+h],[x,y+h]].forEach(([px,py])=>a.push(px,py,...c));}
+  function line(a,x1,y1,x2,y2,t,c){const dx=x2-x1,dy=y2-y1,l=Math.hypot(dx,dy);if(l<.001)return;const nx=-dy/l*t*.5,ny=dx/l*t*.5;[[x1+nx,y1+ny],[x2+nx,y2+ny],[x1-nx,y1-ny],[x2+nx,y2+ny],[x2-nx,y2-ny],[x1-nx,y1-ny]].forEach(([px,py])=>a.push(px,py,...c));}
+  function diamond(a,cx,cy,r,c){[[cx,cy-r],[cx+r,cy],[cx,cy+r],[cx,cy-r],[cx,cy+r],[cx-r,cy]].forEach(([px,py])=>a.push(px,py,...c));}
+  function cross(a,cx,cy,r,c){const t=r*.28;quad(a,cx-t,cy-r,t*2,r*2,c);quad(a,cx-r,cy-t,r*2,t*2,c);}
+  function octagon(a,cx,cy,r,c){const s=r*.707;const pts=[[cx,cy-r],[cx+s,cy-s],[cx+r,cy],[cx+s,cy+s],[cx,cy+r],[cx-s,cy+s],[cx-r,cy],[cx-s,cy-s]];for(let i=0;i<pts.length;i++){const[ax,ay]=pts[i],[bx,by]=pts[(i+1)%pts.length];a.push(cx,cy,...c,ax,ay,...c,bx,by,...c);}}
+  function buildGroupToken(a,cx,cy,count,roleColor){
+    const use3=count>4,gridN=use3?3:2,step=use3?1.0:1.2,baseR=use3?.30:.40,centerR=use3?.55:.65,off=(gridN-1)/2*step;
+    let slot=0;
+    for(let row=0;row<gridN;row++){for(let col=0;col<gridN;col++){
+      if(slot>=count)break;
+      const isC=row===Math.floor(gridN/2)&&col===Math.floor(gridN/2);
+      const dx=(col-off)*step,dy=(row-off)*step,rx=cx+(dx-dy)*.707,ry=cy+(dx+dy)*.707;
+      const r=isC?centerR:baseR;diamond(a,rx,ry,r+.12,TOKEN_BORDER);diamond(a,rx,ry,r,roleColor);slot++;
+    }}
+  }
+  function buildGeometry(world){
+    const td=[];for(const t of world.tiles)quad(td,t.x,t.y,1,1,TC[t.terrainType]);tBuf=buf(td);tCnt=td.length/6;
+    const rd=[];for(let i=0;i<world.cities.length;i++)for(let j=i+1;j<world.cities.length;j++)line(rd,world.cities[i].x+.5,world.cities[i].y+.5,world.cities[j].x+.5,world.cities[j].y+.5,.35,RC);rBuf=buf(rd);rCnt=rd.length/6;
+    const cd=[];for(const c of world.cities)diamond(cd,c.x+.5,c.y+.5,1.2,CC);cBuf=buf(cd);cCnt=cd.length/6;
+    hBuf=null;hCnt=0;gBuf=null;gCnt=0;routeBuf=null;routeCnt=0;rebuildPOIs(world,false);
+  }
+  function rebuildHQ(world,hqId){const c=world.cities.find(x=>x.id===hqId);if(!c)return;const d=[];diamond(d,c.x+.5,c.y+.5,1.7,HC);hBuf=buf(d);hCnt=d.length/6;}
+  function rebuildPOIs(world,dev){
+    const dd=[],ud=[],vd=[];
+    for(const p of world.pois){const cx=p.x+.5,cy=p.y+.5;if(p.discovered){cross(dd,cx,cy,.9,PD);}else{octagon(ud,cx,cy,.75,PU);if(dev)octagon(vd,cx,cy,.55,PV);}}
+    pBuf=buf(dd);pCnt=dd.length/3;puBuf=buf(ud);puCnt=ud.length/3;pdBuf=buf(vd);pdCnt=vd.length/3;
+  }
+  function rebuildGroups(world,org){
+    if(!org){gBuf=null;gCnt=0;routeBuf=null;routeCnt=0;return;}
+    const gd=[],rd=[];
+    for(const g of org.groups){const coords=groupCoords(g,world);if(!coords)continue;buildGroupToken(gd,coords.x,coords.y,Math.max(1,g.memberIds.length),RCOL[g.role]||RCOL.Scout);if(g.inTransitTo&&g._transitTo)line(rd,coords.x,coords.y,g._transitTo.x,g._transitTo.y,.2,ROUTE_COLOR);}
+    gBuf=buf(gd);gCnt=gd.length/6;routeBuf=buf(rd);routeCnt=rd.length/6;
+  }
+  function bd(b,cnt,mode){if(!b||cnt===0)return;gl.bindBuffer(gl.ARRAY_BUFFER,b);const S=24;gl.enableVertexAttribArray(aPos);gl.vertexAttribPointer(aPos,2,gl.FLOAT,false,S,0);gl.enableVertexAttribArray(aColor);gl.vertexAttribPointer(aColor,4,gl.FLOAT,false,S,8);gl.drawArrays(mode??gl.TRIANGLES,0,cnt);}
+  function resize(){const dpr=window.devicePixelRatio||1,w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}}
+  function draw(world,dev){if(!gl||!world||!world.tiles.length)return;resize();const W=canvas.width,H=canvas.height;gl.viewport(0,0,W,H);gl.clearColor(.055,.055,.059,1);gl.clear(gl.COLOR_BUFFER_BIT);gl.uniform2f(uRes,W,H);gl.uniform2f(uOff,vpO.x,vpO.y);gl.uniform1f(uScale,vpS);bd(tBuf,tCnt);bd(rBuf,rCnt);bd(puBuf,puCnt);if(dev)bd(pdBuf,pdCnt);bd(pBuf,pCnt);bd(routeBuf,routeCnt);bd(cBuf,cCnt);bd(hBuf,hCnt);bd(gBuf,gCnt);}
+  function fitToView(sz){const W=canvas.clientWidth||800,H=canvas.clientHeight||600;vpS=Math.min(W/sz,H/sz)*.92;vpO.x=-(W/vpS-sz)/2;vpO.y=-(H/vpS-sz)/2;}
+  function screenToWorld(sx,sy){const dpr=window.devicePixelRatio||1;return{x:sx*dpr/vpS+vpO.x,y:sy*dpr/vpS+vpO.y};}
+  function pan(dx,dy){const dpr=window.devicePixelRatio||1;vpO.x-=dx*dpr/vpS;vpO.y-=dy*dpr/vpS;}
+  function zoom(f,px,py){const old=vpS;vpS=Math.max(MS,Math.min(MX,vpS*f));const sf=vpS/old-1;const dpr=window.devicePixelRatio||1;vpO.x+=(px*dpr/old)*sf;vpO.y+=(py*dpr/old)*sf;}
+  return{init,buildGeometry,rebuildHQ,rebuildPOIs,rebuildGroups,draw,fitToView,screenToWorld,pan,zoom};
+})();
+
+/* ═══════════════════ LABEL RENDERER ═══════════════════ */
+const LabelRenderer=(()=>{
+  let ctx,c2d;
+  function init(){c2d=document.createElement('canvas');c2d.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';document.getElementById('canvas-area').appendChild(c2d);ctx=c2d.getContext('2d');}
+  function draw(world,vp,dev){
+    if(!world||!world.cities)return;
+    const dpr=window.devicePixelRatio||1,W=c2d.clientWidth,H=c2d.clientHeight;
+    if(c2d.width!==Math.round(W*dpr)||c2d.height!==Math.round(H*dpr)){c2d.width=Math.round(W*dpr);c2d.height=Math.round(H*dpr);}
+    ctx.clearRect(0,0,c2d.width,c2d.height);ctx.save();ctx.scale(dpr,dpr);
+    const org=GS?playerOrg():null,sc=vp.scale;
+    for(const city of world.cities){
+      const sx=(city.x+.5-vp.offset.x)*sc,sy=(city.y+.5-vp.offset.y)*sc;
+      if(sx<-80||sx>W+80||sy<-20||sy>H+20)continue;
+      const isHQ=org&&org.hqCityId===city.id,fs=Math.max(9,Math.min(14,sc*1.1));
+      ctx.font=`600 ${fs}px Cinzel,serif`;ctx.textAlign='center';ctx.textBaseline='top';
+      ctx.fillStyle='rgba(14,14,15,.8)';ctx.fillText(city.name,sx+1,sy+sc*2.4+1);
+      ctx.fillStyle=isHQ?'#e8b04a':'#d4b896';ctx.fillText(city.name,sx,sy+sc*2.4);
+      if(isHQ){const sf=Math.max(7,Math.min(9,sc*.7));ctx.font=`${sf}px Share Tech Mono,monospace`;ctx.fillStyle='#c8902a';ctx.fillText('⬡ HQ',sx,sy+sc*2.4+Math.max(11,Math.min(18,sc*1.2)));}
+    }
+    if(sc>=6)for(const poi of world.pois){
+      if(!poi.discovered&&!dev)continue;
+      const sx=(poi.x+.5-vp.offset.x)*sc,sy=(poi.y+.5-vp.offset.y)*sc;
+      if(sx<-80||sx>W+80||sy<-20||sy>H+20)continue;
+      const fs=Math.max(8,Math.min(11,sc*.75));
+      ctx.font=`${fs}px Share Tech Mono,monospace`;ctx.textAlign='center';ctx.textBaseline='top';
+      const col=poi.discovered?'#c8a050':(dev?'#3a7a40':'#4a4038');
+      ctx.fillStyle='rgba(14,14,15,.7)';ctx.fillText(poi.name,sx+1,sy+sc*1.6+1);
+      ctx.fillStyle=col;ctx.fillText(poi.name,sx,sy+sc*1.6);
+      if(dev&&!poi.discovered){ctx.font=`${Math.max(7,fs-1)}px Share Tech Mono,monospace`;ctx.fillStyle='#2a6a30';ctx.fillText(`[${poi.despawnTimer}t]`,sx,sy+sc*1.6+fs+2);}
+    }
+    if(sc>=5&&org)for(const g of org.groups){
+      const coords=groupCoords(g,world);if(!coords)continue;
+      const sx=(coords.x-vp.offset.x)*sc,sy=(coords.y-vp.offset.y)*sc;
+      if(sx<-60||sx>W+60||sy<-20||sy>H+20)continue;
+      const fs=Math.max(8,Math.min(11,sc*.65));
+      ctx.font=`${fs}px Share Tech Mono,monospace`;ctx.textAlign='center';ctx.textBaseline='top';
+      ctx.fillStyle='rgba(14,14,15,.7)';ctx.fillText(g.name,sx+1,sy+sc*1.8+1);
+      ctx.fillStyle='#c8c0b0';ctx.fillText(g.name,sx,sy+sc*1.8);
+    }
+    ctx.restore();
+  }
+  return{init,draw};
+})();
+
+/* ═══════════════════ RENDER LOOP ═══════════════════ */
+let rafId=null,vpState={offset:{x:0,y:0},scale:1};
+function syncVPState(){const w0=MapRenderer.screenToWorld(0,0),w1=MapRenderer.screenToWorld(1,0);vpState.offset={x:w0.x,y:w0.y};vpState.scale=1/(w1.x-w0.x);}
+function startRenderLoop(){
+  function frame(){
+    const inOverlay=!document.getElementById('city-overlay').classList.contains('hidden')||!document.getElementById('poi-overlay').classList.contains('hidden');
+    if(GS&&GS.world.tiles.length&&inOverlay===false){MapRenderer.draw(GS.world,GS._devMode);LabelRenderer.draw(GS.world,vpState,GS._devMode);}
+    rafId=requestAnimationFrame(frame);
+  }
+  if(rafId)cancelAnimationFrame(rafId);rafId=requestAnimationFrame(frame);
+}
+
+/* ═══════════════════ MAP INPUT ═══════════════════ */
+function initMapInput(){
+  const c=document.getElementById('map-canvas');
+  let dragging=false,lastX=0,lastY=0,didDrag=false;
+  c.addEventListener('mousedown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;didDrag=false;c.classList.add('panning');hidePopup();});
+  window.addEventListener('mouseup',()=>{dragging=false;c.classList.remove('panning');});
+  window.addEventListener('mousemove',e=>{if(!dragging)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;if(Math.abs(dx)>2||Math.abs(dy)>2)didDrag=true;MapRenderer.pan(dx,dy);syncVPState();lastX=e.clientX;lastY=e.clientY;});
+  c.addEventListener('wheel',e=>{e.preventDefault();MapRenderer.zoom(e.deltaY<0?1.12:1/1.12,e.offsetX,e.offsetY);syncVPState();},{passive:false});
+  c.addEventListener('click',e=>{if(didDrag)return;handleMapClick(e.offsetX,e.offsetY,e.clientX,e.clientY);});
+}
+
+function handleMapClick(sx,sy,cx,cy){
+  if(!GS||!GS.world.cities)return;
+  const w=MapRenderer.screenToWorld(sx,sy);
+  const area=document.getElementById('canvas-area').getBoundingClientRect();
+  const org=playerOrg();
+  // Groups first
+  if(org)for(const g of org.groups){const coords=groupCoords(g,GS.world);if(coords&&Math.hypot(coords.x-w.x,coords.y-w.y)<1.8){openGroupPanel(g.id);return;}}
+  // Cities
+  for(const c of GS.world.cities)if(Math.hypot(c.x+.5-w.x,c.y+.5-w.y)<2.2){openCityPanel(c.id);return;}
+  // POIs — discovered opens layout, undiscovered shows popup
+  for(const p of GS.world.pois){
+    if(Math.hypot(p.x+.5-w.x,p.y+.5-w.y)<1.6){
+      if(p.discovered)openPOILayout(p.id);
+      else showPOIPopup(p,cx-area.left,cy-area.top);
+      return;
+    }
+  }
+  hidePopup();
+}
+
+function positionPopup(lx,ly){const p=document.getElementById('map-popup'),area=document.getElementById('canvas-area').getBoundingClientRect();p.style.left=Math.min(lx+14,area.width-235)+'px';p.style.top=Math.min(ly+14,area.height-110)+'px';p.classList.add('visible');p.style.pointerEvents='auto';}
+function showPOIPopup(poi,lx,ly){
+  document.getElementById('popup-name').textContent=poi.name;
+  const tag=document.getElementById('popup-tag');
+  if(poi.discovered){tag.className='popup-tag discovered';tag.textContent='◆ Discovered';}
+  else{tag.className='popup-tag undiscovered';tag.textContent='◇ Undiscovered';}
+  document.getElementById('popup-row1').innerHTML=`Type: <span>${poi.type}</span>`;
+  document.getElementById('popup-row2').innerHTML=`Despawn: <span>${poi.despawnTimer} turns</span>`;
+  const dev=document.getElementById('popup-dev');
+  if(GS._devMode){dev.style.display='block';dev.className='popup-row popup-tag dev-info';dev.innerHTML=`Size: <span>${poi.size}</span> &nbsp; Zones: <span>${poi._zoneCount}</span>`;}
+  else{if(!poi.discovered){document.getElementById('popup-row1').textContent='Location known — interact to discover.';document.getElementById('popup-row2').textContent='';}dev.style.display='none';}
+  positionPopup(lx,ly);
+}
+function hidePopup(){document.getElementById('map-popup').classList.remove('visible');}
+
+/* ═══════════════════ ENTER GAME ═══════════════════ */
+function enterGame(){
+  showScreen('game');updateToolbar();
+  requestAnimationFrame(()=>{
+    const c=document.getElementById('map-canvas');
+    if(!MapRenderer._init){MapRenderer.init(c);LabelRenderer.init();initMapInput();initPoiGraphCanvas();MapRenderer._init=true;}
+    if(GS.world.tiles.length){
+      MapRenderer.buildGeometry(GS.world);
+      const org=playerOrg();if(org){MapRenderer.rebuildHQ(GS.world,org.hqCityId);MapRenderer.rebuildGroups(GS.world,org);}
+      MapRenderer.rebuildPOIs(GS.world,GS._devMode);
+      MapRenderer.fitToView(GS.world._mapSize);syncVPState();
+    }
+    startRenderLoop();
+  });
+}
+
+/* ═══════════════════ TOOLBAR & DEV ═══════════════════ */
+function updateToolbar(){if(!GS)return;const org=playerOrg();document.getElementById('tb-turn').textContent=GS.turn;document.getElementById('tb-day').textContent=TIME.turnToDay(GS.turn);document.getElementById('tb-gold').textContent=org?org.gold.toLocaleString():'0';document.getElementById('tb-roster').textContent=org?org.recruits.length:'0';document.getElementById('tb-pois').textContent=GS.world.pois.length;}
+function toggleDevMode(){
+  if(!GS)return;GS._devMode=!GS._devMode;
+  document.getElementById('btn-devmode').classList.toggle('active',GS._devMode);
+  document.getElementById('dev-panel').classList.toggle('hidden',!GS._devMode);
+  MapRenderer.rebuildPOIs(GS.world,GS._devMode);
+  if(GS._devMode)refreshDevPanel();
+  // Re-render open views
+  if(_currentPoiId){const poi=GS.world.pois.find(p=>p.id===_currentPoiId);if(poi){renderPoiSidebar(poi);drawPoiGraph();}}
+  if(_currentZoneId){const poi=GS.world.pois.find(p=>p.id===_currentPoiId);const zone=poi?.zones.find(z=>z.id===_currentZoneId);if(zone&&poi){renderZoneObjects(zone);renderZoneSidebar(zone,poi);}}
+}
+function refreshDevPanel(){
+  const el=document.getElementById('dev-state-dump');if(!el)return;
+  const org=playerOrg();
+  const d={...GS,world:{...GS.world,tiles:`[${GS.world.tiles.length} tiles]`,pois:GS.world.pois.map(p=>({id:p.id,name:p.name,type:p.type,size:p.size,discovered:p.discovered,despawnTimer:p.despawnTimer,zones:p.zones.length}))},_hirePool:`[${(GS._hirePool||[]).length} recruits]`};
+  el.textContent=JSON.stringify(d,null,2);
+}
+
+/* ═══════════════════ SCREEN MANAGEMENT ═══════════════════ */
+const SCREENS=['screen-launch','screen-world-options','screen-test-scenario','screen-game'];
+function showScreen(n){SCREENS.forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('hidden',id!=='screen-'+n);});}
+function showToast(msg,type=''){const c=document.getElementById('toast-container');const t=document.createElement('div');t.className='toast'+(type?' '+type:'');t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),2900);}
+
+/* ═══════════════════ TEST SCENARIOS ═══════════════════ */
+const TEST_SCENARIOS=[
+  {id:'zone_explore',name:'Zone Exploration',
+   desc:'World with 20 POIs. Click a Discovered POI (◆) to open its zone graph. Click zones to view objects and awareness states.',
+   build(){const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:12});s._startingChars=3;generateWorld(s);return s;}},
+  {id:'dev_zones',name:'Dev Mode Zone Test',
+   desc:'Same as above but Dev Mode is pre-enabled, revealing all hidden state including Undiscovered objects and Unknown zones.',
+   build(){const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:12});s._startingChars=3;generateWorld(s);s._devMode=true;return s;}},
+  {id:'groups_test',name:'Groups & Travel',
+   desc:'5 recruits, 4200 gold. Tests full group lifecycle including POI entry.',
+   build(){const s=makeGameState({orgName:'Test Guild',gold:4200,mapSize:128,targetPois:20,targetKnownPois:8});s._startingChars=5;generateWorld(s);return s;}},
+  {id:'fast_despawn',name:'Fast Despawn',
+   desc:'POIs with short timers. Advance turns to watch despawn cycle.',
+   build(){const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:8});generateWorld(s);const rng=makePRNG(0xFADE);s.world.pois.forEach(p=>{p.despawnTimer=rng.int(3,8);});return s;}},
+];
+
+let selScenarioId=null;
+function buildScenarioList(){
+  selScenarioId=null;document.getElementById('btn-scenario-launch').disabled=true;
+  const list=document.getElementById('scenario-list');list.innerHTML='';
+  TEST_SCENARIOS.forEach(s=>{
+    const item=document.createElement('div');item.className='scenario-item';item.dataset.id=s.id;
+    item.innerHTML=`<div class="scenario-item-name">${s.name}</div><div class="scenario-item-desc">${s.desc}</div>`;
+    item.addEventListener('click',()=>{document.querySelectorAll('.scenario-item').forEach(el=>el.classList.remove('selected'));item.classList.add('selected');selScenarioId=s.id;document.getElementById('btn-scenario-launch').disabled=false;});
+    list.appendChild(item);
+  });
+}
+
+/* ═══════════════════ LAUNCH / OPTIONS / WIRING ═══════════════════ */
+function showLaunchError(m){const e=document.getElementById('launch-error');e.textContent=m;e.classList.add('visible');}
+function clearLaunchError(){document.getElementById('launch-error').classList.remove('visible');}
+document.getElementById('btn-new-game').addEventListener('click',()=>{clearLaunchError();showScreen('world-options');});
+document.getElementById('btn-load-game').addEventListener('click',()=>{clearLaunchError();document.getElementById('file-load-input').value='';document.getElementById('file-load-input').click();});
+document.getElementById('file-load-input').addEventListener('change',e=>{const f=e.target.files[0];if(f)loadGameFromFile(f);});
+document.getElementById('btn-test-scenario').addEventListener('click',()=>{clearLaunchError();buildScenarioList();showScreen('test-scenario');});
+document.getElementById('btn-options-back').addEventListener('click',()=>showScreen('launch'));
+document.getElementById('btn-options-confirm').addEventListener('click',()=>{
+  function getOpts(){return{orgName:document.getElementById('opt-org-name').value.trim(),gold:parseInt(document.getElementById('opt-gold').value,10),startingChars:parseInt(document.getElementById('opt-chars').value,10),mapSize:parseInt(document.getElementById('opt-map-size').value,10),targetPois:parseInt(document.getElementById('opt-target-pois').value,10),targetKnownPois:parseInt(document.getElementById('opt-known-pois').value,10)};}
+  function validateOpts(v){const e={};if(!v.orgName)e['org-name']='Name cannot be empty.';if(isNaN(v.startingChars)||v.startingChars<0||v.startingChars>9)e['chars']='Must be between 0 and 9.';if(isNaN(v.mapSize)||v.mapSize<64||v.mapSize>256)e['map-size']='Must be between 64 and 256.';if(isNaN(v.targetPois)||v.targetPois<10||v.targetPois>50)e['target-pois']='Must be between 10 and 50.';if(isNaN(v.targetKnownPois)||v.targetKnownPois<6||v.targetKnownPois>v.targetPois)e['known-pois']='Must be between 6 and Target world POIs.';return e;}
+  function showOptsErrors(errs){['org-name','chars','map-size','target-pois','known-pois'].forEach(k=>{const el=document.getElementById('err-'+k);if(!el)return;if(errs[k]){el.textContent=errs[k];el.classList.add('visible');}else el.classList.remove('visible');});}
+  const v=getOpts(),errs=validateOpts(v);showOptsErrors(errs);if(Object.keys(errs).length>0)return;
+  GS=makeGameState(v);GS._startingChars=v.startingChars;generateWorld(GS);enterGame();showToast('World generated — '+v.orgName,'success');
+});
+document.getElementById('btn-scenario-back').addEventListener('click',()=>showScreen('launch'));
+document.getElementById('btn-scenario-launch').addEventListener('click',()=>{const s=TEST_SCENARIOS.find(x=>x.id===selScenarioId);if(!s)return;GS=s.build();enterGame();showToast('Scenario: '+s.name,'success');});
+document.getElementById('btn-end-turn').addEventListener('click',advanceTurn);
+document.getElementById('btn-save').addEventListener('click',saveGame);
+document.getElementById('btn-devmode').addEventListener('click',toggleDevMode);
+document.getElementById('btn-exit').addEventListener('click',exitToMenu);
+document.getElementById('btn-close-city').addEventListener('click',closeCityPanel);
+document.getElementById('btn-close-poi').addEventListener('click',closePOILayout);
+document.getElementById('btn-close-zone').addEventListener('click',closeZoneDetail);
+window.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(!document.getElementById('zone-overlay').classList.contains('hidden')){closeZoneDetail();return;}
+    if(!document.getElementById('poi-overlay').classList.contains('hidden')){closePOILayout();return;}
+    if(!document.getElementById('city-overlay').classList.contains('hidden')){closeCityPanel();return;}
+    if(!document.getElementById('confirm-overlay').classList.contains('hidden')){document.getElementById('confirm-overlay').classList.add('hidden');return;}
+    if(_openGroupId){closeGroupPanel();return;}
+    hidePopup();
+  }
+});
+window.addEventListener('resize',()=>{if(GS&&GS.world.tiles.length){syncVPState();if(_currentPoiId){resizePoiGraphCanvas();const poi=GS.world.pois.find(p=>p.id===_currentPoiId);if(poi){poi._layoutPositions=null;drawPoiGraph();}}}});
+window.addEventListener('beforeunload',()=>{if(GS)autosave();});
+
+/* ═══════════════════ AUTOSAVE RESTORE ═══════════════════ */
+(function checkAutosave(){
+  try{const raw=localStorage.getItem(AUTOSAVE_KEY);if(!raw)return;const s=JSON.parse(raw);if(!s||typeof s.turn!=='number')return;
+  const btnLoad=document.getElementById('btn-load-game');const btnAuto=document.createElement('button');btnAuto.className='btn';
+  btnAuto.innerHTML=`Restore Autosave <span style="font-family:var(--mono);font-size:10px;color:var(--amber-dim)"> — Turn ${s.turn}</span>`;
+  btnLoad.parentNode.insertBefore(btnAuto,btnLoad.nextSibling);
+  btnAuto.addEventListener('click',()=>{clearLaunchError();const st=loadFromJson(raw);if(!st){showLaunchError('Autosave data is corrupted.');return;}GS=st;enterGame();showToast('Autosave restored — Turn '+GS.turn,'success');});
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

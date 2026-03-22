@@ -100,7 +100,6 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 .map-popup.visible{display:block;}
 .map-popup .popup-name{font-family:var(--serif);font-size:13px;font-weight:600;letter-spacing:.12em;color:var(--parchment);margin-bottom:5px;}
 .map-popup .popup-tag{font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;}
-.map-popup .popup-tag.hq{color:var(--amber);}
 .map-popup .popup-tag.discovered{color:var(--amber-bright);}
 .map-popup .popup-tag.undiscovered{color:var(--text-dim);}
 .map-popup .popup-tag.dev-info{color:var(--green-bright);}
@@ -119,7 +118,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 .gp-name{font-family:var(--serif);font-size:14px;font-weight:600;letter-spacing:.14em;color:var(--parchment);}
 .gp-role{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber-dim);margin-left:2px;}
 .gp-status{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-left:auto;}
-.gp-close{padding:2px 8px;background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:10px;cursor:pointer;outline:none;transition:border-color .1s,color .1s;}
+.gp-close{padding:2px 8px;background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:10px;cursor:pointer;outline:none;}
 .gp-close:hover{border-color:var(--parchment);color:var(--parchment);}
 .gp-body{display:flex;flex:1;overflow:hidden;}
 .gp-members{flex:0 0 260px;overflow-y:auto;padding:8px 12px;border-right:1px solid var(--border);display:flex;flex-wrap:wrap;gap:4px;align-content:flex-start;}
@@ -133,14 +132,13 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 .sched-slot.rest{background:rgba(122,85,24,.25);border-color:var(--amber-dim);color:var(--amber);}
 .gp-transit-info{font-family:var(--mono);font-size:10px;color:var(--amber-dim);padding:3px 0;}
 .gp-transit-info span{color:var(--amber);}
-
-/* ── CITY OVERLAY ── */
+/* City overlay */
 #city-overlay{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;background:var(--bg);}
 .city-header{display:flex;align-items:center;height:44px;min-height:44px;flex-shrink:0;background:var(--bg-panel);border-bottom:1px solid var(--border);padding:0 16px;}
 .city-header-name{font-family:var(--serif);font-size:16px;font-weight:600;letter-spacing:.16em;color:var(--parchment);}
 .city-header-hq{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--amber);margin-left:10px;text-transform:uppercase;}
 .city-header-spacer{flex:1;}
-.city-close-btn{padding:4px 14px;background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:10px;letter-spacing:.1em;cursor:pointer;text-transform:uppercase;outline:none;transition:border-color .12s,color .12s;}
+.city-close-btn{padding:4px 14px;background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:10px;letter-spacing:.1em;cursor:pointer;text-transform:uppercase;outline:none;}
 .city-close-btn:hover{border-color:var(--parchment);color:var(--parchment);}
 .city-body{display:flex;flex:1;overflow:hidden;}
 .city-tabs{width:160px;min-width:160px;flex-shrink:0;background:var(--bg-panel);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:12px 0;gap:2px;overflow-y:auto;}
@@ -155,7 +153,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 .roster-table th{text-align:left;color:var(--amber-dim);letter-spacing:.1em;text-transform:uppercase;font-size:9px;padding:4px 8px 8px;border-bottom:1px solid var(--border-accent);}
 .roster-table td{padding:8px 8px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;}
 .roster-table tr:hover td{background:rgba(255,255,255,.02);}
-.recruit-name{color:var(--parchment);font-size:12px;} .recruit-level{color:var(--amber);}
+.recruit-name{color:var(--parchment);font-size:12px;}.recruit-level{color:var(--amber);}
 .recruit-state{font-size:10px;padding:1px 6px;border:1px solid;text-transform:uppercase;letter-spacing:.06em;}
 .recruit-state.available{border-color:var(--green);color:var(--green-bright);}
 .recruit-state.deployed{border-color:var(--amber-dim);color:var(--amber);}
@@ -192,8 +190,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 .task-effect{font-family:var(--body);font-style:italic;font-size:13px;color:var(--text-dim);flex:1;}
 .task-count{font-family:var(--mono);font-size:11px;color:var(--text-dim);}
 .task-count span{color:var(--amber);}
-
-/* ── POI LAYOUT OVERLAY ── */
+/* POI Layout overlay */
 #poi-overlay{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;background:var(--bg);}
 .poi-header{display:flex;align-items:center;height:44px;min-height:44px;flex-shrink:0;background:var(--bg-panel);border-bottom:1px solid var(--border);padding:0 16px;gap:12px;}
 .poi-header-name{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:.14em;color:var(--parchment);}
@@ -202,20 +199,17 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 .poi-header-meta{font-family:var(--mono);font-size:10px;color:var(--text-dim);}
 .poi-header-meta span{color:var(--amber);}
 .poi-body{display:flex;flex:1;overflow:hidden;}
-/* Zone graph canvas */
 #poi-graph-canvas{display:block;cursor:pointer;}
 .poi-graph-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg);}
-/* Sidebar */
-.poi-sidebar{width:200px;min-width:200px;flex-shrink:0;background:var(--bg-panel);border-left:1px solid var(--border);padding:16px 14px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;}
-.poi-sidebar-section{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-dim);margin-bottom:6px;}
-.poi-sidebar-row{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:4px;}
+.poi-sidebar{width:200px;min-width:200px;flex-shrink:0;background:var(--bg-panel);border-left:1px solid var(--border);padding:16px 14px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;}
+.poi-sidebar-section{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-dim);margin-bottom:4px;}
+.poi-sidebar-row{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:3px;}
 .poi-sidebar-row span{color:var(--text);}
 .poi-sidebar-row.dev{color:var(--green-bright);font-size:9px;}
-.poi-sidebar-hint{font-family:var(--body);font-style:italic;font-size:12px;color:var(--text-dim);margin-top:8px;line-height:1.5;}
+.poi-sidebar-hint{font-family:var(--body);font-style:italic;font-size:12px;color:var(--text-dim);margin-top:6px;line-height:1.5;}
 .poi-back-btn{padding:5px 12px;background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:10px;letter-spacing:.08em;cursor:pointer;text-transform:uppercase;outline:none;transition:border-color .12s,color .12s;flex-shrink:0;}
 .poi-back-btn:hover{border-color:var(--parchment);color:var(--parchment);}
-
-/* ── ZONE DETAIL OVERLAY ── */
+/* Zone Detail overlay */
 #zone-overlay{position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;background:var(--bg);}
 .zone-header{display:flex;align-items:center;height:44px;min-height:44px;flex-shrink:0;background:var(--bg-panel);border-bottom:1px solid var(--border);padding:0 16px;gap:12px;}
 .zone-header-name{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:.14em;color:var(--parchment);}
@@ -226,36 +220,59 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 .zone-header-conds{font-family:var(--mono);font-size:10px;color:var(--text-dim);}
 .zone-header-conds span{color:var(--amber-dim);}
 .zone-body{display:flex;flex:1;overflow:hidden;}
-.zone-objects-pane{flex:1;overflow-y:auto;padding:20px 24px;}
-.zone-sidebar{width:220px;min-width:220px;flex-shrink:0;background:var(--bg-panel);border-left:1px solid var(--border);padding:16px 14px;overflow-y:auto;}
-.zone-section-title{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-dim);margin:16px 0 8px;}
+.zone-objects-pane{flex:1;overflow-y:auto;padding:16px 20px;}
+.zone-sidebar{width:260px;min-width:260px;flex-shrink:0;background:var(--bg-panel);border-left:1px solid var(--border);padding:14px 14px;overflow-y:auto;display:flex;flex-direction:column;gap:0;}
+.zone-section-title{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-dim);margin:14px 0 6px;}
 .zone-section-title:first-child{margin-top:0;}
-.zone-unknown-msg{font-family:var(--body);font-style:italic;font-size:13px;color:var(--text-dim);padding:24px 0;}
-/* Object entry */
-.obj-entry{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.zone-unknown-msg{font-family:var(--body);font-style:italic;font-size:13px;color:var(--text-dim);padding:20px 0;}
+/* Object entries */
+.obj-entry{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);}
 .obj-entry:last-child{border-bottom:none;}
-.obj-icon{width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--text-dim);position:relative;}
-/* Square icon for non-living */
+.obj-icon{width:26px;height:26px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--text-dim);}
 .obj-icon.sq{background:var(--bg-raised);border:1px solid var(--border);}
-/* Rhombus icon for living — use CSS clip-path */
 .obj-icon.rh{background:var(--bg-raised);border:1px solid var(--amber-dim);clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);}
-.obj-icon.rh.dev-icon{border-color:var(--green);}
+.obj-icon.dev-icon{border-color:var(--green);}
 .obj-info{flex:1;}
-.obj-name{font-family:var(--serif);font-size:13px;color:var(--parchment);margin-bottom:2px;}
+.obj-name{font-family:var(--serif);font-size:12px;color:var(--parchment);margin-bottom:2px;}
 .obj-name.known-name{color:var(--text-dim);font-style:italic;}
 .obj-type{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);}
-.obj-tags{font-family:var(--mono);font-size:9px;color:var(--amber-dim);margin-top:2px;}
-.obj-gold{font-family:var(--mono);font-size:10px;color:var(--amber);margin-top:2px;}
+.obj-gold{font-family:var(--mono);font-size:9px;color:var(--amber);margin-top:1px;}
+.obj-dev-vals{font-family:var(--mono);font-size:9px;color:var(--green-bright);margin-top:2px;}
 .obj-awareness{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;border:1px solid;margin-left:auto;flex-shrink:0;align-self:center;}
 .obj-awareness.located{border-color:var(--amber-bright);color:var(--amber-bright);}
 .obj-awareness.known{border-color:var(--parchment-dim);color:var(--parchment-dim);}
 .obj-awareness.undisc{border-color:var(--text-dim);color:var(--text-dim);}
-.obj-dev-vals{font-family:var(--mono);font-size:9px;color:var(--green-bright);margin-top:2px;}
-/* Zone actions sidebar */
-.zone-action-btn{display:block;width:100%;margin-bottom:6px;padding:6px 12px;background:transparent;border:1px solid var(--border-accent);color:var(--parchment);font-family:var(--mono);font-size:10px;letter-spacing:.08em;cursor:pointer;text-transform:uppercase;outline:none;transition:background .1s,border-color .1s,color .1s;text-align:left;}
+/* ── ACTION UI (Zone Sidebar) ── */
+.group-in-zone{margin-bottom:10px;padding:8px 10px;background:var(--bg-raised);border:1px solid var(--border);}
+.group-in-zone-name{font-family:var(--serif);font-size:11px;font-weight:600;color:var(--parchment);margin-bottom:5px;}
+.member-action-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.member-chip-sel{font-family:var(--mono);font-size:9px;padding:2px 7px;border:1px solid var(--border);background:transparent;color:var(--text-dim);cursor:pointer;transition:border-color .1s,color .1s,background .1s;outline:none;white-space:nowrap;}
+.member-chip-sel.active{border-color:var(--amber);color:var(--amber-bright);background:rgba(122,85,24,.15);}
+.action-progress-wrap{flex:1;}
+.action-label{font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-bottom:2px;text-transform:uppercase;letter-spacing:.06em;}
+.action-bar-track{height:5px;background:var(--bg-input);border:1px solid var(--border);position:relative;}
+.action-bar-fill{position:absolute;top:0;left:0;height:100%;background:var(--amber-dim);transition:width .3s;}
+.action-bar-fill.scout{background:var(--amber-dim);}
+.action-bar-fill.search{background:#5a6a30;}
+.action-bar-fill.conceal{background:#3a4a5a;}
+.action-bar-fill.hide{background:#3a5a4a;}
+.action-bar-fill.rest{background:var(--green);}
+.action-assign-section{margin-top:10px;}
+.action-btn-grid{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
+.zone-action-btn{padding:4px 10px;background:transparent;border:1px solid var(--border-accent);color:var(--parchment);font-family:var(--mono);font-size:9px;letter-spacing:.06em;cursor:pointer;text-transform:uppercase;outline:none;transition:background .1s,border-color .1s,color .1s;}
 .zone-action-btn:hover{background:var(--amber-dim);border-color:var(--amber);color:var(--amber-bright);}
 .zone-action-btn:disabled{opacity:.35;cursor:not-allowed;}
-
+.zone-action-btn.active-action{border-color:var(--amber);color:var(--amber-bright);background:rgba(122,85,24,.15);}
+.target-picker{margin-top:5px;}
+.target-picker select{font-size:10px;padding:4px 8px;}
+.selected-member-info{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:4px;}
+.selected-member-info strong{color:var(--parchment);}
+.no-group-msg{font-family:var(--body);font-style:italic;font-size:12px;color:var(--text-dim);margin-top:6px;}
+.action-event-log{font-family:var(--mono);font-size:9px;color:var(--green-bright);margin-top:4px;line-height:1.6;max-height:60px;overflow-y:auto;}
+/* Move zone */
+.zone-adj-btn{display:block;width:100%;margin-bottom:4px;padding:4px 10px;background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:9px;letter-spacing:.06em;cursor:pointer;text-transform:uppercase;outline:none;text-align:left;transition:border-color .1s,color .1s;}
+.zone-adj-btn:hover{border-color:var(--parchment);color:var(--parchment);}
+.zone-adj-btn.scouted{border-color:var(--green);color:var(--green-bright);}
 /* Confirm dialog */
 #confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:flex;align-items:center;justify-content:center;}
 .confirm-box{background:var(--bg-panel);border:1px solid var(--border-accent);padding:28px 32px;width:380px;text-align:center;}
@@ -272,7 +289,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 </style>
 </head>
 <body>
-<!-- ══ LAUNCH ══ -->
+<!-- LAUNCH -->
 <div id="screen-launch">
   <div class="launch-inner">
     <div class="launch-title">IRONBOUND</div>
@@ -286,9 +303,9 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
     <div class="launch-error" id="launch-error"></div>
   </div>
   <input type="file" id="file-load-input" accept=".json" style="display:none">
-  <div class="launch-version">v0.6 — Step 6</div>
+  <div class="launch-version">v0.7 — Step 7</div>
 </div>
-<!-- ══ WORLD OPTIONS ══ -->
+<!-- WORLD OPTIONS -->
 <div id="screen-world-options" class="hidden">
   <div class="options-panel">
     <div class="options-title">World Options</div>
@@ -304,7 +321,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
     <div class="options-actions"><button class="btn" id="btn-options-back">Cancel</button><button class="btn btn-primary" id="btn-options-confirm">Confirm &amp; Start</button></div>
   </div>
 </div>
-<!-- ══ TEST SCENARIO ══ -->
+<!-- TEST SCENARIO -->
 <div id="screen-test-scenario" class="hidden">
   <div class="scenario-panel">
     <div class="scenario-title">Test Scenarios</div>
@@ -313,7 +330,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
     <div class="scenario-actions"><button class="btn" id="btn-scenario-back">Back</button><button class="btn btn-primary" id="btn-scenario-launch" disabled>Launch Scenario</button></div>
   </div>
 </div>
-<!-- ══ GAME SCREEN ══ -->
+<!-- GAME SCREEN -->
 <div id="screen-game" class="hidden">
   <div id="toolbar">
     <span class="toolbar-logo">IRONBOUND</span>
@@ -348,7 +365,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
     <div id="dev-panel" class="hidden"><h3>⬡ Dev Mode — Game State</h3><pre id="dev-state-dump"></pre></div>
   </div>
   <div id="bottom-panel">
-    <div class="bottom-stub" id="bottom-stub">Click a group token to open Group Panel · Click a Discovered POI to explore</div>
+    <div class="bottom-stub" id="bottom-stub">Click a group token on the map · Click a Discovered POI to explore</div>
     <div id="group-panel" class="hidden">
       <div class="gp-header">
         <span class="gp-name" id="gp-name">—</span><span class="gp-role" id="gp-role"></span>
@@ -383,9 +400,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
       <span class="poi-header-meta">Despawn: <span id="poi-header-timer">—</span> turns</span>
     </div>
     <div class="poi-body">
-      <div class="poi-graph-wrap" id="poi-graph-wrap">
-        <canvas id="poi-graph-canvas"></canvas>
-      </div>
+      <div class="poi-graph-wrap" id="poi-graph-wrap"><canvas id="poi-graph-canvas"></canvas></div>
       <div class="poi-sidebar" id="poi-sidebar"></div>
     </div>
   </div>
@@ -404,7 +419,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
     </div>
   </div>
 </div>
-<!-- CONFIRM DIALOG -->
+<!-- CONFIRM -->
 <div id="confirm-overlay" class="hidden">
   <div class="confirm-box">
     <div class="confirm-title" id="confirm-title">Confirm</div>
@@ -419,11 +434,11 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 
 <script>
 'use strict';
-/* ═══════════════════ CONSTANTS ═══════════════════ */
-const VERSION='0.6-step6',AUTOSAVE_KEY='ironbound_autosave',AUTOSAVE_EVERY=5;
+/* ═══════════════ CONSTANTS ═══════════════ */
+const VERSION='0.7-step7',AUTOSAVE_KEY='ironbound_autosave',AUTOSAVE_EVERY=5;
 const PLAYER_FACTION='player';
 
-/* ═══════════════════ TIME ═══════════════════ */
+/* ═══════════════ TIME ═══════════════ */
 const TIME={
   turnToDay:t=>Math.floor((t-1)/6)+1,
   turnToWeek:t=>Math.floor((TIME.turnToDay(t)-1)/7)+1,
@@ -433,16 +448,17 @@ const TIME={
   dayTurnIndex:t=>(t-1)%6,
 };
 
-/* ═══════════════════ PRNG ═══════════════════ */
+/* ═══════════════ PRNG ═══════════════ */
 function makePRNG(seed){
   let s=seed>>>0;
-  return{next(){s+=0x6D2B79F5;let t=Math.imul(s^(s>>>15),1|s);t^=t+Math.imul(t^(t>>>7),61|t);return((t^(t>>>14))>>>0)/4294967296;},
+  return{
+    next(){s+=0x6D2B79F5;let t=Math.imul(s^(s>>>15),1|s);t^=t+Math.imul(t^(t>>>7),61|t);return((t^(t>>>14))>>>0)/4294967296;},
     int(lo,hi){return Math.floor(this.next()*(hi-lo+1))+lo;},
     pick(a){return a[this.int(0,a.length-1)];},
-    float(lo,hi){return this.next()*(hi-lo)+lo;}};
+    float(lo,hi){return this.next()*(hi-lo)+lo;},
+  };
 }
-
-/* ═══════════════════ NOISE ═══════════════════ */
+/* ═══════════════ NOISE ═══════════════ */
 function makeNoise(seed){
   const r=makePRNG(seed),SZ=256,t=new Float32Array(SZ*SZ);
   for(let i=0;i<t.length;i++)t[i]=r.next();
@@ -450,21 +466,19 @@ function makeNoise(seed){
   return(x,y)=>s(x*.015,y*.015)*.65+s(x*.045,y*.045)*.35;
 }
 
-/* ═══════════════════ NAMES ═══════════════════ */
+/* ═══════════════ NAMES ═══════════════ */
 const CITY_PFX=['Iron','Stone','Red','Ash','Gold','Silver','Dark','Crow','Wolf','Bear','Storm','Frost'];
 const CITY_SFX=['hold','ford','gate','bridge','haven','wall','keep','march','vale','wick','crest','moor'];
 const POI_ADJ=['Ancient','Forgotten','Cursed','Crumbling','Hidden','Haunted','Overgrown','Sunken'];
 const POI_NOUN=['Halls','Outpost','Den','Remains','Hollow','Depths','Sanctuary','Warrens'];
-const ZONE_NAMES=['Entry Hall','North Wing','East Passage','Vault','Inner Chamber','Deep Corridor','Outer Court',
-  'Collapsed Passage','Guard Post','Storage Room','Hidden Room','Lower Level','Upper Level','Main Hall',
-  'Side Chamber','Ruined Annex','Dark Hollow','Sunken Path','Overgrown Clearing','Rock Face'];
+const ZONE_NAMES=['Entry Hall','North Wing','East Passage','Vault','Inner Chamber','Deep Corridor','Outer Court','Collapsed Passage','Guard Post','Storage Room','Hidden Room','Lower Level','Upper Level','Main Hall','Side Chamber','Ruined Annex','Dark Hollow','Sunken Path','Overgrown Clearing','Rock Face'];
 const R_FIRST=['Aldric','Maren','Torvin','Sela','Brynn','Calder','Isra','Daven','Lyss','Ranek','Wren','Corvin','Tessa','Harken','Sove','Orin','Pell','Aida','Zuren','Feth'];
 const R_LAST=['Ashworth','Coldmere','Dunwall','Irenfeld','Blackthorn','Greaves','Hollow','Strant','Vorne','Embers','Crane','Dunmore','Ferris','Gale','Holst','Irith','Kael','Lorne','Mast','Nadren'];
 function cityName(rng){return rng.pick(CITY_PFX)+rng.pick(CITY_SFX);}
 function poiName(rng){return rng.pick(POI_ADJ)+' '+rng.pick(POI_NOUN);}
 function recruitName(rng){return rng.pick(R_FIRST)+' '+rng.pick(R_LAST);}
 
-/* ═══════════════════ TRAITS ═══════════════════ */
+/* ═══════════════ TRAITS ═══════════════ */
 const TRAIT_DEFS={Loyal:{exclusive:'Disloyal'},Disloyal:{exclusive:'Loyal'},Provident:{exclusive:null},Strong:{exclusive:'Weak'},Weak:{exclusive:'Strong'},Dexterous:{exclusive:'Clumsy'},Clumsy:{exclusive:'Dexterous'},Intelligent:{exclusive:null},Watchful:{exclusive:'Dumb'},Dumb:{exclusive:'Watchful'},Fast:{exclusive:'Slow'},Slow:{exclusive:'Fast'},Resilient:{exclusive:'Fragile'},Fragile:{exclusive:'Resilient'},Greedy:{exclusive:null}};
 const TRAIT_NAMES=Object.keys(TRAIT_DEFS);
 function applyTraits(chars,traits){
@@ -490,7 +504,7 @@ function rollTraits(rng){
   if(TRAIT_DEFS[t2].exclusive===t1)return[t1];return[t1,t2];
 }
 
-/* ═══════════════════ RECRUIT FACTORY ═══════════════════ */
+/* ═══════════════ RECRUIT FACTORY ═══════════════ */
 function makeId(){return Math.random().toString(36).slice(2,10);}
 function generateRecruit(rng,level){
   const lvl=level??rng.int(4,7);
@@ -501,12 +515,15 @@ function generateRecruit(rng,level){
   return{id:makeId(),name:recruitName(rng),portrait:'default',race:'human',level:fl,upkeepBaseRate:br,traits,
     characteristics:{health:rest.health,regeneration:rest.regeneration,movementSpeed:rest.movementSpeed,baseCarryCapacity:rest.baseCarryCapacity,strength:rest.strength,dexterity:rest.dexterity,perception:rest.perception,loyalty:Math.max(1,Math.min(30,rest.loyalty))},
     equipment:{garment:null,head:null,backpack:null,trinket:null,trinket2:null},
-    inventory:[],statusEffects:[],wounds:[],hunger:{stage:'Hunger',charges:0},incapacitated:null,state:'Available'};
+    inventory:[],statusEffects:[],wounds:[],hunger:{stage:'Hunger',charges:0},incapacitated:null,state:'Available',
+    // Action state — persists between turns
+    _zoneAction:{type:null,targetObjectId:null,progress:0},
+  };
 }
 function generateHirePool(seed,count=6){const rng=makePRNG(seed),pool=[];for(let i=0;i<count;i++){const r=generateRecruit(rng);r._hiringCost=r.upkeepBaseRate*r.level*3;pool.push(r);}return pool;}
 function refreshHirePool(gs){const week=TIME.turnToWeek(gs.turn);gs._hirePoolSeed=(gs.world._seed^(week*0x9E3779B9))>>>0;gs._hirePool=generateHirePool(gs._hirePoolSeed);}
 
-/* ═══════════════════ GROUP FACTORY ═══════════════════ */
+/* ═══════════════ GROUP FACTORY ═══════════════ */
 function makeGroup(opts={}){
   return{id:makeId(),name:opts.name??'New Group',role:opts.role??'Scout',memberIds:opts.memberIds??[],locationPoiId:null,locationZoneId:null,currentCityId:opts.cityId??null,inTransitTo:null,_transitProgress:0,schedule:[false,false,false,false,false,true],taskList:[],config:{zoneTravelAllowed:true,giveUpTurnCount:7,overrideMaintenanceLifecycle:false}};
 }
@@ -531,7 +548,24 @@ function advanceGroupTravel(group,world,org){
   group._transitProgress=Math.min(1,(group._transitProgress??0)+spd/total);
   if(group._transitProgress>=1){
     const{type,targetId}=group.inTransitTo;
-    if(type==='city')group.currentCityId=targetId;else group.locationPoiId=targetId;
+    if(type==='city'){
+      group.currentCityId=targetId;
+    } else {
+      group.locationPoiId=targetId;
+      // On arrival at a POI, enter the entry zone
+      const poi=world.pois.find(p=>p.id===targetId);
+      if(poi){
+        if(!poi.zones||!poi.zones.length){
+          const rng=makePRNG(poi.id.split('').reduce((h,c)=>Math.imul(31,h)+c.charCodeAt(0)|0,0));
+          generateZones(poi,rng);
+        }
+        if(poi.zones.length){
+          group.locationZoneId=poi.zones[0].id;
+          initFactionForZone(PLAYER_FACTION,poi.zones[0]);
+          poi.zones[0].state='Scouted';
+        }
+      }
+    }
     group.inTransitTo=null;group._transitFrom=null;group._transitTo=null;group._transitProgress=0;group.state=undefined;
     if(org)for(const id of group.memberIds){const r=org.recruits.find(r=>r.id===id);if(r)r.state='Available';}
     return true;
@@ -540,194 +574,59 @@ function advanceGroupTravel(group,world,org){
 }
 
 /* ═══════════════════════════════════════════════════════
-   ZONE OBJECT GENERATION  (Sections 4.3.1, 8.4)
+   ACTION SYSTEM  (Section 4.8)
 ═══════════════════════════════════════════════════════ */
-/* Object type data: [names[], discoverRange[lo,hi], visibilityRange[lo,hi], goldRange[min,max], isLiving] */
-const OBJ_TYPES={
-  Rock:       {names:['Stone formation','Boulder','Ore deposit','Rock outcrop','Rubble pile'],dv:[1,3],vv:[1,3],gold:[0,60],live:false},
-  Tree:       {names:['Ancient oak','Pine tree','Gnarled birch','Fallen trunk'],dv:[0,2],vv:[2,4],gold:[0,30],live:false},
-  Bush:       {names:['Dense thicket','Thornbush','Wild shrub','Berry bush'],dv:[0,2],vv:[2,4],gold:[5,25],live:false},
-  Plant:      {names:['Wild herbs','Flowering plant','Tall grass','Root cluster'],dv:[0,2],vv:[2,4],gold:[5,40],live:false},
-  Mushroom:   {names:['Mushroom cluster','Glowing cap','Dark fungus','Shelf fungi'],dv:[1,3],vv:[1,3],gold:[5,35],live:false},
-  'Fungal tree':{names:['Fungal growth','Massive mushroom','Spore colony'],dv:[0,2],vv:[3,4],gold:[10,50],live:false},
-  'Wooden house':{names:['Abandoned cabin','Collapsed shack','Derelict lodge'],dv:[0,1],vv:[3,4],gold:[20,180],live:false},
-  'Wooden barn': {names:['Dilapidated barn','Storage shed','Crumbling stable'],dv:[0,1],vv:[3,4],gold:[15,120],live:false},
-  'Stone house': {names:['Stone dwelling','Old watchtower','Guard post','Ruined keep'],dv:[0,1],vv:[3,4],gold:[30,240],live:false},
-  Pond:       {names:['Stagnant pool','Clear pond','Dark basin'],dv:[0,1],vv:[3,4],gold:[0,10],live:false},
-  River:      {names:['Shallow stream','Rocky creek','Hidden waterway'],dv:[0,1],vv:[3,4],gold:[0,5],live:false},
+/* Action definitions per GDD Section 4.8.2, 4.8.5 */
+const ACTIONS={
+  scout_zone:{
+    label:'Scout Zone',apCost:5,threshold:100,
+    factors:[{s:'level',m:1},{s:'perception',m:2.5},{s:'movementSpeed',m:0.1}],
+    barClass:'scout',
+  },
+  search_for:{
+    label:'Search For',apCost:5,threshold:100,
+    factors:[{s:'level',m:1},{s:'perception',m:2.5},{s:'movementSpeed',m:0.1}],
+    requiresTarget:true,barClass:'search',
+  },
+  conceal:{
+    label:'Conceal',apCost:5,threshold:100,
+    factors:[{s:'dexterity',m:1.5},{s:'perception',m:1}],
+    requiresTarget:true,barClass:'conceal',
+  },
+  hide:{
+    label:'Hide',apCost:5,threshold:100,
+    factors:[{s:'dexterity',m:1.5},{s:'perception',m:0.5},{s:'movementSpeed',m:0.5}],
+    barClass:'hide',
+  },
+  rest:{
+    label:'Rest',apCost:46,threshold:100,
+    fixedProgress:100,  // one attempt = instant execution
+    barClass:'rest',
+  },
 };
 
-/* Placeholder names for Known-but-not-Located objects (Section 8.4.4) */
+/* Effective AP cost including head-wound modifier (Section 4.8.2)
+   Placeholder: no wounds yet, so increase=0 always */
+function effectiveAPCost(recruit,actionType){
+  const base=ACTIONS[actionType]?.apCost??5;
+  const increase=recruit._headWoundCostIncrease??0; // 0..0.40
+  return Math.min(50,Math.ceil(base*(1+increase)));
+}
+
+/* Progress per attempt for a given recruit */
+function progressPerAttempt(recruit,actionType){
+  const def=ACTIONS[actionType];if(!def)return 0;
+  if(def.fixedProgress!==undefined)return def.fixedProgress;
+  const ch=recruit.characteristics;
+  return def.factors.reduce((s,f)=>s+(ch[f.s]??0)*f.m,0);
+}
+
+/* ── Awareness helpers ── */
 const OBJ_PLACEHOLDER={
   'Wooden house':'Unidentified building','Wooden barn':'Unidentified building','Stone house':'Unidentified building',
   Rock:'Stone formation',Tree:'Large growth','Fungal tree':'Large growth',
-  Bush:'Vegetation',Plant:'Vegetation',Mushroom:'Small growth',
-  Pond:'Water source',River:'Water source',
+  Bush:'Vegetation',Plant:'Vegetation',Mushroom:'Small growth',Pond:'Water source',River:'Water source',
 };
-
-/* POI-type affinity: which object types can spawn, weighted */
-const POI_OBJ_AFFINITY={
-  dungeon:      {Rock:4,'Stone house':3,Mushroom:2,'Fungal tree':1},
-  camp:         {Bush:3,Tree:3,Plant:3,Rock:2,Pond:1},
-  ruins:        {Rock:3,'Stone house':3,'Wooden house':2,'Wooden barn':2,Plant:1},
-  'forest zone':{Tree:4,Bush:3,Plant:3,Mushroom:2,Pond:2,River:1},
-  'cave system':{Rock:5,Mushroom:3,'Fungal tree':2,Pond:2,River:1},
-  'abandoned fort':{'Stone house':4,'Wooden barn':3,Rock:3,Plant:1},
-  mine:         {Rock:5,Mushroom:2,'Fungal tree':1,Pond:1},
-  shrine:       {'Stone house':3,Plant:3,Tree:2,Rock:2,Pond:1},
-};
-
-function weightedPickObjType(poiType,rng){
-  const aff=POI_OBJ_AFFINITY[poiType]||POI_OBJ_AFFINITY.ruins;
-  const keys=Object.keys(aff),total=keys.reduce((s,k)=>s+aff[k],0);
-  let r=rng.next()*total;
-  for(const k of keys){r-=aff[k];if(r<=0)return k;}
-  return keys[keys.length-1];
-}
-
-function generateZoneObject(rng,poiType){
-  const type=weightedPickObjType(poiType,rng);
-  const def=OBJ_TYPES[type];
-
-  // Section 4.3.1 — visibility generation
-  const dv=rng.int(def.dv[0],def.dv[1]);                        // _discover_value
-  const vv=rng.int(def.vv[0],def.vv[1]);                        // _visibility_value
-  const fvMax=Math.pow(2,dv)*300;                                // faction_visibility_max
-  const initAnchor=(fvMax/5)*vv;                                 // initial_objects_visibility
-  const visibility=Math.round(rng.float(initAnchor*.5,Math.max(initAnchor*.5,initAnchor)));
-  const upperBound=Math.round(rng.float(fvMax*.8,fvMax*1.2));
-
-  const goldMin=rng.int(def.gold[0],Math.max(def.gold[0],Math.floor(def.gold[1]*.5)));
-  const goldMax=rng.int(goldMin,def.gold[1]);
-
-  return{
-    id:makeId(),
-    name:rng.pick(def.names),
-    type,
-    size:rng.int(1,6),
-    discoverValue:dv,
-    visibilityValue:vv,
-    visibility,           // starting faction awareness value for new factions
-    upperBoundVisibility:upperBound,
-    goldValueMin:goldMin,
-    goldValueMax:goldMax,
-    tags:[],
-    specialActions:[],
-    isAlive:def.live,
-    factionAwareness:{},  // { [factionId]: number } — populated on zone entry
-  };
-}
-
-/* ═══════════════════════════════════════════════════════
-   ZONE GRAPH GENERATION  (Section 8.3)
-═══════════════════════════════════════════════════════ */
-/* Patterns: linear, branching, hub-and-spoke, complex */
-
-function selectGraphPattern(poiType,zoneCount,rng){
-  if(zoneCount<=4) return 'linear';
-  const table={
-    dungeon:['branching','complex'],camp:['linear','branching'],ruins:['branching','hub'],
-    'forest zone':['linear','branching'],'cave system':['branching','complex'],
-    'abandoned fort':['hub','complex'],mine:['linear','branching'],shrine:['hub','linear'],
-  };
-  const opts=table[poiType]||['linear','branching','hub','complex'];
-  return rng.pick(opts);
-}
-
-/* Returns an array of {zoneId,zoneId} passage pairs */
-function buildPassages(zoneIds,pattern,rng){
-  const n=zoneIds.length;
-  const passages=[];
-  const add=(a,b)=>{if(!passages.some(p=>(p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a)))passages.push([a,b]);};
-
-  if(pattern==='linear'){
-    for(let i=0;i<n-1;i++)add(zoneIds[i],zoneIds[i+1]);
-  } else if(pattern==='hub'){
-    const hub=zoneIds[0];
-    for(let i=1;i<n;i++)add(hub,zoneIds[i]);
-    // A couple of extra spoke-to-spoke connections
-    if(n>3)add(zoneIds[1],zoneIds[2]);
-  } else if(pattern==='branching'){
-    // Spine: 0→1→2
-    const spineLen=Math.min(3,Math.floor(n/2));
-    for(let i=0;i<spineLen-1;i++)add(zoneIds[i],zoneIds[i+1]);
-    // Branches off spine
-    for(let i=spineLen;i<n;i++){
-      const parent=zoneIds[rng.int(0,spineLen-1)];
-      add(parent,zoneIds[i]);
-    }
-  } else {
-    // Complex: random spanning tree + some extra edges
-    for(let i=1;i<n;i++){const p=zoneIds[rng.int(0,i-1)];add(zoneIds[i],p);}
-    const extra=Math.floor(n*.3);
-    for(let k=0;k<extra;k++){
-      const a=zoneIds[rng.int(0,n-1)],b=zoneIds[rng.int(0,n-1)];
-      if(a!==b)add(a,b);
-    }
-  }
-  return passages;
-}
-
-function generateZones(poi,rng){
-  const n=poi._zoneCount;
-  const poiType=poi.type;
-  const pattern=selectGraphPattern(poiType,n,rng);
-  const namePool=[...ZONE_NAMES];
-
-  const zones=[];
-  for(let i=0;i<n;i++){
-    const nameIdx=rng.int(0,namePool.length-1);
-    const name=namePool.splice(nameIdx,1)[0]||(namePool.length?namePool[0]:`Zone ${i+1}`);
-    const lightLevel=rng.int(20,90);
-    const size=rng.int(3,12);
-    // Generate zone objects
-    const objCount=Math.max(1,Math.round(size*.6)+rng.int(0,2));
-    const objects=[];
-    for(let j=0;j<objCount;j++)objects.push(generateZoneObject(rng,poiType));
-
-    zones.push({
-      id:makeId(),
-      name: i===0?'Entry Hall':name,
-      size,
-      lightLevel,
-      weatherEffects:[],
-      hazardConditions:[],
-      ownerFaction:null,
-      objects,
-      state: i===0?'Scouted':'Unknown',  // entry zone always scouted
-      factionAwareness:{},               // { [factionId]: { [objectId]: number } }
-    });
-  }
-
-  // Build passage graph
-  const ids=zones.map(z=>z.id);
-  const passages=buildPassages(ids,pattern,rng);
-
-  // Store adjacency on each zone for easy lookup
-  for(const zone of zones){
-    zone._passages=passages.filter(p=>p[0]===zone.id||p[1]===zone.id).map(p=>p[0]===zone.id?p[1]:p[0]);
-  }
-
-  poi.zones=zones;
-  poi._passages=passages;
-  poi._graphPattern=pattern;
-  poi._layoutPositions=null; // computed on first render
-
-  // Initialise player faction awareness for entry zone
-  if(zones.length>0)initFactionForZone(PLAYER_FACTION,zones[0]);
-}
-
-/* ═══════════════════════════════════════════════════════
-   AWARENESS SYSTEM  (Section 4.3.2)
-═══════════════════════════════════════════════════════ */
-function initFactionForZone(factionId,zone){
-  if(!zone.factionAwareness[factionId])zone.factionAwareness[factionId]={};
-  for(const obj of zone.objects){
-    if(zone.factionAwareness[factionId][obj.id]===undefined){
-      zone.factionAwareness[factionId][obj.id]=obj.visibility;
-    }
-  }
-}
 
 function getAwarenessState(factionId,zone,objId){
   const obj=zone.objects.find(o=>o.id===objId);if(!obj)return'Undiscovered';
@@ -739,446 +638,336 @@ function getAwarenessState(factionId,zone,objId){
   return'Undiscovered';
 }
 
+function initFactionForZone(factionId,zone){
+  if(!zone.factionAwareness[factionId])zone.factionAwareness[factionId]={};
+  for(const obj of zone.objects){
+    if(zone.factionAwareness[factionId][obj.id]===undefined)
+      zone.factionAwareness[factionId][obj.id]=obj.visibility;
+  }
+}
+
 function enterZone(poi,zone){
   if(zone.state==='Unknown')zone.state='Scouted';
   initFactionForZone(PLAYER_FACTION,zone);
 }
 
-/* ═══════════════════════════════════════════════════════
-   LAYOUT ALGORITHM  (2D positions for zone graph)
-   BFS from entry zone, assign layers; spread evenly within layer
-═══════════════════════════════════════════════════════ */
-function computeLayoutPositions(poi,canvasW,canvasH){
-  const zones=poi.zones;if(!zones.length)return;
-  const pad=60,nodeR=22;
-  const layers=[];
-  const visited=new Set(),queue=[{id:zones[0].id,layer:0}];
-  const layerOf={};
-  visited.add(zones[0].id);layerOf[zones[0].id]=0;layers[0]=[zones[0].id];
-  while(queue.length){
-    const{id,layer}=queue.shift();
-    const zone=zones.find(z=>z.id===id);
-    for(const nid of(zone._passages||[])){
-      if(!visited.has(nid)){
-        visited.add(nid);layerOf[nid]=layer+1;
-        if(!layers[layer+1])layers[layer+1]=[];
-        layers[layer+1].push(nid);
-        queue.push({id:nid,layer:layer+1});
-      }
-    }
-  }
-  // Any unvisited (disconnected) go to last layer
-  for(const z of zones){
-    if(!visited.has(z.id)){
-      const last=layers.length;if(!layers[last])layers[last]=[];layers[last].push(z.id);layerOf[z.id]=last;
-    }
-  }
-  const numLayers=layers.length;
-  const usableH=canvasH-pad*2,usableW=canvasW-pad*2;
-  const layerH=numLayers>1?usableH/(numLayers-1):usableH/2;
-  const pos={};
-  layers.forEach((ids,li)=>{
-    const y=pad+(numLayers===1?usableH/2:li*layerH);
-    const w=ids.length;
-    ids.forEach((id,xi)=>{
-      const x=pad+(w===1?usableW/2:(xi/(w-1))*usableW);
-      pos[id]={x,y};
-    });
-  });
-  poi._layoutPositions=pos;
-}
+/* ── Action Effects ── */
 
-/* ═══════════════════════════════════════════════════════
-   ZONE GRAPH RENDERER  (2D canvas)
-═══════════════════════════════════════════════════════ */
-let _poiGraphCanvas=null,_poiGraphCtx=null;
-let _currentPoiId=null,_hoveredZoneId=null;
-
-function initPoiGraphCanvas(){
-  _poiGraphCanvas=document.getElementById('poi-graph-canvas');
-  _poiGraphCtx=_poiGraphCanvas.getContext('2d');
-  _poiGraphCanvas.addEventListener('mousemove',onPoiGraphMouseMove);
-  _poiGraphCanvas.addEventListener('click',onPoiGraphClick);
-}
-
-function resizePoiGraphCanvas(){
-  const wrap=document.getElementById('poi-graph-wrap');
-  const dpr=window.devicePixelRatio||1;
-  const w=wrap.clientWidth,h=wrap.clientHeight;
-  _poiGraphCanvas.style.width=w+'px';_poiGraphCanvas.style.height=h+'px';
-  _poiGraphCanvas.width=Math.round(w*dpr);_poiGraphCanvas.height=Math.round(h*dpr);
-}
-
-function drawPoiGraph(){
-  if(!_poiGraphCtx||!_currentPoiId)return;
-  const poi=GS?.world.pois.find(p=>p.id===_currentPoiId);
-  if(!poi||!poi.zones.length)return;
-
-  const dpr=window.devicePixelRatio||1;
-  const W=_poiGraphCanvas.width,H=_poiGraphCanvas.height;
-  const cW=W/dpr,cH=H/dpr;
-
-  if(!poi._layoutPositions)computeLayoutPositions(poi,cW,cH);
-  const pos=poi._layoutPositions;
-
-  const ctx=_poiGraphCtx;
-  ctx.clearRect(0,0,W,H);
-  ctx.save();ctx.scale(dpr,dpr);
-
-  const dev=GS?._devMode??false;
-
-  // Passages
-  for(const [a,b] of (poi._passages||[])){
-    const pa=pos[a],pb=pos[b];if(!pa||!pb)continue;
-    const aZone=poi.zones.find(z=>z.id===a),bZone=poi.zones.find(z=>z.id===b);
-    const bothKnown=(aZone?.state!=='Unknown')||(bZone?.state!=='Unknown')||dev;
-    ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);
-    ctx.strokeStyle=bothKnown?'#2e2e33':'#1c1c1f';ctx.lineWidth=2;ctx.stroke();
-  }
-
-  // Zone nodes
-  const NODE_R=22;
-  for(const zone of poi.zones){
-    const p=pos[zone.id];if(!p)continue;
-    const isHovered=zone.id===_hoveredZoneId;
-    const isScouted=zone.state==='Scouted';
-    const isEntry=poi.zones[0].id===zone.id;
-    const visible=isScouted||dev;
-
-    // Node fill
-    ctx.beginPath();ctx.arc(p.x,p.y,NODE_R,0,Math.PI*2);
-    if(isEntry){ctx.fillStyle=isScouted?'#2a3a2a':'#1c2a1c';}
-    else if(isScouted){ctx.fillStyle=isHovered?'#252520':'#1e1e18';}
-    else if(dev){ctx.fillStyle='#101a10';}
-    else{ctx.fillStyle='#141414';}
-    ctx.fill();
-
-    // Node border
-    ctx.beginPath();ctx.arc(p.x,p.y,NODE_R,0,Math.PI*2);
-    if(isEntry)ctx.strokeStyle='#4a8a3a';
-    else if(isScouted)ctx.strokeStyle=isHovered?'#c8902a':'#4a3f28';
-    else if(dev)ctx.strokeStyle='#2a4a2a';
-    else ctx.strokeStyle='#1e1e1e';
-    ctx.lineWidth=isHovered?2.5:1.5;ctx.stroke();
-
-    // Label / icon
-    ctx.textAlign='center';ctx.textBaseline='middle';
-    if(visible){
-      ctx.font='600 10px Cinzel,serif';
-      ctx.fillStyle=isScouted?(isHovered?'#e8b04a':'#c8c0b0'):'#3a6a3a';
-      const label=zone.name.length>10?zone.name.slice(0,9)+'…':zone.name;
-      ctx.fillText(label,p.x,p.y-5);
-      // Object count
-      ctx.font='9px Share Tech Mono,monospace';
-      ctx.fillStyle=isScouted?'#7a6a58':'#2a4a2a';
-      const objs=zone.objects.length;
-      ctx.fillText(`${objs} obj`,p.x,p.y+7);
-      if(dev&&!isScouted){ctx.fillStyle='#3a8040';ctx.fillText('[DEV]',p.x,p.y+17);}
-    } else {
-      // Unknown zone
-      ctx.font='bold 16px Cinzel,serif';
-      ctx.fillStyle='#2a2a2a';
-      ctx.fillText('?',p.x,p.y);
-    }
-  }
-
-  ctx.restore();
-}
-
-function zoneAtPoint(poi,px,py){
-  if(!poi._layoutPositions)return null;
-  const dpr=window.devicePixelRatio||1;
-  const wx=px,wy=py; // already in CSS pixels from event.offsetX/Y
-  for(const zone of poi.zones){
-    const p=poi._layoutPositions[zone.id];if(!p)continue;
-    if(Math.hypot(p.x-wx,p.y-wy)<=24)return zone;
-  }
-  return null;
-}
-
-function onPoiGraphMouseMove(e){
-  if(!_currentPoiId||!GS)return;
-  const poi=GS.world.pois.find(p=>p.id===_currentPoiId);if(!poi)return;
-  const zone=zoneAtPoint(poi,e.offsetX,e.offsetY);
-  const newId=zone?.id??null;
-  if(newId!==_hoveredZoneId){_hoveredZoneId=newId;drawPoiGraph();}
-  _poiGraphCanvas.style.cursor=zone?'pointer':'default';
-}
-
-function onPoiGraphClick(e){
-  if(!_currentPoiId||!GS)return;
-  const poi=GS.world.pois.find(p=>p.id===_currentPoiId);if(!poi)return;
-  const zone=zoneAtPoint(poi,e.offsetX,e.offsetY);
-  if(!zone)return;
-  const dev=GS._devMode??false;
-  // Allow entering Unknown zones only in dev mode
-  if(zone.state==='Unknown'&&!dev){showToast('This zone is unexplored. Send a group to scout it first.','error');return;}
-  openZoneDetail(poi,zone);
-}
-
-/* ═══════════════════════════════════════════════════════
-   POI LAYOUT OVERLAY
-═══════════════════════════════════════════════════════ */
-function openPOILayout(poiId){
-  const poi=GS.world.pois.find(p=>p.id===poiId);if(!poi)return;
-  _currentPoiId=poiId;_hoveredZoneId=null;
-
-  // Generate zones if not yet done
-  if(!poi.zones||poi.zones.length===0){
-    const rng=makePRNG(poi.id.split('').reduce((h,c)=>Math.imul(31,h)+c.charCodeAt(0)|0,0));
-    generateZones(poi,rng);
-  }
-
-  document.getElementById('poi-header-name').textContent=poi.name;
-  document.getElementById('poi-header-type').textContent=poi.type;
-  document.getElementById('poi-header-timer').textContent=poi.despawnTimer;
-
-  renderPoiSidebar(poi);
-  document.getElementById('poi-overlay').classList.remove('hidden');
-
-  // Must resize then layout then draw
-  requestAnimationFrame(()=>{
-    resizePoiGraphCanvas();
-    poi._layoutPositions=null; // force recompute for new canvas size
-    drawPoiGraph();
-  });
-}
-
-function closePOILayout(){
-  document.getElementById('poi-overlay').classList.add('hidden');
-  _currentPoiId=null;_hoveredZoneId=null;
-}
-
-function renderPoiSidebar(poi){
-  const dev=GS._devMode??false;
-  let html=`<div class="poi-sidebar-section">POI Info</div>
-  <div class="poi-sidebar-row">Type: <span>${poi.type}</span></div>
-  <div class="poi-sidebar-row">Size: <span>${poi.size}</span></div>
-  <div class="poi-sidebar-row">Despawn: <span>${poi.despawnTimer} turns</span></div>
-  <div class="poi-sidebar-row">Zones: <span>${poi.zones.length}</span></div>`;
-  if(dev){
-    html+=`<div class="poi-sidebar-row dev">Pattern: ${poi._graphPattern??'?'}</div>`;
-    html+=`<div class="poi-sidebar-row dev">Discovered: ${poi.discovered}</div>`;
-  }
-  const scoutedCount=poi.zones.filter(z=>z.state==='Scouted').length;
-  html+=`<div class="poi-sidebar-section" style="margin-top:8px">Exploration</div>
-  <div class="poi-sidebar-row">Scouted: <span>${scoutedCount}/${poi.zones.length}</span></div>`;
-  html+=`<div class="poi-sidebar-hint">Click a zone node to view its contents.</div>`;
-  document.getElementById('poi-sidebar').innerHTML=html;
-}
-
-/* ═══════════════════════════════════════════════════════
-   ZONE DETAIL OVERLAY
-═══════════════════════════════════════════════════════ */
-let _currentZoneId=null;
-
-function openZoneDetail(poi,zone){
-  _currentZoneId=zone.id;
-  enterZone(poi,zone); // initialise awareness + mark Scouted
-  drawPoiGraph();
-
-  document.getElementById('zone-header-name').textContent=zone.name;
-  const stateEl=document.getElementById('zone-header-state');
-  stateEl.textContent=zone.state;stateEl.className='zone-header-state '+(zone.state==='Scouted'?'scouted':'unknown');
-  document.getElementById('zone-header-conds').innerHTML=`Light: <span>${zone.lightLevel}%</span>`;
-
-  renderZoneObjects(zone);
-  renderZoneSidebar(zone,poi);
-  document.getElementById('zone-overlay').classList.remove('hidden');
-}
-
-function closeZoneDetail(){
-  document.getElementById('zone-overlay').classList.add('hidden');
-  _currentZoneId=null;
-  // Refresh sidebar
-  if(_currentPoiId){
-    const poi=GS?.world.pois.find(p=>p.id===_currentPoiId);
-    if(poi)renderPoiSidebar(poi);
-  }
-}
-
-function renderZoneObjects(zone){
-  const dev=GS._devMode??false;
-  const factionId=PLAYER_FACTION;
-  const pane=document.getElementById('zone-objects-pane');
-  let html='';
-
-  const located=[],known=[],undisc=[];
+/* Scout Zone passive tick — called per 5 AP invested (Section 4.3.3) */
+function applyScoutPassiveTick(recruit,zone){
+  const inc=Math.ceil(0.25*recruit.characteristics.perception);
+  const fa=zone.factionAwareness[PLAYER_FACTION];
+  if(!fa)return;
   for(const obj of zone.objects){
-    const state=getAwarenessState(factionId,zone,obj.id);
-    if(state==='Located')located.push(obj);
-    else if(state==='Known')known.push(obj);
-    else undisc.push(obj);
+    fa[obj.id]=Math.min(obj.upperBoundVisibility,(fa[obj.id]??obj.visibility)+inc);
   }
+}
 
-  function objEntryHTML(obj,state,showFull){
-    const iconClass=obj.isAlive?'rh sq':'sq';
-    const devIconClass=dev&&state==='Undiscovered'?'dev-icon':'';
-    const letter=obj.isAlive?'♦':'■';
-    const displayName=showFull?obj.name:(OBJ_PLACEHOLDER[obj.type]??obj.type);
-    const awarenessClass=state==='Located'?'located':state==='Known'?'known':'undisc';
-    let h=`<div class="obj-entry">
-      <div class="obj-icon ${iconClass} ${devIconClass}">${letter}</div>
-      <div class="obj-info">
-        <div class="obj-name${!showFull?' known-name':''}">${displayName}</div>
-        <div class="obj-type">${showFull?obj.type:''}</div>`;
-    if(showFull&&obj.tags.length)h+=`<div class="obj-tags">${obj.tags.map(t=>t.name).join(' · ')}</div>`;
-    if(showFull&&obj.goldValueMax>0)h+=`<div class="obj-gold">⬡ ${obj.goldValueMin}–${obj.goldValueMax}</div>`;
-    if(dev){
-      const fv=(zone.factionAwareness[factionId]??{})[obj.id]??0;
-      h+=`<div class="obj-dev-vals">DV=${obj.discoverValue} VV=${obj.visibilityValue} vis=${obj.visibility} ub=${obj.upperBoundVisibility} fv=${fv}</div>`;
+/* Scout Zone active pulse (Section 4.3.3) */
+function applyScoutPulse(recruit,zone,rng){
+  const ch=recruit.characteristics;
+  const dv=3*ch.level+11*ch.perception+0.5*ch.dexterity+ch.movementSpeed;
+  const count=rng.int(2,Math.min(6,zone.objects.length));
+  const pool=[...zone.objects];
+  const fa=zone.factionAwareness[PLAYER_FACTION];
+  if(!fa)return[];
+  const msgs=[];
+  for(let i=0;i<count&&pool.length>0;i++){
+    const idx=rng.int(0,pool.length-1);
+    const obj=pool.splice(idx,1)[0];
+    const old=fa[obj.id]??obj.visibility;
+    fa[obj.id]=Math.min(obj.upperBoundVisibility,old+dv);
+    const newState=getAwarenessState(PLAYER_FACTION,zone,obj.id);
+    const oldState=getStateFromValue(old,obj.upperBoundVisibility);
+    if(newState!==oldState&&(newState==='Known'||newState==='Located')){
+      msgs.push(`${newState}: ${obj.name}`);
     }
-    h+=`</div><span class="obj-awareness ${awarenessClass}">${state}</span></div>`;
-    return h;
+  }
+  return msgs;
+}
+function getStateFromValue(fv,ub){if(ub===0||fv>ub*.90)return'Located';if(fv>=ub*.40)return'Known';return'Undiscovered';}
+
+/* Search For active effect (Section 4.6) */
+function applySearchFor(recruit,targetId,zone,rng){
+  const ch=recruit.characteristics;
+  const dv=3*ch.level+11*ch.perception+0.5*ch.dexterity+ch.movementSpeed;
+  const fa=zone.factionAwareness[PLAYER_FACTION];
+  if(!fa)return[];
+  const msgs=[];
+
+  // Focused increase on target
+  const tgt=zone.objects.find(o=>o.id===targetId);
+  if(tgt){
+    const focused=Math.round(rng.float(dv*0.8,dv*1.75));
+    const old=fa[tgt.id]??tgt.visibility;
+    fa[tgt.id]=Math.min(tgt.upperBoundVisibility,old+focused);
+    const ns=getAwarenessState(PLAYER_FACTION,zone,tgt.id);
+    const os=getStateFromValue(old,tgt.upperBoundVisibility);
+    if(ns!==os&&(ns==='Known'||ns==='Located'))msgs.push(`${ns}: ${tgt.name}`);
   }
 
-  if(located.length){
-    html+=`<div class="zone-section-title">Located (${located.length})</div>`;
-    for(const obj of located)html+=objEntryHTML(obj,'Located',true);
+  // Secondary increase on [1,5] random others (Section 4.6)
+  const others=zone.objects.filter(o=>o.id!==targetId);
+  if(others.length){
+    const numSec=rng.int(1,Math.min(5,others.length));
+    const pool=[...others];
+    for(let i=0;i<numSec&&pool.length>0;i++){
+      const idx=rng.int(0,pool.length-1);
+      const obj=pool.splice(idx,1)[0];
+      const secInc=Math.round(dv*0.8);
+      const old=fa[obj.id]??obj.visibility;
+      fa[obj.id]=Math.min(obj.upperBoundVisibility,old+secInc);
+      const ns=getAwarenessState(PLAYER_FACTION,zone,obj.id);
+      const os=getStateFromValue(old,obj.upperBoundVisibility);
+      if(ns!==os&&(ns==='Known'||ns==='Located'))msgs.push(`${ns}: ${obj.name}`);
+    }
   }
-  if(known.length){
-    html+=`<div class="zone-section-title">Known (${known.length})</div>`;
-    for(const obj of known)html+=objEntryHTML(obj,'Known',false);
-  }
-  if(!located.length&&!known.length&&!dev){
-    html+='<div class="zone-unknown-msg">Nothing has been observed in this zone yet. Scout to discover objects.</div>';
-  }
-  if(dev&&undisc.length){
-    html+=`<div class="zone-section-title" style="color:var(--green-bright)">Undiscovered — Dev Mode (${undisc.length})</div>`;
-    for(const obj of undisc)html+=objEntryHTML(obj,'Undiscovered',true);
-  }
-  pane.innerHTML=html;
+  return msgs;
 }
 
-function renderZoneSidebar(zone,poi){
-  const sb=document.getElementById('zone-sidebar');
-  let html=`<div class="zone-section-title">Zone Info</div>
-  <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:4px">Size: <span style="color:var(--text)">${zone.size}</span></div>
-  <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:4px">Light: <span style="color:var(--text)">${zone.lightLevel}%</span></div>`;
-  // Adjacent zones
-  html+=`<div class="zone-section-title" style="margin-top:12px">Adjacent Zones</div>`;
-  for(const adjId of(zone._passages||[])){
-    const adj=poi.zones.find(z=>z.id===adjId);if(!adj)continue;
-    const st=adj.state==='Scouted'?'Scouted':'Unknown';
-    html+=`<div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:3px">${adj.name} <span style="color:${st==='Scouted'?'var(--green-bright)':'var(--text-dim)'}">[${st}]</span></div>`;
+/* Conceal action effect (Section 4.6) */
+function applyConceal(targetId,zone){
+  const obj=zone.objects.find(o=>o.id===targetId);if(!obj)return[];
+  // Base visibility reduction
+  obj.visibility=Math.floor(obj.visibility*0.9);
+  // Faction visibility reduction for all non-performer Located factions
+  for(const[fid,objs]of Object.entries(zone.factionAwareness)){
+    if(fid===PLAYER_FACTION)continue; // performer exempt
+    if(objs[targetId]!==undefined&&getAwarenessState(fid,zone,targetId)==='Located'){
+      objs[targetId]=Math.floor(objs[targetId]*0.9);
+    }
   }
-  html+=`<div class="zone-section-title" style="margin-top:12px">Actions (Step 7)</div>
-  <button class="zone-action-btn" disabled>Scout Zone</button>
-  <button class="zone-action-btn" disabled>Search For</button>
-  <button class="zone-action-btn" disabled>Rest</button>
-  <button class="zone-action-btn" disabled>Move</button>`;
-  sb.innerHTML=html;
+  return[`Concealed: ${obj.name}`];
 }
 
-/* ═══════════════════════════════════════════════════════
-   GAME STATE FACTORIES
-═══════════════════════════════════════════════════════ */
+/* Hide action effect (Section 4.5)
+   Raises group's upper_bound_visibility — tracked on the group as a living object property */
+function applyHide(recruit,group){
+  const ch=recruit.characteristics;
+  const increase=Math.round(ch.dexterity*2+ch.perception*1.5);
+  group._hideUpperBound=(group._hideUpperBound??600)+increase;
+  // TODO Step 8: re-evaluate other factions' awareness of this group against new bound
+  return[`Hidden: bound now ${group._hideUpperBound}`];
+}
+
+/* Rest effect — stub for Step 9 (hunger + loyalty) */
+function applyRest(recruit){
+  // Full rest eating mechanic in Step 9
+  return[];
+}
+
+/* ── Single-character action runner per turn ── */
+function runCharacterZoneAction(recruit,zone,poi,rng,turnEvents){
+  if(!recruit._zoneAction)recruit._zoneAction={type:null,targetObjectId:null,progress:0};
+  const za=recruit._zoneAction;
+  if(!za.type)return;
+
+  const def=ACTIONS[za.type];if(!def)return;
+  const apCost=effectiveAPCost(recruit,za.type);
+  const ppa=progressPerAttempt(recruit,za.type);
+  let ap=50;
+
+  while(ap>=apCost){
+    ap-=apCost;
+
+    // Passive tick (Scout Zone only)
+    if(za.type==='scout_zone')applyScoutPassiveTick(recruit,zone);
+
+    za.progress+=ppa;
+
+    if(za.progress>=def.threshold){
+      za.progress=0;
+      let msgs=[];
+      if(za.type==='scout_zone')msgs=applyScoutPulse(recruit,zone,rng);
+      else if(za.type==='search_for'&&za.targetObjectId)msgs=applySearchFor(recruit,za.targetObjectId,zone,rng);
+      else if(za.type==='conceal'&&za.targetObjectId)msgs=applyConceal(za.targetObjectId,zone);
+      else if(za.type==='hide'){
+        const org=playerOrg();
+        const group=org?.groups.find(g=>g.memberIds.includes(recruit.id));
+        if(group)msgs=applyHide(recruit,group);
+      }
+      else if(za.type==='rest')msgs=applyRest(recruit);
+
+      for(const m of msgs)turnEvents.push(`${recruit.name.split(' ')[0]}: ${m}`);
+    }
+  }
+}
+
+/* ── Process all zone actions this turn ── */
+function processZoneActions(gs){
+  const org=playerOrg();if(!org)return[];
+  const events=[];
+  const rng=makePRNG((gs.turn*0x9E3779B9)>>>0);
+
+  for(const group of org.groups){
+    if(!group.locationPoiId||!group.locationZoneId)continue;
+    const poi=gs.world.pois.find(p=>p.id===group.locationPoiId);if(!poi)continue;
+    const zone=poi.zones.find(z=>z.id===group.locationZoneId);if(!zone)continue;
+
+    for(const rid of group.memberIds){
+      const recruit=org.recruits.find(r=>r.id===rid);
+      if(!recruit)continue;
+      // Skip on rest turns
+      const slot=TIME.dayTurnIndex(gs.turn);
+      if(group.schedule[slot])continue;
+      runCharacterZoneAction(recruit,zone,poi,rng,events);
+    }
+  }
+  return events;
+}
+
+/* ── Assign action to a recruit ── */
+function assignAction(recruit,group,actionType,targetObjectId=null){
+  if(!recruit._zoneAction)recruit._zoneAction={type:null,targetObjectId:null,progress:0};
+  // Switching action resets progress
+  if(recruit._zoneAction.type!==actionType||recruit._zoneAction.targetObjectId!==targetObjectId){
+    recruit._zoneAction.progress=0;
+  }
+  recruit._zoneAction.type=actionType;
+  recruit._zoneAction.targetObjectId=targetObjectId;
+}
+
+/* ══════════════════════════════════════════════════════════
+   ZONE OBJECT & ZONE GRAPH GENERATION  (from Step 6)
+══════════════════════════════════════════════════════════ */
+const OBJ_TYPES={
+  Rock:{names:['Stone formation','Boulder','Ore deposit','Rock outcrop','Rubble pile'],dv:[1,3],vv:[1,3],gold:[0,60],live:false},
+  Tree:{names:['Ancient oak','Pine tree','Gnarled birch','Fallen trunk'],dv:[0,2],vv:[2,4],gold:[0,30],live:false},
+  Bush:{names:['Dense thicket','Thornbush','Wild shrub','Berry bush'],dv:[0,2],vv:[2,4],gold:[5,25],live:false},
+  Plant:{names:['Wild herbs','Flowering plant','Tall grass','Root cluster'],dv:[0,2],vv:[2,4],gold:[5,40],live:false},
+  Mushroom:{names:['Mushroom cluster','Glowing cap','Dark fungus','Shelf fungi'],dv:[1,3],vv:[1,3],gold:[5,35],live:false},
+  'Fungal tree':{names:['Fungal growth','Massive mushroom','Spore colony'],dv:[0,2],vv:[3,4],gold:[10,50],live:false},
+  'Wooden house':{names:['Abandoned cabin','Collapsed shack','Derelict lodge'],dv:[0,1],vv:[3,4],gold:[20,180],live:false},
+  'Wooden barn':{names:['Dilapidated barn','Storage shed','Crumbling stable'],dv:[0,1],vv:[3,4],gold:[15,120],live:false},
+  'Stone house':{names:['Stone dwelling','Old watchtower','Guard post','Ruined keep'],dv:[0,1],vv:[3,4],gold:[30,240],live:false},
+  Pond:{names:['Stagnant pool','Clear pond','Dark basin'],dv:[0,1],vv:[3,4],gold:[0,10],live:false},
+  River:{names:['Shallow stream','Rocky creek','Hidden waterway'],dv:[0,1],vv:[3,4],gold:[0,5],live:false},
+};
+const POI_OBJ_AFFINITY={
+  dungeon:{Rock:4,'Stone house':3,Mushroom:2,'Fungal tree':1},
+  camp:{Bush:3,Tree:3,Plant:3,Rock:2,Pond:1},
+  ruins:{Rock:3,'Stone house':3,'Wooden house':2,'Wooden barn':2,Plant:1},
+  'forest zone':{Tree:4,Bush:3,Plant:3,Mushroom:2,Pond:2,River:1},
+  'cave system':{Rock:5,Mushroom:3,'Fungal tree':2,Pond:2,River:1},
+  'abandoned fort':{'Stone house':4,'Wooden barn':3,Rock:3,Plant:1},
+  mine:{Rock:5,Mushroom:2,'Fungal tree':1,Pond:1},
+  shrine:{'Stone house':3,Plant:3,Tree:2,Rock:2,Pond:1},
+};
+function weightedPickObjType(poiType,rng){
+  const aff=POI_OBJ_AFFINITY[poiType]||POI_OBJ_AFFINITY.ruins;
+  const keys=Object.keys(aff),total=keys.reduce((s,k)=>s+aff[k],0);
+  let r=rng.next()*total;for(const k of keys){r-=aff[k];if(r<=0)return k;}return keys[keys.length-1];
+}
+function generateZoneObject(rng,poiType){
+  const type=weightedPickObjType(poiType,rng);
+  const def=OBJ_TYPES[type];
+  const dv=rng.int(def.dv[0],def.dv[1]);
+  const vv=rng.int(def.vv[0],def.vv[1]);
+  const fvMax=Math.pow(2,dv)*300;
+  const initAnchor=(fvMax/5)*vv;
+  const visibility=Math.round(rng.float(initAnchor*.5,Math.max(initAnchor*.5,initAnchor)));
+  const upperBound=Math.round(rng.float(fvMax*.8,fvMax*1.2));
+  const goldMin=rng.int(def.gold[0],Math.max(def.gold[0],Math.floor(def.gold[1]*.5)));
+  const goldMax=rng.int(goldMin,def.gold[1]);
+  return{id:makeId(),name:rng.pick(def.names),type,size:rng.int(1,6),discoverValue:dv,visibilityValue:vv,visibility,upperBoundVisibility:upperBound,goldValueMin:goldMin,goldValueMax:goldMax,tags:[],specialActions:[],isAlive:def.live,factionAwareness:{}};
+}
+function selectGraphPattern(poiType,zoneCount,rng){
+  if(zoneCount<=4)return'linear';
+  const table={dungeon:['branching','complex'],camp:['linear','branching'],ruins:['branching','hub'],'forest zone':['linear','branching'],'cave system':['branching','complex'],'abandoned fort':['hub','complex'],mine:['linear','branching'],shrine:['hub','linear']};
+  return rng.pick(table[poiType]||['linear','branching','hub','complex']);
+}
+function buildPassages(zoneIds,pattern,rng){
+  const n=zoneIds.length,passages=[];
+  const add=(a,b)=>{if(!passages.some(p=>(p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a)))passages.push([a,b]);};
+  if(pattern==='linear'){for(let i=0;i<n-1;i++)add(zoneIds[i],zoneIds[i+1]);}
+  else if(pattern==='hub'){const hub=zoneIds[0];for(let i=1;i<n;i++)add(hub,zoneIds[i]);if(n>3)add(zoneIds[1],zoneIds[2]);}
+  else if(pattern==='branching'){const spineLen=Math.min(3,Math.floor(n/2));for(let i=0;i<spineLen-1;i++)add(zoneIds[i],zoneIds[i+1]);for(let i=spineLen;i<n;i++){const p=zoneIds[rng.int(0,spineLen-1)];add(p,zoneIds[i]);}}
+  else{for(let i=1;i<n;i++){const p=zoneIds[rng.int(0,i-1)];add(zoneIds[i],p);}const extra=Math.floor(n*.3);for(let k=0;k<extra;k++){const a=zoneIds[rng.int(0,n-1)],b=zoneIds[rng.int(0,n-1)];if(a!==b)add(a,b);}}
+  return passages;
+}
+function generateZones(poi,rng){
+  const n=poi._zoneCount,poiType=poi.type,pattern=selectGraphPattern(poiType,n,rng);
+  const namePool=[...ZONE_NAMES];
+  const zones=[];
+  for(let i=0;i<n;i++){
+    const nameIdx=rng.int(0,namePool.length-1);
+    const name=namePool.splice(nameIdx,1)[0]||(namePool.length?namePool[0]:`Zone ${i+1}`);
+    const lightLevel=rng.int(20,90),size=rng.int(3,12);
+    const objCount=Math.max(1,Math.round(size*.6)+rng.int(0,2));
+    const objects=[];for(let j=0;j<objCount;j++)objects.push(generateZoneObject(rng,poiType));
+    zones.push({id:makeId(),name:i===0?'Entry Hall':name,size,lightLevel,weatherEffects:[],hazardConditions:[],ownerFaction:null,objects,state:i===0?'Scouted':'Unknown',factionAwareness:{}});
+  }
+  const ids=zones.map(z=>z.id);
+  const passages=buildPassages(ids,pattern,rng);
+  for(const zone of zones)zone._passages=passages.filter(p=>p[0]===zone.id||p[1]===zone.id).map(p=>p[0]===zone.id?p[1]:p[0]);
+  poi.zones=zones;poi._passages=passages;poi._graphPattern=pattern;poi._layoutPositions=null;
+  if(zones.length>0)initFactionForZone(PLAYER_FACTION,zones[0]);
+}
+
+/* ═══════════════ GAME STATE FACTORIES ═══════════════ */
 function makeOrganization(opts={}){
   return{id:makeId(),name:opts.name??'The Guild',gold:opts.gold??4200,hqCityId:opts.hqCityId??'',criminalRecord:[],recruits:[],groups:[],inventory:{food:[],equipment:[],weapons:[],misc:[],forSale:[]}};
 }
 function makeGameState(opts={}){
   const org=makeOrganization({name:opts.orgName??'The Guild',gold:opts.gold??4200});
-  return{turn:1,world:{tiles:[],cities:[],pois:[],_mapSize:opts.mapSize??128,_targetPois:opts.targetPois??20,_targetKnownPois:opts.targetKnownPois??8,_seed:opts.seed??(Math.random()*0xFFFFFFFF|0),_poiSeed:0},
-    organizations:[org],playerOrgId:org.id,_hirePool:[],_hirePoolSeed:0,_version:VERSION,_devMode:false,_autosaveTurn:0,_ledger:[]};
+  return{turn:1,world:{tiles:[],cities:[],pois:[],_mapSize:opts.mapSize??128,_targetPois:opts.targetPois??20,_targetKnownPois:opts.targetKnownPois??8,_seed:opts.seed??(Math.random()*0xFFFFFFFF|0),_poiSeed:0},organizations:[org],playerOrgId:org.id,_hirePool:[],_hirePoolSeed:0,_version:VERSION,_devMode:false,_autosaveTurn:0,_ledger:[]};
 }
 
-/* ═══════════════════════════════════════════════════════
-   WORLD GENERATION  (Section 10)
-═══════════════════════════════════════════════════════ */
-const TERRAIN_AFFINITY={
-  forest:{dungeon:1,camp:3,ruins:2,'forest zone':5,'cave system':1,'abandoned fort':1,mine:1,shrine:2},
-  plains:{dungeon:1,camp:4,ruins:3,'forest zone':1,'cave system':0,'abandoned fort':3,mine:1,shrine:2},
-  hills: {dungeon:2,camp:2,ruins:2,'forest zone':1,'cave system':4,'abandoned fort':2,mine:4,shrine:2},
-  water: {dungeon:0,camp:0,ruins:0,'forest zone':0,'cave system':0,'abandoned fort':0,mine:0,shrine:0},
-};
-function weightedPickPOIType(terrain,rng){
-  const w=TERRAIN_AFFINITY[terrain]||TERRAIN_AFFINITY.plains;
-  const types=Object.keys(w).filter(t=>w[t]>0);
-  const total=types.reduce((s,t)=>s+w[t],0);
-  let r=rng.next()*total;for(const t of types){r-=w[t];if(r<=0)return t;}return types[types.length-1];
-}
+/* ═══════════════ WORLD GENERATION ═══════════════ */
+const TERRAIN_AFFINITY={forest:{dungeon:1,camp:3,ruins:2,'forest zone':5,'cave system':1,'abandoned fort':1,mine:1,shrine:2},plains:{dungeon:1,camp:4,ruins:3,'forest zone':1,'cave system':0,'abandoned fort':3,mine:1,shrine:2},hills:{dungeon:2,camp:2,ruins:2,'forest zone':1,'cave system':4,'abandoned fort':2,mine:4,shrine:2},water:{dungeon:0,camp:0,ruins:0,'forest zone':0,'cave system':0,'abandoned fort':0,mine:0,shrine:0}};
+function weightedPickPOIType(terrain,rng){const w=TERRAIN_AFFINITY[terrain]||TERRAIN_AFFINITY.plains;const types=Object.keys(w).filter(t=>w[t]>0);const total=types.reduce((s,t)=>s+w[t],0);let r=rng.next()*total;for(const t of types){r-=w[t];if(r<=0)return t;}return types[types.length-1];}
 function rollPOISize(rng){const r=rng.next();return r<.55?'small':r<.90?'medium':'large';}
 function rollTimer(size,rng){if(size==='small')return rng.int(12,60);if(size==='medium')return rng.int(60,360);return rng.int(180,1080);}
 function rollZoneCount(size,rng){if(size==='small')return rng.int(3,6);if(size==='medium')return rng.int(6,12);return rng.int(12,20);}
-
 function spawnPOI(world,rng,discovered){
   const SIZE=world._mapSize;
   const citySet=new Set(world.cities.map(c=>`${c.x},${c.y}`));
   const poiSet=new Set(world.pois.map(p=>`${p.x},${p.y}`));
-  const minDist=SIZE*.06;
-  let x,y,terrain,attempts=0;
-  do{
-    x=rng.int(2,SIZE-3);y=rng.int(2,SIZE-3);
-    terrain=world.tiles[y*SIZE+x]?.terrainType??'water';
-    const nearCity=world.cities.some(c=>Math.hypot(c.x-x,c.y-y)<minDist);
-    attempts++;if(terrain!=='water'&&!citySet.has(`${x},${y}`)&&!poiSet.has(`${x},${y}`)&&!nearCity)break;
-  }while(attempts<500);
+  const minDist=SIZE*.06;let x,y,terrain,attempts=0;
+  do{x=rng.int(2,SIZE-3);y=rng.int(2,SIZE-3);terrain=world.tiles[y*SIZE+x]?.terrainType??'water';const nearCity=world.cities.some(c=>Math.hypot(c.x-x,c.y-y)<minDist);attempts++;if(terrain!=='water'&&!citySet.has(`${x},${y}`)&&!poiSet.has(`${x},${y}`)&&!nearCity)break;}while(attempts<500);
   if(terrain==='water')return null;
   const size=rollPOISize(rng);
-  return{id:makeId(),name:poiName(rng),type:weightedPickPOIType(terrain,rng),size,x,y,
-    despawnTimer:rollTimer(size,rng),_zoneCount:rollZoneCount(size,rng),zones:[],discovered,visible:true};
+  return{id:makeId(),name:poiName(rng),type:weightedPickPOIType(terrain,rng),size,x,y,despawnTimer:rollTimer(size,rng),_zoneCount:rollZoneCount(size,rng),zones:[],discovered,visible:true};
 }
-
 function populatePOIs(gs){
   const w=gs.world,needed=w._targetPois-w.pois.length;if(needed<=0)return;
   w._poiSeed=((w._poiSeed^gs.turn)>>>0);
   const rng=makePRNG(w._poiSeed+needed);
   const currentKnown=w.pois.filter(p=>p.discovered).length;
-  for(let i=0;i<needed;i++){
-    const wantDisc=currentKnown+w.pois.slice(w._targetPois-needed).filter(p=>p.discovered).length<w._targetKnownPois;
-    const p=spawnPOI(w,rng,wantDisc);if(p)w.pois.push(p);
-  }
+  for(let i=0;i<needed;i++){const wantDisc=currentKnown+w.pois.slice(w._targetPois-needed).filter(p=>p.discovered).length<w._targetKnownPois;const p=spawnPOI(w,rng,wantDisc);if(p)w.pois.push(p);}
 }
-
 function generateWorld(gs){
   const w=gs.world,SIZE=w._mapSize,seed=w._seed;
   const rng=makePRNG(seed),noise=makeNoise(seed^0xDEADBEEF);
   w.tiles=[];
-  for(let y=0;y<SIZE;y++)for(let x=0;x<SIZE;x++){
-    const ex=Math.min(x,SIZE-1-x)/(SIZE*.15),ey=Math.min(y,SIZE-1-y)/(SIZE*.15);
-    const n=noise(x,y)*Math.min(1,Math.min(ex,ey));
-    w.tiles.push({x,y,terrainType:n<.25?'water':n<.42?'hills':n<.62?'plains':'forest'});
-  }
+  for(let y=0;y<SIZE;y++)for(let x=0;x<SIZE;x++){const ex=Math.min(x,SIZE-1-x)/(SIZE*.15),ey=Math.min(y,SIZE-1-y)/(SIZE*.15);const n=noise(x,y)*Math.min(1,Math.min(ex,ey));w.tiles.push({x,y,terrainType:n<.25?'water':n<.42?'hills':n<.62?'plains':'forest'});}
   function tAt(x,y){if(x<0||y<0||x>=SIZE||y>=SIZE)return'water';return w.tiles[y*SIZE+x].terrainType;}
   const minD=SIZE*.28,placed=[];
-  for(let band=0;band<3;band++){
-    const xMin=Math.floor(SIZE*.12),xMax=Math.floor(SIZE*.88);
-    const yMin=Math.floor(SIZE*(.1+band*.27)),yMax=Math.floor(SIZE*(.35+band*.27));
-    let at=0,cx,cy;
-    do{cx=rng.int(xMin,xMax);cy=rng.int(yMin,yMax);at++;}
-    while((tAt(cx,cy)==='water'||placed.some(p=>Math.hypot(p.x-cx,p.y-cy)<minD))&&at<400);
-    if(tAt(cx,cy)==='water')for(let r=1;r<20;r++){for(const[dx,dy]of[[r,0],[-r,0],[0,r],[0,-r]]){if(tAt(cx+dx,cy+dy)!=='water'){cx+=dx;cy+=dy;break;}}if(tAt(cx,cy)!=='water')break;}
-    placed.push({id:makeId(),name:cityName(rng),x:cx,y:cy});
-  }
+  for(let band=0;band<3;band++){const xMin=Math.floor(SIZE*.12),xMax=Math.floor(SIZE*.88);const yMin=Math.floor(SIZE*(.1+band*.27)),yMax=Math.floor(SIZE*(.35+band*.27));let at=0,cx,cy;do{cx=rng.int(xMin,xMax);cy=rng.int(yMin,yMax);at++;}while((tAt(cx,cy)==='water'||placed.some(p=>Math.hypot(p.x-cx,p.y-cy)<minD))&&at<400);if(tAt(cx,cy)==='water')for(let r=1;r<20;r++){for(const[dx,dy]of[[r,0],[-r,0],[0,r],[0,-r]]){if(tAt(cx+dx,cy+dy)!=='water'){cx+=dx;cy+=dy;break;}}if(tAt(cx,cy)!=='water')break;}placed.push({id:makeId(),name:cityName(rng),x:cx,y:cy});}
   w.cities=placed;gs.organizations[0].hqCityId=rng.pick(w.cities).id;
   w._poiSeed=seed^0xC0FFEE;populatePOIs(gs);
-  const oc=gs._startingChars??0;
-  if(oc>0){const rrng=makePRNG(seed^0xBEEF);for(let i=0;i<oc;i++)gs.organizations[0].recruits.push(generateRecruit(rrng));}
+  const oc=gs._startingChars??0;if(oc>0){const rrng=makePRNG(seed^0xBEEF);for(let i=0;i<oc;i++)gs.organizations[0].recruits.push(generateRecruit(rrng));}
   refreshHirePool(gs);return gs;
 }
 
-/* ═══════════════════ GLOBAL STATE ═══════════════════ */
+/* ═══════════════ GLOBAL STATE ═══════════════ */
 let GS=null;
 function playerOrg(){return GS.organizations.find(o=>o.id===GS.playerOrgId);}
 
-/* ═══════════════════ TURN ORDER ═══════════════════ */
+/* ═══════════════ TURN ORDER ═══════════════ */
 function worldConsistencyCheck(gs){
   const w=gs.world,before=w.pois.length;
-  // If current open POI expires, close the layout
   w.pois=w.pois.filter(p=>{p.despawnTimer--;return p.despawnTimer>0;});
   if(_currentPoiId&&!w.pois.find(p=>p.id===_currentPoiId)){closePOILayout();closeZoneDetail();}
   if(w.pois.length<w._targetPois)populatePOIs(gs);
   return before-w.pois.length;
 }
-
 function processGroupTravel(gs){
   const org=playerOrg();if(!org)return[];
   const arrivals=[];
   for(const g of org.groups){
     if(!g.inTransitTo)continue;
-    if(gs.world.schedule?.[TIME.dayTurnIndex(gs.turn)])continue;
-    const slot=TIME.dayTurnIndex(gs.turn);
-    if(g.schedule[slot])continue;
+    const slot=TIME.dayTurnIndex(gs.turn);if(g.schedule[slot])continue;
     const arrived=advanceGroupTravel(g,gs.world,org);
     if(arrived){
       const dest=g.currentCityId?gs.world.cities.find(c=>c.id===g.currentCityId)?.name:gs.world.pois.find(p=>p.id===g.locationPoiId)?.name;
@@ -1192,224 +981,383 @@ function advanceTurn(){
   if(!GS)return;
   hidePopup();
   GS.turn++;
+
   const expired=worldConsistencyCheck(GS);
   const arrivals=processGroupTravel(GS);
+  const actionEvents=processZoneActions(GS); // Step 7
+
   if(TIME.isFirstTurnOfWeek(GS.turn)){refreshHirePool(GS);showToast('Weekly rotation — new recruits available');}
   if((GS.turn-GS._autosaveTurn)>=AUTOSAVE_EVERY){autosave();GS._autosaveTurn=GS.turn;}
+
   updateToolbar();
   MapRenderer.rebuildPOIs(GS.world,GS._devMode);
   MapRenderer.rebuildGroups(GS.world,playerOrg());
   if(GS._devMode)refreshDevPanel();
-  // Update open POI header timer
+
+  // Update open overlays
   if(_currentPoiId){
     const poi=GS.world.pois.find(p=>p.id===_currentPoiId);
-    if(poi)document.getElementById('poi-header-timer').textContent=poi.despawnTimer;
+    if(poi){document.getElementById('poi-header-timer').textContent=poi.despawnTimer;renderPoiSidebar(poi);drawPoiGraph();}
+  }
+  if(_currentZoneId&&_currentPoiId){
+    const poi=GS.world.pois.find(p=>p.id===_currentPoiId);
+    const zone=poi?.zones.find(z=>z.id===_currentZoneId);
+    if(zone&&poi){renderZoneObjects(zone);renderZoneSidebar(zone,poi);}
   }
   if(!document.getElementById('city-overlay').classList.contains('hidden')&&_openCityId)renderCityPanel(_openCityId,_openCityTabId??'roster');
   if(_openGroupId)renderGroupPanel(_openGroupId);
-  const parts=[`Turn ${GS.turn}`,...(expired>0?[`${expired} POI${expired>1?'s':''} expired`]:[]),...(arrivals.length?[arrivals.join(', ')]:[])];;
+
+  const parts=[`Turn ${GS.turn}`,...(expired>0?[`${expired} POI${expired>1?'s':''} expired`]:[]),...(arrivals.length?[arrivals.join(', ')]:[]),(actionEvents.length?[`${actionEvents.length} action event${actionEvents.length>1?'s':''}`]:[])].filter(Boolean);
   showToast(parts.join(' — '));
 }
 
-/* ═══════════════════ SAVE / LOAD ═══════════════════ */
-function saveGame(){
-  if(!GS)return;
-  const b=new Blob([JSON.stringify(GS,null,2)],{type:'application/json'});
-  const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`ironbound_save_turn${GS.turn}.json`;a.click();URL.revokeObjectURL(u);showToast('Game saved.','success');
-}
+/* ═══════════════ SAVE / LOAD ═══════════════ */
+function saveGame(){if(!GS)return;const b=new Blob([JSON.stringify(GS,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`ironbound_save_turn${GS.turn}.json`;a.click();URL.revokeObjectURL(u);showToast('Game saved.','success');}
 function autosave(){if(!GS)return;try{localStorage.setItem(AUTOSAVE_KEY,JSON.stringify(GS));}catch(e){}}
 function loadFromJson(json){let p;try{p=JSON.parse(json);}catch(e){return null;}if(!p||typeof p.turn!=='number'||!p.world||!Array.isArray(p.organizations))return null;return p;}
 function loadGameFromFile(file){const r=new FileReader();r.onload=e=>{const s=loadFromJson(e.target.result);if(!s){showLaunchError('Invalid or corrupted save file.');return;}GS=s;enterGame();showToast('Save loaded — Turn '+GS.turn,'success');};r.onerror=()=>showLaunchError('Could not read the file.');r.readAsText(file);}
 
-/* ═══════════════════ EXIT / CONFIRM ═══════════════════ */
+/* ═══════════════ EXIT / CONFIRM ═══════════════ */
 function exitToMenu(){showConfirm('Exit to Menu','Unsaved progress will be lost. Return to the main menu?',()=>{autosave();GS=null;closeGroupPanel();closeCityPanel();closePOILayout();closeZoneDetail();showScreen('launch');showToast('Returned to main menu');});}
 let _confirmCb=null;
 function showConfirm(title,msg,onOk){_confirmCb=onOk;document.getElementById('confirm-title').textContent=title;document.getElementById('confirm-msg').textContent=msg;document.getElementById('confirm-overlay').classList.remove('hidden');}
 document.getElementById('confirm-cancel').addEventListener('click',()=>{document.getElementById('confirm-overlay').classList.add('hidden');_confirmCb=null;});
 document.getElementById('confirm-ok').addEventListener('click',()=>{document.getElementById('confirm-overlay').classList.add('hidden');if(_confirmCb){_confirmCb();_confirmCb=null;}});
 
-/* ═══════════════════ GROUP PANEL ═══════════════════ */
-let _openGroupId=null;
-function openGroupPanel(gid){_openGroupId=gid;document.getElementById('bottom-stub').classList.add('hidden');document.getElementById('group-panel').classList.remove('hidden');renderGroupPanel(gid);}
-function closeGroupPanel(){_openGroupId=null;document.getElementById('group-panel').classList.add('hidden');document.getElementById('bottom-stub').classList.remove('hidden');}
-document.getElementById('gp-close').addEventListener('click',closeGroupPanel);
+/* ═══════════════ POI GRAPH CANVAS ═══════════════ */
+let _poiGraphCanvas=null,_poiGraphCtx=null,_currentPoiId=null,_hoveredZoneId=null;
 
-function renderGroupPanel(gid){
-  const org=playerOrg(),group=org?.groups.find(g=>g.id===gid);
-  if(!group){closeGroupPanel();return;}
-  document.getElementById('gp-name').textContent=group.name;
-  document.getElementById('gp-role').textContent=group.role;
-  let status='';
-  if(group.inTransitTo){const dest=group.inTransitTo.type==='city'?GS.world.cities.find(c=>c.id===group.inTransitTo.targetId)?.name:GS.world.pois.find(p=>p.id===group.inTransitTo.targetId)?.name;status=`→ ${dest??'?'} (${Math.round((group._transitProgress??0)*100)}%)`;}
-  else if(group.currentCityId){status='At: '+GS.world.cities.find(c=>c.id===group.currentCityId)?.name;}
-  else if(group.locationPoiId){status='At: '+GS.world.pois.find(p=>p.id===group.locationPoiId)?.name;}
-  document.getElementById('gp-status').textContent=status;
-  const membersEl=document.getElementById('gp-members');membersEl.innerHTML='';
-  if(!group.memberIds.length){membersEl.innerHTML='<span style="font-family:var(--mono);font-size:10px;color:var(--text-dim)">No members</span>';}
-  else for(const id of group.memberIds){const r=org.recruits.find(r=>r.id===id);if(!r)continue;const chip=document.createElement('div');chip.className='gp-member-chip';chip.textContent=r.name.split(' ')[0];chip.title=`${r.name} — SPD ${r.characteristics.movementSpeed}`;membersEl.appendChild(chip);}
-  const actEl=document.getElementById('gp-actions');actEl.innerHTML='';
-  const tLabel=document.createElement('div');tLabel.className='gp-section-label';tLabel.textContent='Travel';actEl.appendChild(tLabel);
-  if(group.inTransitTo){
-    const info=document.createElement('div');info.className='gp-transit-info';const turns=turnsToTravel(group,group.inTransitTo.type,group.inTransitTo.targetId,GS.world,org);const dest=group.inTransitTo.type==='city'?GS.world.cities.find(c=>c.id===group.inTransitTo.targetId)?.name:GS.world.pois.find(p=>p.id===group.inTransitTo.targetId)?.name;info.innerHTML=`→ <span>${dest??'?'}</span> ~<span>${turns??'?'}</span> turns`;actEl.appendChild(info);
-    const cb=document.createElement('button');cb.className='btn btn-sm btn-danger';cb.textContent='Cancel Travel';cb.addEventListener('click',()=>{group.inTransitTo=null;group._transitFrom=null;group._transitTo=null;group._transitProgress=0;group.state=undefined;renderGroupPanel(gid);MapRenderer.rebuildGroups(GS.world,org);});actEl.appendChild(cb);
-  } else {
-    const row=document.createElement('div');row.className='gp-dest-row';
-    const sel=document.createElement('select');sel.className='gp-dest-select';
-    const blank=document.createElement('option');blank.value='';blank.textContent='Select destination…';sel.appendChild(blank);
-    const cg=document.createElement('optgroup');cg.label='Cities';
-    for(const c of GS.world.cities){const o=document.createElement('option');o.value=`city:${c.id}`;o.textContent=c.name;cg.appendChild(o);}sel.appendChild(cg);
-    const dp=GS.world.pois.filter(p=>p.discovered);
-    if(dp.length){const pg=document.createElement('optgroup');pg.label='Discovered POIs';for(const p of dp){const o=document.createElement('option');o.value=`poi:${p.id}`;o.textContent=`${p.name} (${p.type})`;pg.appendChild(o);}sel.appendChild(pg);}
-    const goBtn=document.createElement('button');goBtn.className='btn btn-sm btn-primary gp-travel-btn';goBtn.textContent='Send';goBtn.disabled=true;
-    sel.addEventListener('change',()=>{goBtn.disabled=!sel.value;});
-    goBtn.addEventListener('click',()=>{
-      const[type,id]=sel.value.split(':');if(!type||!id)return;
-      const turns=turnsToTravel(group,type,id,GS.world,org);
-      assignTravel(group,type,id,GS.world,org);
-      for(const mid of group.memberIds){const r=org.recruits.find(r=>r.id===mid);if(r)r.state='Deployed';}
-      MapRenderer.rebuildGroups(GS.world,org);renderGroupPanel(gid);showToast(`${group.name} dispatched — ~${turns??'?'} turns`);
-    });
-    row.appendChild(sel);row.appendChild(goBtn);actEl.appendChild(row);
-    // Enter POI button if group is at a discovered POI
-    if(group.locationPoiId){
-      const epBtn=document.createElement('button');epBtn.className='btn btn-sm btn-primary';epBtn.style.marginTop='6px';epBtn.textContent='Enter POI';
-      epBtn.addEventListener('click',()=>{openPOILayout(group.locationPoiId);});
-      actEl.appendChild(epBtn);
-    }
-  }
-  const sLabel=document.createElement('div');sLabel.className='gp-section-label';sLabel.style.marginTop='8px';sLabel.textContent='Daily Schedule';actEl.appendChild(sLabel);
-  const schedRow=document.createElement('div');schedRow.className='gp-schedule';
-  for(let i=0;i<6;i++){const slot=document.createElement('div');slot.className='sched-slot'+(group.schedule[i]?' rest':'');slot.textContent=group.schedule[i]?'Z':(i+1).toString();slot.addEventListener('click',()=>{group.schedule[i]=!group.schedule[i];slot.classList.toggle('rest',group.schedule[i]);slot.textContent=group.schedule[i]?'Z':(i+1).toString();});schedRow.appendChild(slot);}
-  actEl.appendChild(schedRow);
-}
-
-/* ═══════════════════ CITY LAYOUT ═══════════════════ */
-let _openCityId=null,_openCityTabId=null;
-function openCityPanel(cid){
-  _openCityId=cid;_openCityTabId=null;
-  const city=GS.world.cities.find(c=>c.id===cid);if(!city)return;
-  const org=playerOrg(),isHQ=org&&org.hqCityId===cid;
-  document.getElementById('city-header-name').textContent=city.name;
-  document.getElementById('city-header-hq').classList.toggle('hidden',!isHQ);
-  const tabsEl=document.getElementById('city-tabs');tabsEl.innerHTML='';
-  function addSection(l){const s=document.createElement('div');s.className='city-tab-section';s.textContent=l;tabsEl.appendChild(s);}
-  function addTab(id,label){const t=document.createElement('div');t.className='city-tab';t.dataset.tab=id;t.textContent=label;t.addEventListener('click',()=>renderCityPanel(cid,id));tabsEl.appendChild(t);}
-  addSection('City');addTab('market','Market');addTab('tavern','Tavern');
-  if(isHQ){addSection('Headquarters');addTab('roster','Roster');addTab('storeroom','Storeroom');addTab('ledger','Ledger');addTab('groups','Groups');addTab('staff','Staff');}
-  renderCityPanel(cid,isHQ?'roster':'market');
-  document.getElementById('city-overlay').classList.remove('hidden');
-}
-function closeCityPanel(){document.getElementById('city-overlay').classList.add('hidden');_openCityId=null;_openCityTabId=null;}
-function renderCityPanel(cid,tabId){
-  _openCityId=cid;_openCityTabId=tabId;
-  document.querySelectorAll('.city-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tabId));
-  const content=document.getElementById('city-content'),org=playerOrg();
-  switch(tabId){
-    case'market':   content.innerHTML=renderMarketPanel();break;
-    case'tavern':   content.innerHTML=renderTavernPanel(org);wireHireButtons(org);break;
-    case'roster':   content.innerHTML=renderRosterPanel(org);break;
-    case'storeroom':content.innerHTML='<div class="panel-title">Storeroom</div><div class="panel-subtitle">Items stored at headquarters.</div><div class="stub-panel"><strong>Storeroom</strong>Item management implemented in Step 9.</div>';break;
-    case'ledger':   content.innerHTML=renderLedgerPanel();break;
-    case'groups':   content.innerHTML=renderGroupManagerPanel(org,cid);wireGroupManagerButtons(org,cid);break;
-    case'staff':    content.innerHTML=renderStaffPanel(org);break;
-    default:        content.innerHTML='<div class="stub-panel"><strong>Unknown Panel</strong></div>';
-  }
-}
-function renderMarketPanel(){return'<div class="panel-title">Market</div><div class="panel-subtitle">Purchase food, equipment, and weapons.</div><div class="stub-panel"><strong>Market</strong>Purchase mechanic implemented in Step 9.</div>';}
-function renderTavernPanel(org){
-  const pool=GS._hirePool||[],week=TIME.turnToWeek(GS.turn);
-  let h=`<div class="panel-title">Tavern</div><div class="panel-subtitle">Hire recruits. Pool refreshes each week. <span style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">Week ${week}</span></div><div class="hire-grid">`;
-  if(!pool.length)h+='<div class="stub-panel" style="padding:20px"><strong>Pool Exhausted</strong>No recruits until next week.</div>';
-  else for(const r of pool){const th=r.traits.map(t=>`<span class="trait-badge">${t}</span>`).join('');h+=`<div class="hire-card"><div class="hire-card-name">${r.name}</div><div class="hire-card-stats">Lvl <span>${r.level}</span> &nbsp;HP <span>${r.characteristics.health}</span> &nbsp;STR <span>${r.characteristics.strength}</span> &nbsp;DEX <span>${r.characteristics.dexterity}</span> &nbsp;PER <span>${r.characteristics.perception}</span> &nbsp;SPD <span>${r.characteristics.movementSpeed}</span>${th?`<br>${th}`:''}</div><div class="hire-card-cost">⬡ ${r._hiringCost}</div><div class="hire-card-btn"><button class="btn btn-sm btn-primary hire-btn" data-id="${r.id}" ${org.gold<r._hiringCost?'disabled':''}>Hire</button></div></div>`;}
-  return h+'</div>';
-}
-function wireHireButtons(org){
-  document.querySelectorAll('.hire-btn').forEach(btn=>{btn.addEventListener('click',()=>{
-    const rid=btn.dataset.id,recruit=(GS._hirePool||[]).find(r=>r.id===rid);if(!recruit)return;
-    if(org.gold<recruit._hiringCost){showToast('Not enough gold.','error');return;}
-    org.gold-=recruit._hiringCost;const{_hiringCost,...clean}=recruit;org.recruits.push(clean);
-    GS._ledger.push({turn:GS.turn,desc:`Hired ${recruit.name}`,amount:-recruit._hiringCost});
-    GS._hirePool=(GS._hirePool||[]).filter(r=>r.id!==rid);
-    updateToolbar();renderCityPanel(_openCityId,'tavern');showToast(`${recruit.name} hired for ${recruit._hiringCost} gold.`,'success');
-  });});
-}
-function renderRosterPanel(org){
-  if(!org.recruits.length)return'<div class="panel-title">Roster</div><div class="panel-subtitle">All guild recruits.</div><div class="stub-panel"><strong>Empty Roster</strong>Hire recruits from the Tavern.</div>';
-  let h=`<div class="panel-title">Roster</div><div class="panel-subtitle">${org.recruits.length} recruit${org.recruits.length!==1?'s':''} on file.</div><table class="roster-table"><thead><tr><th>Name</th><th>Lvl</th><th>HP</th><th>STR</th><th>DEX</th><th>PER</th><th>SPD</th><th>LYL</th><th>Traits</th><th>State</th></tr></thead><tbody>`;
-  for(const r of org.recruits){const th=r.traits.map(t=>`<span class="trait-badge">${t}</span>`).join('');const sc=r.state==='Available'?'available':'deployed';h+=`<tr><td><span class="recruit-name">${r.name}</span></td><td><span class="recruit-level">${r.level}</span></td><td>${r.characteristics.health}</td><td>${r.characteristics.strength}</td><td>${r.characteristics.dexterity}</td><td>${r.characteristics.perception}</td><td>${r.characteristics.movementSpeed}</td><td>${r.characteristics.loyalty}</td><td>${th||'—'}</td><td><span class="recruit-state ${sc}">${r.state}</span></td></tr>`;}
-  return h+'</tbody></table>';
-}
-function renderLedgerPanel(){
-  const entries=GS._ledger||[];
-  let h='<div class="panel-title">Ledger</div><div class="panel-subtitle">Gold income and expenditure log.</div>';
-  if(!entries.length)return h+'<div class="stub-panel"><strong>No entries yet.</strong></div>';
-  h+='<table class="roster-table"><thead><tr><th>Turn</th><th>Description</th><th>Amount</th></tr></thead><tbody>';
-  for(const e of [...entries].reverse()){const col=e.amount>=0?'color:var(--green-bright)':'color:var(--red-bright)';h+=`<tr><td>${e.turn}</td><td>${e.desc}</td><td style="${col}">${e.amount>=0?'+':''}${e.amount}</td></tr>`;}
-  return h+'</tbody></table>';
-}
-function renderGroupManagerPanel(org,cid){
-  const city=GS.world.cities.find(c=>c.id===cid);
-  let h=`<div class="panel-title">Group Manager</div><div class="panel-subtitle">Create and manage field groups. Groups start at ${city?.name??'this city'}.</div>`;
-  if(!org.groups.length){h+='<div class="stub-panel" style="padding:24px"><strong>No groups yet</strong>Create a group below.</div>';}
-  else{
-    h+='<div class="group-list">';
-    for(const g of org.groups){
-      const mn=g.memberIds.map(id=>org.recruits.find(r=>r.id===id)?.name.split(' ')[0]??'?').join(', ')||'—';
-      let loc='';
-      if(g.inTransitTo){const d=g.inTransitTo.type==='city'?GS.world.cities.find(c=>c.id===g.inTransitTo.targetId)?.name:GS.world.pois.find(p=>p.id===g.inTransitTo.targetId)?.name;loc=`→ ${d??'?'} (${Math.round((g._transitProgress??0)*100)}%)`;}
-      else if(g.currentCityId)loc=GS.world.cities.find(c=>c.id===g.currentCityId)?.name??'City';
-      else if(g.locationPoiId)loc=GS.world.pois.find(p=>p.id===g.locationPoiId)?.name??'POI';
-      h+=`<div class="group-card"><div class="group-card-header"><span class="group-card-name">${g.name}</span><span class="group-card-role">${g.role}</span><span class="group-card-loc">${loc}</span><button class="btn btn-sm btn-danger" style="margin-left:8px" onclick="disbandGroup('${g.id}')">Disband</button></div><div class="group-card-members">Members: <span>${mn}</span> (${g.memberIds.length}/9)</div></div>`;
-    }
-    h+='</div>';
-  }
-  const avail=org.recruits.filter(r=>r.state==='Available'&&!org.groups.some(g=>g.memberIds.includes(r.id)));
-  h+=`<div class="group-create-form"><div class="group-create-title">Create New Group</div>
-  <div class="create-row"><label>Name</label><input type="text" id="new-group-name" value="Group ${org.groups.length+1}" style="flex:1"></div>
-  <div class="create-row"><label>Role</label><select id="new-group-role" style="flex:1"><option value="Scout">Scout</option><option value="Combat">Combat</option><option value="Supply">Supply</option><option value="Rescue">Rescue</option></select></div>
-  <div style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber-dim);margin:8px 0 4px">Add Members</div>
-  <div class="member-select-grid" id="member-select-grid">`;
-  if(!avail.length)h+='<span style="font-family:var(--mono);font-size:10px;color:var(--text-dim)">No available recruits</span>';
-  else for(const r of avail)h+=`<button class="member-toggle" data-rid="${r.id}" title="Lvl ${r.level}">${r.name.split(' ')[0]}</button>`;
-  h+=`</div><button class="btn btn-sm btn-primary" id="btn-create-group" style="margin-top:8px">Create Group</button></div>`;
-  return h;
-}
-function wireGroupManagerButtons(org,cid){
-  document.querySelectorAll('.member-toggle').forEach(btn=>btn.addEventListener('click',()=>btn.classList.toggle('selected')));
-  const cb=document.getElementById('btn-create-group');if(!cb)return;
-  cb.addEventListener('click',()=>{
-    const name=document.getElementById('new-group-name')?.value.trim()||`Group ${org.groups.length+1}`;
-    const role=document.getElementById('new-group-role')?.value||'Scout';
-    const rids=[...document.querySelectorAll('.member-toggle.selected')].map(b=>b.dataset.rid);
-    if(!rids.length){showToast('Select at least one member.','error');return;}
-    if(rids.length>9){showToast('Max 9 members per group.','error');return;}
-    const g=makeGroup({name,role,memberIds:rids,cityId:cid});
-    org.groups.push(g);
-    for(const rid of rids){const r=org.recruits.find(r=>r.id===rid);if(r)r.state='Deployed';}
-    MapRenderer.rebuildGroups(GS.world,org);renderCityPanel(cid,'groups');
-    showToast(`${name} created.`,'success');
+function initPoiGraphCanvas(){
+  _poiGraphCanvas=document.getElementById('poi-graph-canvas');
+  _poiGraphCtx=_poiGraphCanvas.getContext('2d');
+  _poiGraphCanvas.addEventListener('mousemove',e=>{
+    if(!_currentPoiId||!GS)return;
+    const poi=GS.world.pois.find(p=>p.id===_currentPoiId);if(!poi)return;
+    const zone=zoneAtPoint(poi,e.offsetX,e.offsetY);
+    const newId=zone?.id??null;if(newId!==_hoveredZoneId){_hoveredZoneId=newId;drawPoiGraph();}
+    _poiGraphCanvas.style.cursor=zone?'pointer':'default';
+  });
+  _poiGraphCanvas.addEventListener('click',e=>{
+    if(!_currentPoiId||!GS)return;
+    const poi=GS.world.pois.find(p=>p.id===_currentPoiId);if(!poi)return;
+    const zone=zoneAtPoint(poi,e.offsetX,e.offsetY);if(!zone)return;
+    const dev=GS._devMode??false;
+    if(zone.state==='Unknown'&&!dev){showToast('Zone unexplored. Send a group to scout it first.','error');return;}
+    openZoneDetail(poi,zone);
   });
 }
-function disbandGroup(gid){
-  const org=playerOrg(),g=org.groups.find(g=>g.id===gid);if(!g)return;
-  if(g.inTransitTo){showToast('Cannot disband a group in transit.','error');return;}
-  for(const rid of g.memberIds){const r=org.recruits.find(r=>r.id===rid);if(r)r.state='Available';}
-  org.groups=org.groups.filter(x=>x.id!==gid);if(_openGroupId===gid)closeGroupPanel();
-  MapRenderer.rebuildGroups(GS.world,org);renderCityPanel(_openCityId,'groups');showToast('Group disbanded.');
-}
-function renderStaffPanel(org){
-  const tasks=[{name:'Gather Rumors',effect:'No additional effect in v1 beyond public baseline.'},{name:'Develop Trading Connections',effect:'Increases Market inventory size and rare item chance.'},{name:'Train Recruits',effect:'Slowly improves unassigned recruits over time.'},{name:'Treat Wounded',effect:'Reduces recovery time for injured recruits.'}];
-  let h='<div class="panel-title">Staff Assignments</div><div class="panel-subtitle">Assign recruits to passive HQ tasks.</div>';
-  for(const t of tasks){const a=org.recruits.filter(r=>r._hqTask===t.name).length;h+=`<div class="task-row"><div class="task-name">${t.name}</div><div class="task-effect">${t.effect}</div><div class="task-count">Assigned: <span>${a}</span></div></div>`;}
-  return h;
+
+function resizePoiGraphCanvas(){
+  const wrap=document.getElementById('poi-graph-wrap');
+  const dpr=window.devicePixelRatio||1,w=wrap.clientWidth,h=wrap.clientHeight;
+  _poiGraphCanvas.style.width=w+'px';_poiGraphCanvas.style.height=h+'px';
+  _poiGraphCanvas.width=Math.round(w*dpr);_poiGraphCanvas.height=Math.round(h*dpr);
 }
 
-/* ═══════════════════ WEBGL MAP RENDERER ═══════════════════ */
+function computeLayoutPositions(poi,cW,cH){
+  const zones=poi.zones;if(!zones.length)return;
+  const pad=60;
+  const layers=[],visited=new Set(),queue=[{id:zones[0].id,layer:0}];
+  const layerOf={};
+  visited.add(zones[0].id);layerOf[zones[0].id]=0;layers[0]=[zones[0].id];
+  while(queue.length){
+    const{id,layer}=queue.shift();const zone=zones.find(z=>z.id===id);
+    for(const nid of(zone._passages||[])){if(!visited.has(nid)){visited.add(nid);layerOf[nid]=layer+1;if(!layers[layer+1])layers[layer+1]=[];layers[layer+1].push(nid);queue.push({id:nid,layer:layer+1});}}
+  }
+  for(const z of zones){if(!visited.has(z.id)){const last=layers.length;if(!layers[last])layers[last]=[];layers[last].push(z.id);}}
+  const numLayers=layers.length,usableH=cH-pad*2,usableW=cW-pad*2,layerH=numLayers>1?usableH/(numLayers-1):usableH/2;
+  const pos={};
+  layers.forEach((ids,li)=>{const y=pad+(numLayers===1?usableH/2:li*layerH);const w=ids.length;ids.forEach((id,xi)=>{const x=pad+(w===1?usableW/2:(xi/(w-1))*usableW);pos[id]={x,y};});});
+  poi._layoutPositions=pos;
+}
+
+function drawPoiGraph(){
+  if(!_poiGraphCtx||!_currentPoiId)return;
+  const poi=GS?.world.pois.find(p=>p.id===_currentPoiId);if(!poi||!poi.zones.length)return;
+  const dpr=window.devicePixelRatio||1,W=_poiGraphCanvas.width,H=_poiGraphCanvas.height,cW=W/dpr,cH=H/dpr;
+  if(!poi._layoutPositions)computeLayoutPositions(poi,cW,cH);
+  const pos=poi._layoutPositions;
+  const ctx=_poiGraphCtx;ctx.clearRect(0,0,W,H);ctx.save();ctx.scale(dpr,dpr);
+  const dev=GS?._devMode??false;
+  const org=playerOrg();
+  // Find zones with groups
+  const zoneWithGroup=new Set();
+  if(org)for(const g of org.groups){if(g.locationZoneId)zoneWithGroup.add(g.locationZoneId);}
+
+  // Passages
+  for(const[a,b]of(poi._passages||[])){const pa=pos[a],pb=pos[b];if(!pa||!pb)continue;const aZ=poi.zones.find(z=>z.id===a),bZ=poi.zones.find(z=>z.id===b);const both=(aZ?.state!=='Unknown')||(bZ?.state!=='Unknown')||dev;ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);ctx.strokeStyle=both?'#2e2e33':'#1c1c1f';ctx.lineWidth=2;ctx.stroke();}
+
+  // Zones
+  const NODE_R=22;
+  for(const zone of poi.zones){
+    const p=pos[zone.id];if(!p)continue;
+    const isHovered=zone.id===_hoveredZoneId,isScouted=zone.state==='Scouted',isEntry=poi.zones[0].id===zone.id,hasGroup=zoneWithGroup.has(zone.id),visible=isScouted||dev;
+    ctx.beginPath();ctx.arc(p.x,p.y,NODE_R,0,Math.PI*2);
+    if(isEntry)ctx.fillStyle=isScouted?'#2a3a2a':'#1c2a1c';
+    else if(isScouted)ctx.fillStyle=isHovered?'#252520':'#1e1e18';
+    else if(dev)ctx.fillStyle='#101a10';
+    else ctx.fillStyle='#141414';
+    ctx.fill();
+    ctx.beginPath();ctx.arc(p.x,p.y,NODE_R,0,Math.PI*2);
+    if(hasGroup)ctx.strokeStyle='#c8902a';
+    else if(isEntry)ctx.strokeStyle='#4a8a3a';
+    else if(isScouted)ctx.strokeStyle=isHovered?'#c8902a':'#4a3f28';
+    else if(dev)ctx.strokeStyle='#2a4a2a';
+    else ctx.strokeStyle='#1e1e1e';
+    ctx.lineWidth=hasGroup?3:(isHovered?2.5:1.5);ctx.stroke();
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    if(visible){
+      ctx.font='600 10px Cinzel,serif';ctx.fillStyle=isScouted?(isHovered?'#e8b04a':'#c8c0b0'):'#3a6a3a';
+      ctx.fillText(zone.name.length>10?zone.name.slice(0,9)+'…':zone.name,p.x,p.y-5);
+      ctx.font='9px Share Tech Mono,monospace';ctx.fillStyle=isScouted?'#7a6a58':'#2a4a2a';
+      ctx.fillText(`${zone.objects.length} obj`,p.x,p.y+7);
+      if(hasGroup){ctx.font='bold 9px Share Tech Mono,monospace';ctx.fillStyle='#c8902a';ctx.fillText('●',p.x,p.y+17);}
+      if(dev&&!isScouted){ctx.fillStyle='#3a8040';ctx.fillText('[DEV]',p.x,p.y+17);}
+    } else {ctx.font='bold 16px Cinzel,serif';ctx.fillStyle='#2a2a2a';ctx.fillText('?',p.x,p.y);}
+  }
+  ctx.restore();
+}
+
+function zoneAtPoint(poi,px,py){
+  if(!poi._layoutPositions)return null;
+  for(const zone of poi.zones){const p=poi._layoutPositions[zone.id];if(!p)continue;if(Math.hypot(p.x-px,p.y-py)<=24)return zone;}
+  return null;
+}
+
+/* ═══════════════ POI LAYOUT OVERLAY ═══════════════ */
+function openPOILayout(poiId){
+  const poi=GS.world.pois.find(p=>p.id===poiId);if(!poi)return;
+  _currentPoiId=poiId;_hoveredZoneId=null;
+  if(!poi.zones||!poi.zones.length){const rng=makePRNG(poi.id.split('').reduce((h,c)=>Math.imul(31,h)+c.charCodeAt(0)|0,0));generateZones(poi,rng);}
+  document.getElementById('poi-header-name').textContent=poi.name;
+  document.getElementById('poi-header-type').textContent=poi.type;
+  document.getElementById('poi-header-timer').textContent=poi.despawnTimer;
+  renderPoiSidebar(poi);
+  document.getElementById('poi-overlay').classList.remove('hidden');
+  requestAnimationFrame(()=>{resizePoiGraphCanvas();poi._layoutPositions=null;drawPoiGraph();});
+}
+function closePOILayout(){document.getElementById('poi-overlay').classList.add('hidden');_currentPoiId=null;_hoveredZoneId=null;}
+
+function renderPoiSidebar(poi){
+  const dev=GS._devMode??false;
+  const org=playerOrg();
+  let html=`<div class="poi-sidebar-section">POI Info</div>
+  <div class="poi-sidebar-row">Type: <span>${poi.type}</span></div>
+  <div class="poi-sidebar-row">Size: <span>${poi.size}</span></div>
+  <div class="poi-sidebar-row">Despawn: <span>${poi.despawnTimer} turns</span></div>
+  <div class="poi-sidebar-row">Zones: <span>${poi.zones.length}</span></div>`;
+  if(dev){html+=`<div class="poi-sidebar-row dev">Pattern: ${poi._graphPattern??'?'}</div>`;}
+  const scouted=poi.zones.filter(z=>z.state==='Scouted').length;
+  html+=`<div class="poi-sidebar-section" style="margin-top:8px">Exploration</div>
+  <div class="poi-sidebar-row">Scouted: <span>${scouted}/${poi.zones.length}</span></div>`;
+  // Groups at this POI
+  const groups=(org?.groups||[]).filter(g=>g.locationPoiId===poi.id);
+  if(groups.length){
+    html+=`<div class="poi-sidebar-section" style="margin-top:8px">Groups Present</div>`;
+    for(const g of groups){
+      const zoneName=poi.zones.find(z=>z.id===g.locationZoneId)?.name??'?';
+      html+=`<div class="poi-sidebar-row">${g.name} <span>→ ${zoneName}</span></div>`;
+    }
+  }
+  html+=`<div class="poi-sidebar-hint">Click a zone node to view its contents. Zones with groups show an amber dot.</div>`;
+  document.getElementById('poi-sidebar').innerHTML=html;
+}
+
+/* ═══════════════ ZONE DETAIL OVERLAY ═══════════════ */
+let _currentZoneId=null,_selectedMemberId=null;
+
+function openZoneDetail(poi,zone){
+  _currentZoneId=zone.id;_selectedMemberId=null;
+  enterZone(poi,zone);
+  drawPoiGraph();
+  document.getElementById('zone-header-name').textContent=zone.name;
+  const stEl=document.getElementById('zone-header-state');
+  stEl.textContent=zone.state;stEl.className='zone-header-state '+(zone.state==='Scouted'?'scouted':'unknown');
+  document.getElementById('zone-header-conds').innerHTML=`Light: <span>${zone.lightLevel}%</span>`;
+  renderZoneObjects(zone);
+  renderZoneSidebar(zone,poi);
+  document.getElementById('zone-overlay').classList.remove('hidden');
+}
+function closeZoneDetail(){
+  document.getElementById('zone-overlay').classList.add('hidden');
+  _currentZoneId=null;_selectedMemberId=null;
+  if(_currentPoiId){const poi=GS?.world.pois.find(p=>p.id===_currentPoiId);if(poi)renderPoiSidebar(poi);}
+}
+
+function renderZoneObjects(zone){
+  const dev=GS._devMode??false;
+  const pane=document.getElementById('zone-objects-pane');
+  const located=[],known=[],undisc=[];
+  for(const obj of zone.objects){
+    const st=getAwarenessState(PLAYER_FACTION,zone,obj.id);
+    if(st==='Located')located.push(obj);else if(st==='Known')known.push(obj);else undisc.push(obj);
+  }
+  function entryHTML(obj,state,showFull){
+    const ic=obj.isAlive?'rh sq':'sq',devIC=dev&&state==='Undiscovered'?'dev-icon':'';
+    const letter=obj.isAlive?'♦':'■';
+    const displayName=showFull?obj.name:(OBJ_PLACEHOLDER[obj.type]??obj.type);
+    const awClass=state==='Located'?'located':state==='Known'?'known':'undisc';
+    let h=`<div class="obj-entry"><div class="obj-icon ${ic} ${devIC}">${letter}</div><div class="obj-info"><div class="obj-name${!showFull?' known-name':''}">${displayName}</div>`;
+    if(showFull){h+=`<div class="obj-type">${obj.type}</div>`;if(obj.goldValueMax>0)h+=`<div class="obj-gold">⬡ ${obj.goldValueMin}–${obj.goldValueMax}</div>`;}
+    if(dev){const fv=(zone.factionAwareness[PLAYER_FACTION]??{})[obj.id]??0;h+=`<div class="obj-dev-vals">DV=${obj.discoverValue} VV=${obj.visibilityValue} vis=${obj.visibility} ub=${obj.upperBoundVisibility} fv=${fv}</div>`;}
+    h+=`</div><span class="obj-awareness ${awClass}">${state}</span></div>`;
+    return h;
+  }
+  let html='';
+  if(located.length){html+=`<div class="zone-section-title">Located (${located.length})</div>`;for(const o of located)html+=entryHTML(o,'Located',true);}
+  if(known.length){html+=`<div class="zone-section-title">Known (${known.length})</div>`;for(const o of known)html+=entryHTML(o,'Known',false);}
+  if(!located.length&&!known.length&&!dev)html+='<div class="zone-unknown-msg">Nothing observed yet. Scout this zone to discover objects.</div>';
+  if(dev&&undisc.length){html+=`<div class="zone-section-title" style="color:var(--green-bright)">Undiscovered — Dev Mode (${undisc.length})</div>`;for(const o of undisc)html+=entryHTML(o,'Undiscovered',true);}
+  pane.innerHTML=html;
+}
+
+/* ══════════════════════════════════════════════════════
+   ZONE SIDEBAR — FULL ACTION UI  (Step 7 core deliverable)
+══════════════════════════════════════════════════════ */
+function renderZoneSidebar(zone,poi){
+  const sb=document.getElementById('zone-sidebar');
+  const org=playerOrg();
+  const groupsHere=(org?.groups||[]).filter(g=>g.locationPoiId===poi.id&&g.locationZoneId===zone.id);
+
+  // ── Groups in zone section ──
+  let html='<div class="zone-section-title">Groups in Zone</div>';
+
+  if(!groupsHere.length){
+    html+='<div class="no-group-msg">No groups in this zone. Send a group to this POI to perform actions.</div>';
+  } else {
+    for(const group of groupsHere){
+      html+=`<div class="group-in-zone"><div class="group-in-zone-name">⬡ ${group.name} (${group.role})</div>`;
+      for(const rid of group.memberIds){
+        const r=org.recruits.find(r=>r.id===rid);if(!r)continue;
+        const za=r._zoneAction??{type:null,progress:0};
+        const isSelected=rid===_selectedMemberId;
+        const actionLabel=za.type?ACTIONS[za.type]?.label??za.type:'Idle';
+        const pct=za.type?(za.progress/ACTIONS[za.type].threshold*100).toFixed(0):0;
+        const barClass=za.type?ACTIONS[za.type].barClass:'';
+        html+=`<div class="member-action-row">
+          <button class="member-chip-sel${isSelected?' active':''}" data-rid="${rid}" data-gid="${group.id}">${r.name.split(' ')[0]}</button>
+          <div class="action-progress-wrap">
+            <div class="action-label">${actionLabel}</div>
+            <div class="action-bar-track"><div class="action-bar-fill ${barClass}" style="width:${pct}%"></div></div>
+          </div>
+        </div>`;
+      }
+      html+='</div>';
+    }
+  }
+
+  // ── Selected member & action assignment ──
+  const selRecruit=_selectedMemberId?org?.recruits.find(r=>r.id===_selectedMemberId):null;
+  const selGroup=selRecruit?groupsHere.find(g=>g.memberIds.includes(_selectedMemberId)):null;
+
+  if(selRecruit&&selGroup){
+    const za=selRecruit._zoneAction??{type:null,progress:0};
+    const knownObjs=zone.objects.filter(o=>getAwarenessState(PLAYER_FACTION,zone,o.id)==='Known');
+    const locatedObjs=zone.objects.filter(o=>getAwarenessState(PLAYER_FACTION,zone,o.id)==='Located');
+    const adjZones=(zone._passages||[]).map(id=>poi.zones.find(z=>z.id===id)).filter(Boolean);
+
+    html+=`<div class="action-assign-section">
+      <div class="zone-section-title">Assign Action — <span style="color:var(--parchment)">${selRecruit.name.split(' ')[0]}</span></div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-bottom:6px">PER ${selRecruit.characteristics.perception} · DEX ${selRecruit.characteristics.dexterity} · LVL ${selRecruit.characteristics.level}</div>
+      <div class="action-btn-grid">
+        <button class="zone-action-btn${za.type==='scout_zone'?' active-action':''}" data-action="scout_zone">Scout Zone</button>
+        <button class="zone-action-btn${za.type==='rest'?' active-action':''}" data-action="rest">Rest</button>
+        <button class="zone-action-btn${za.type==='hide'?' active-action':''}" data-action="hide">Hide</button>
+      </div>`;
+
+    // Search For picker (Known objects only)
+    if(knownObjs.length){
+      html+=`<div style="margin-top:6px"><div class="zone-section-title" style="margin-top:6px">Search For (Known)</div>
+      <div class="target-picker">
+        <select id="sf-target">
+          <option value="">Select target…</option>
+          ${knownObjs.map(o=>`<option value="${o.id}"${za.type==='search_for'&&za.targetObjectId===o.id?' selected':''}>${OBJ_PLACEHOLDER[o.type]??o.type}</option>`).join('')}
+        </select>
+        <button class="zone-action-btn" data-action="search_for" style="margin-top:4px;width:100%">Search For Target</button>
+      </div></div>`;
+    }
+
+    // Conceal picker (Located objects only)
+    if(locatedObjs.length){
+      html+=`<div style="margin-top:6px"><div class="zone-section-title" style="margin-top:6px">Conceal (Located)</div>
+      <div class="target-picker">
+        <select id="conceal-target">
+          <option value="">Select target…</option>
+          ${locatedObjs.map(o=>`<option value="${o.id}"${za.type==='conceal'&&za.targetObjectId===o.id?' selected':''}>${o.name}</option>`).join('')}
+        </select>
+        <button class="zone-action-btn" data-action="conceal" style="margin-top:4px;width:100%">Conceal Target</button>
+      </div></div>`;
+    }
+
+    // Move to adjacent zone
+    if(adjZones.length){
+      html+=`<div class="zone-section-title" style="margin-top:10px">Move Group</div>`;
+      for(const adj of adjZones){
+        const canEnter=adj.state==='Scouted'||(GS._devMode??false);
+        html+=`<button class="zone-adj-btn${adj.state==='Scouted'?' scouted':''}" data-zone-id="${adj.id}" ${!canEnter?'disabled':''}>→ ${adj.name} [${adj.state}]</button>`;
+      }
+    }
+
+    // Clear action
+    if(za.type){html+=`<button class="zone-action-btn" data-action="clear" style="margin-top:8px;border-color:var(--red-bright);color:var(--red-bright)">Clear Action</button>`;}
+    html+='</div>';
+  }
+
+  // ── Adjacent zone info ──
+  html+=`<div class="zone-section-title" style="margin-top:14px">Adjacent Zones</div>`;
+  for(const adjId of(zone._passages||[])){const adj=poi.zones.find(z=>z.id===adjId);if(!adj)continue;const st=adj.state==='Scouted'?'Scouted':'Unknown';html+=`<div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:3px">${adj.name} <span style="color:${st==='Scouted'?'var(--green-bright)':'var(--text-dim)'}">[${st}]</span></div>`;}
+
+  sb.innerHTML=html;
+
+  // Wire up member selection chips
+  sb.querySelectorAll('.member-chip-sel').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const rid=btn.dataset.rid;
+      _selectedMemberId=(_selectedMemberId===rid)?null:rid;
+      renderZoneSidebar(zone,poi);
+    });
+  });
+
+  // Wire up action buttons
+  sb.querySelectorAll('[data-action]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(!selRecruit||!selGroup)return;
+      const action=btn.dataset.action;
+      if(action==='clear'){assignAction(selRecruit,selGroup,null,null);renderZoneSidebar(zone,poi);renderZoneObjects(zone);return;}
+      let targetId=null;
+      if(action==='search_for'){targetId=sb.querySelector('#sf-target')?.value||null;if(!targetId){showToast('Select a Known object first.','error');return;}}
+      if(action==='conceal'){targetId=sb.querySelector('#conceal-target')?.value||null;if(!targetId){showToast('Select a Located object first.','error');return;}}
+      assignAction(selRecruit,selGroup,action,targetId);
+      renderZoneSidebar(zone,poi);
+      const label=ACTIONS[action]?.label??action;
+      showToast(`${selRecruit.name.split(' ')[0]}: ${label} assigned`);
+    });
+  });
+
+  // Wire up Move Zone buttons
+  sb.querySelectorAll('[data-zone-id]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(!selGroup)return;
+      const targetZoneId=btn.dataset.zoneId;
+      const targetZone=poi.zones.find(z=>z.id===targetZoneId);if(!targetZone)return;
+      // Move entire group to adjacent zone (instant in Step 7)
+      selGroup.locationZoneId=targetZoneId;
+      enterZone(poi,targetZone);
+      // Clear actions on move
+      for(const rid of selGroup.memberIds){const r=org.recruits.find(r=>r.id===rid);if(r&&r._zoneAction)r._zoneAction={type:null,targetObjectId:null,progress:0};}
+      _selectedMemberId=null;
+      drawPoiGraph();
+      openZoneDetail(poi,targetZone);
+      showToast(`${selGroup.name} moved to ${targetZone.name}`);
+    });
+  });
+}
+
+/* ═══════════════ WEBGL MAP RENDERER ═══════════════ */
 const MapRenderer=(()=>{
   let gl,canvas,prog,aPos,aColor,uRes,uOff,uScale;
   let tBuf,tCnt,rBuf,rCnt,cBuf,cCnt,hBuf,hCnt,pBuf,pCnt,puBuf,puCnt,pdBuf,pdCnt,gBuf,gCnt,routeBuf,routeCnt;
-  let vpO={x:0,y:0},vpS=1;
-  const MS=1,MX=24;
+  let vpO={x:0,y:0},vpS=1;const MS=1,MX=24;
   const TC={forest:[.176,.290,.165,1],plains:[.227,.227,.157,1],hills:[.227,.212,.188,1],water:[.102,.165,.227,1]};
   const CC=[.784,.565,.165,1],HC=[.906,.690,.290,1],RC=[.392,.353,.235,.7];
   const PD=[.850,.700,.300,1],PU=[.380,.340,.260,.85],PV=[.200,.700,.280,.90];
@@ -1433,13 +1381,7 @@ const MapRenderer=(()=>{
   function octagon(a,cx,cy,r,c){const s=r*.707;const pts=[[cx,cy-r],[cx+s,cy-s],[cx+r,cy],[cx+s,cy+s],[cx,cy+r],[cx-s,cy+s],[cx-r,cy],[cx-s,cy-s]];for(let i=0;i<pts.length;i++){const[ax,ay]=pts[i],[bx,by]=pts[(i+1)%pts.length];a.push(cx,cy,...c,ax,ay,...c,bx,by,...c);}}
   function buildGroupToken(a,cx,cy,count,roleColor){
     const use3=count>4,gridN=use3?3:2,step=use3?1.0:1.2,baseR=use3?.30:.40,centerR=use3?.55:.65,off=(gridN-1)/2*step;
-    let slot=0;
-    for(let row=0;row<gridN;row++){for(let col=0;col<gridN;col++){
-      if(slot>=count)break;
-      const isC=row===Math.floor(gridN/2)&&col===Math.floor(gridN/2);
-      const dx=(col-off)*step,dy=(row-off)*step,rx=cx+(dx-dy)*.707,ry=cy+(dx+dy)*.707;
-      const r=isC?centerR:baseR;diamond(a,rx,ry,r+.12,TOKEN_BORDER);diamond(a,rx,ry,r,roleColor);slot++;
-    }}
+    let slot=0;for(let row=0;row<gridN;row++){for(let col=0;col<gridN;col++){if(slot>=count)break;const isC=row===Math.floor(gridN/2)&&col===Math.floor(gridN/2);const dx=(col-off)*step,dy=(row-off)*step,rx=cx+(dx-dy)*.707,ry=cy+(dx+dy)*.707;const r=isC?centerR:baseR;diamond(a,rx,ry,r+.12,TOKEN_BORDER);diamond(a,rx,ry,r,roleColor);slot++;}}
   }
   function buildGeometry(world){
     const td=[];for(const t of world.tiles)quad(td,t.x,t.y,1,1,TC[t.terrainType]);tBuf=buf(td);tCnt=td.length/6;
@@ -1469,7 +1411,7 @@ const MapRenderer=(()=>{
   return{init,buildGeometry,rebuildHQ,rebuildPOIs,rebuildGroups,draw,fitToView,screenToWorld,pan,zoom};
 })();
 
-/* ═══════════════════ LABEL RENDERER ═══════════════════ */
+/* ═══════════════ LABEL RENDERER ═══════════════ */
 const LabelRenderer=(()=>{
   let ctx,c2d;
   function init(){c2d=document.createElement('canvas');c2d.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';document.getElementById('canvas-area').appendChild(c2d);ctx=c2d.getContext('2d');}
@@ -1494,9 +1436,8 @@ const LabelRenderer=(()=>{
       if(sx<-80||sx>W+80||sy<-20||sy>H+20)continue;
       const fs=Math.max(8,Math.min(11,sc*.75));
       ctx.font=`${fs}px Share Tech Mono,monospace`;ctx.textAlign='center';ctx.textBaseline='top';
-      const col=poi.discovered?'#c8a050':(dev?'#3a7a40':'#4a4038');
       ctx.fillStyle='rgba(14,14,15,.7)';ctx.fillText(poi.name,sx+1,sy+sc*1.6+1);
-      ctx.fillStyle=col;ctx.fillText(poi.name,sx,sy+sc*1.6);
+      ctx.fillStyle=poi.discovered?'#c8a050':(dev?'#3a7a40':'#4a4038');ctx.fillText(poi.name,sx,sy+sc*1.6);
       if(dev&&!poi.discovered){ctx.font=`${Math.max(7,fs-1)}px Share Tech Mono,monospace`;ctx.fillStyle='#2a6a30';ctx.fillText(`[${poi.despawnTimer}t]`,sx,sy+sc*1.6+fs+2);}
     }
     if(sc>=5&&org)for(const g of org.groups){
@@ -1513,19 +1454,19 @@ const LabelRenderer=(()=>{
   return{init,draw};
 })();
 
-/* ═══════════════════ RENDER LOOP ═══════════════════ */
+/* ═══════════════ RENDER LOOP ═══════════════ */
 let rafId=null,vpState={offset:{x:0,y:0},scale:1};
 function syncVPState(){const w0=MapRenderer.screenToWorld(0,0),w1=MapRenderer.screenToWorld(1,0);vpState.offset={x:w0.x,y:w0.y};vpState.scale=1/(w1.x-w0.x);}
 function startRenderLoop(){
   function frame(){
     const inOverlay=!document.getElementById('city-overlay').classList.contains('hidden')||!document.getElementById('poi-overlay').classList.contains('hidden');
-    if(GS&&GS.world.tiles.length&&inOverlay===false){MapRenderer.draw(GS.world,GS._devMode);LabelRenderer.draw(GS.world,vpState,GS._devMode);}
+    if(GS&&GS.world.tiles.length&&!inOverlay){MapRenderer.draw(GS.world,GS._devMode);LabelRenderer.draw(GS.world,vpState,GS._devMode);}
     rafId=requestAnimationFrame(frame);
   }
   if(rafId)cancelAnimationFrame(rafId);rafId=requestAnimationFrame(frame);
 }
 
-/* ═══════════════════ MAP INPUT ═══════════════════ */
+/* ═══════════════ MAP INPUT ═══════════════ */
 function initMapInput(){
   const c=document.getElementById('map-canvas');
   let dragging=false,lastX=0,lastY=0,didDrag=false;
@@ -1535,17 +1476,13 @@ function initMapInput(){
   c.addEventListener('wheel',e=>{e.preventDefault();MapRenderer.zoom(e.deltaY<0?1.12:1/1.12,e.offsetX,e.offsetY);syncVPState();},{passive:false});
   c.addEventListener('click',e=>{if(didDrag)return;handleMapClick(e.offsetX,e.offsetY,e.clientX,e.clientY);});
 }
-
 function handleMapClick(sx,sy,cx,cy){
   if(!GS||!GS.world.cities)return;
   const w=MapRenderer.screenToWorld(sx,sy);
   const area=document.getElementById('canvas-area').getBoundingClientRect();
   const org=playerOrg();
-  // Groups first
   if(org)for(const g of org.groups){const coords=groupCoords(g,GS.world);if(coords&&Math.hypot(coords.x-w.x,coords.y-w.y)<1.8){openGroupPanel(g.id);return;}}
-  // Cities
   for(const c of GS.world.cities)if(Math.hypot(c.x+.5-w.x,c.y+.5-w.y)<2.2){openCityPanel(c.id);return;}
-  // POIs — discovered opens layout, undiscovered shows popup
   for(const p of GS.world.pois){
     if(Math.hypot(p.x+.5-w.x,p.y+.5-w.y)<1.6){
       if(p.discovered)openPOILayout(p.id);
@@ -1555,7 +1492,6 @@ function handleMapClick(sx,sy,cx,cy){
   }
   hidePopup();
 }
-
 function positionPopup(lx,ly){const p=document.getElementById('map-popup'),area=document.getElementById('canvas-area').getBoundingClientRect();p.style.left=Math.min(lx+14,area.width-235)+'px';p.style.top=Math.min(ly+14,area.height-110)+'px';p.classList.add('visible');p.style.pointerEvents='auto';}
 function showPOIPopup(poi,lx,ly){
   document.getElementById('popup-name').textContent=poi.name;
@@ -1571,7 +1507,173 @@ function showPOIPopup(poi,lx,ly){
 }
 function hidePopup(){document.getElementById('map-popup').classList.remove('visible');}
 
-/* ═══════════════════ ENTER GAME ═══════════════════ */
+/* ═══════════════ CITY LAYOUT (carried from Step 6) ═══════════════ */
+let _openCityId=null,_openCityTabId=null;
+function openCityPanel(cid){
+  _openCityId=cid;_openCityTabId=null;const city=GS.world.cities.find(c=>c.id===cid);if(!city)return;
+  const org=playerOrg(),isHQ=org&&org.hqCityId===cid;
+  document.getElementById('city-header-name').textContent=city.name;
+  document.getElementById('city-header-hq').classList.toggle('hidden',!isHQ);
+  const tabsEl=document.getElementById('city-tabs');tabsEl.innerHTML='';
+  function addSection(l){const s=document.createElement('div');s.className='city-tab-section';s.textContent=l;tabsEl.appendChild(s);}
+  function addTab(id,label){const t=document.createElement('div');t.className='city-tab';t.dataset.tab=id;t.textContent=label;t.addEventListener('click',()=>renderCityPanel(cid,id));tabsEl.appendChild(t);}
+  addSection('City');addTab('market','Market');addTab('tavern','Tavern');
+  if(isHQ){addSection('Headquarters');addTab('roster','Roster');addTab('storeroom','Storeroom');addTab('ledger','Ledger');addTab('groups','Groups');addTab('staff','Staff');}
+  renderCityPanel(cid,isHQ?'roster':'market');
+  document.getElementById('city-overlay').classList.remove('hidden');
+}
+function closeCityPanel(){document.getElementById('city-overlay').classList.add('hidden');_openCityId=null;_openCityTabId=null;}
+function renderCityPanel(cid,tabId){
+  _openCityId=cid;_openCityTabId=tabId;
+  document.querySelectorAll('.city-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tabId));
+  const content=document.getElementById('city-content'),org=playerOrg();
+  switch(tabId){
+    case'market':content.innerHTML='<div class="panel-title">Market</div><div class="panel-subtitle">Purchase food, equipment, and weapons.</div><div class="stub-panel"><strong>Market</strong>Implemented in Step 9.</div>';break;
+    case'tavern':content.innerHTML=renderTavernPanel(org);wireHireButtons(org);break;
+    case'roster':content.innerHTML=renderRosterPanel(org);break;
+    case'storeroom':content.innerHTML='<div class="panel-title">Storeroom</div><div class="panel-subtitle">Items stored at headquarters.</div><div class="stub-panel"><strong>Storeroom</strong>Implemented in Step 9.</div>';break;
+    case'ledger':content.innerHTML=renderLedgerPanel();break;
+    case'groups':content.innerHTML=renderGroupManagerPanel(org,cid);wireGroupManagerButtons(org,cid);break;
+    case'staff':content.innerHTML=renderStaffPanel(org);break;
+    default:content.innerHTML='<div class="stub-panel"><strong>Unknown Panel</strong></div>';
+  }
+}
+function renderTavernPanel(org){
+  const pool=GS._hirePool||[],week=TIME.turnToWeek(GS.turn);
+  let h=`<div class="panel-title">Tavern</div><div class="panel-subtitle">Hire recruits. Pool refreshes weekly. <span style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">Week ${week}</span></div><div class="hire-grid">`;
+  if(!pool.length)h+='<div class="stub-panel" style="padding:20px"><strong>Pool Exhausted</strong>No recruits until next week.</div>';
+  else for(const r of pool){const th=r.traits.map(t=>`<span class="trait-badge">${t}</span>`).join('');h+=`<div class="hire-card"><div class="hire-card-name">${r.name}</div><div class="hire-card-stats">Lvl <span>${r.level}</span> &nbsp;HP <span>${r.characteristics.health}</span> &nbsp;STR <span>${r.characteristics.strength}</span> &nbsp;DEX <span>${r.characteristics.dexterity}</span> &nbsp;PER <span>${r.characteristics.perception}</span> &nbsp;SPD <span>${r.characteristics.movementSpeed}</span>${th?`<br>${th}`:''}</div><div class="hire-card-cost">⬡ ${r._hiringCost}</div><div class="hire-card-btn"><button class="btn btn-sm btn-primary hire-btn" data-id="${r.id}" ${org.gold<r._hiringCost?'disabled':''}>Hire</button></div></div>`;}
+  return h+'</div>';
+}
+function wireHireButtons(org){
+  document.querySelectorAll('.hire-btn').forEach(btn=>{btn.addEventListener('click',()=>{
+    const rid=btn.dataset.id,recruit=(GS._hirePool||[]).find(r=>r.id===rid);if(!recruit)return;
+    if(org.gold<recruit._hiringCost){showToast('Not enough gold.','error');return;}
+    org.gold-=recruit._hiringCost;const{_hiringCost,...clean}=recruit;org.recruits.push(clean);
+    GS._ledger.push({turn:GS.turn,desc:`Hired ${recruit.name}`,amount:-recruit._hiringCost});
+    GS._hirePool=(GS._hirePool||[]).filter(r=>r.id!==rid);
+    updateToolbar();renderCityPanel(_openCityId,'tavern');showToast(`${recruit.name} hired.`,'success');
+  });});
+}
+function renderRosterPanel(org){
+  if(!org.recruits.length)return'<div class="panel-title">Roster</div><div class="panel-subtitle">All guild recruits.</div><div class="stub-panel"><strong>Empty Roster</strong>Hire from the Tavern.</div>';
+  let h=`<div class="panel-title">Roster</div><div class="panel-subtitle">${org.recruits.length} recruit${org.recruits.length!==1?'s':''} on file.</div><table class="roster-table"><thead><tr><th>Name</th><th>Lvl</th><th>HP</th><th>STR</th><th>DEX</th><th>PER</th><th>SPD</th><th>LYL</th><th>Traits</th><th>State</th><th>Action</th></tr></thead><tbody>`;
+  for(const r of org.recruits){
+    const th=r.traits.map(t=>`<span class="trait-badge">${t}</span>`).join('');
+    const sc=r.state==='Available'?'available':'deployed';
+    const za=r._zoneAction??{type:null};
+    const actionLabel=za.type?ACTIONS[za.type]?.label??za.type:'—';
+    h+=`<tr><td><span class="recruit-name">${r.name}</span></td><td><span class="recruit-level">${r.level}</span></td><td>${r.characteristics.health}</td><td>${r.characteristics.strength}</td><td>${r.characteristics.dexterity}</td><td>${r.characteristics.perception}</td><td>${r.characteristics.movementSpeed}</td><td>${r.characteristics.loyalty}</td><td>${th||'—'}</td><td><span class="recruit-state ${sc}">${r.state}</span></td><td style="font-family:var(--mono);font-size:9px;color:var(--text-dim)">${actionLabel}</td></tr>`;
+  }
+  return h+'</tbody></table>';
+}
+function renderLedgerPanel(){
+  const entries=GS._ledger||[];let h='<div class="panel-title">Ledger</div><div class="panel-subtitle">Gold income and expenditure log.</div>';
+  if(!entries.length)return h+'<div class="stub-panel"><strong>No entries yet.</strong></div>';
+  h+='<table class="roster-table"><thead><tr><th>Turn</th><th>Description</th><th>Amount</th></tr></thead><tbody>';
+  for(const e of [...entries].reverse()){const col=e.amount>=0?'color:var(--green-bright)':'color:var(--red-bright)';h+=`<tr><td>${e.turn}</td><td>${e.desc}</td><td style="${col}">${e.amount>=0?'+':''}${e.amount}</td></tr>`;}
+  return h+'</tbody></table>';
+}
+function renderGroupManagerPanel(org,cid){
+  const city=GS.world.cities.find(c=>c.id===cid);
+  let h=`<div class="panel-title">Group Manager</div><div class="panel-subtitle">Create and manage field groups. Groups start at ${city?.name??'this city'}.</div>`;
+  if(!org.groups.length){h+='<div class="stub-panel" style="padding:24px"><strong>No groups yet</strong>Create a group below.</div>';}
+  else{
+    h+='<div class="group-list">';
+    for(const g of org.groups){
+      const mn=g.memberIds.map(id=>org.recruits.find(r=>r.id===id)?.name.split(' ')[0]??'?').join(', ')||'—';
+      let loc='';
+      if(g.inTransitTo){const d=g.inTransitTo.type==='city'?GS.world.cities.find(c=>c.id===g.inTransitTo.targetId)?.name:GS.world.pois.find(p=>p.id===g.inTransitTo.targetId)?.name;loc=`→ ${d??'?'} (${Math.round((g._transitProgress??0)*100)}%)`;}
+      else if(g.currentCityId)loc=GS.world.cities.find(c=>c.id===g.currentCityId)?.name??'City';
+      else if(g.locationPoiId){const poi=GS.world.pois.find(p=>p.id===g.locationPoiId);const zone=poi?.zones.find(z=>z.id===g.locationZoneId);loc=`${poi?.name??'POI'}${zone?` / ${zone.name}`:''}`;}
+      h+=`<div class="group-card"><div class="group-card-header"><span class="group-card-name">${g.name}</span><span class="group-card-role">${g.role}</span><span class="group-card-loc">${loc}</span><button class="btn btn-sm btn-danger" style="margin-left:8px" onclick="disbandGroup('${g.id}')">Disband</button></div><div class="group-card-members">Members: <span>${mn}</span> (${g.memberIds.length}/9)</div></div>`;
+    }
+    h+='</div>';
+  }
+  const avail=org.recruits.filter(r=>r.state==='Available'&&!org.groups.some(g=>g.memberIds.includes(r.id)));
+  h+=`<div class="group-create-form"><div class="group-create-title">Create New Group</div>
+  <div class="create-row"><label>Name</label><input type="text" id="new-group-name" value="Group ${org.groups.length+1}" style="flex:1"></div>
+  <div class="create-row"><label>Role</label><select id="new-group-role" style="flex:1"><option value="Scout">Scout</option><option value="Combat">Combat</option><option value="Supply">Supply</option><option value="Rescue">Rescue</option></select></div>
+  <div style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber-dim);margin:8px 0 4px">Add Members</div>
+  <div class="member-select-grid" id="member-select-grid">`;
+  if(!avail.length)h+='<span style="font-family:var(--mono);font-size:10px;color:var(--text-dim)">No available recruits</span>';
+  else for(const r of avail)h+=`<button class="member-toggle" data-rid="${r.id}" title="Lvl ${r.level}">${r.name.split(' ')[0]}</button>`;
+  h+=`</div><button class="btn btn-sm btn-primary" id="btn-create-group" style="margin-top:8px">Create Group</button></div>`;
+  return h;
+}
+function wireGroupManagerButtons(org,cid){
+  document.querySelectorAll('.member-toggle').forEach(btn=>btn.addEventListener('click',()=>btn.classList.toggle('selected')));
+  const cb=document.getElementById('btn-create-group');if(!cb)return;
+  cb.addEventListener('click',()=>{
+    const name=document.getElementById('new-group-name')?.value.trim()||`Group ${org.groups.length+1}`;
+    const role=document.getElementById('new-group-role')?.value||'Scout';
+    const rids=[...document.querySelectorAll('.member-toggle.selected')].map(b=>b.dataset.rid);
+    if(!rids.length){showToast('Select at least one member.','error');return;}
+    if(rids.length>9){showToast('Max 9 members per group.','error');return;}
+    const g=makeGroup({name,role,memberIds:rids,cityId:cid});
+    org.groups.push(g);
+    for(const rid of rids){const r=org.recruits.find(r=>r.id===rid);if(r)r.state='Deployed';}
+    MapRenderer.rebuildGroups(GS.world,org);renderCityPanel(cid,'groups');showToast(`${name} created.`,'success');
+  });
+}
+function disbandGroup(gid){
+  const org=playerOrg(),g=org.groups.find(g=>g.id===gid);if(!g)return;
+  if(g.inTransitTo){showToast('Cannot disband a group in transit.','error');return;}
+  for(const rid of g.memberIds){const r=org.recruits.find(r=>r.id===rid);if(r){r.state='Available';if(r._zoneAction)r._zoneAction={type:null,targetObjectId:null,progress:0};}}
+  org.groups=org.groups.filter(x=>x.id!==gid);if(_openGroupId===gid)closeGroupPanel();
+  MapRenderer.rebuildGroups(GS.world,org);renderCityPanel(_openCityId,'groups');showToast('Group disbanded.');
+}
+function renderStaffPanel(org){
+  const tasks=[{name:'Gather Rumors',effect:'No additional effect in v1 beyond public baseline.'},{name:'Develop Trading Connections',effect:'Increases Market inventory size and rare item chance.'},{name:'Train Recruits',effect:'Slowly improves unassigned recruits over time.'},{name:'Treat Wounded',effect:'Reduces recovery time for injured recruits.'}];
+  let h='<div class="panel-title">Staff Assignments</div><div class="panel-subtitle">Assign recruits to passive HQ tasks.</div>';
+  for(const t of tasks){const a=org.recruits.filter(r=>r._hqTask===t.name).length;h+=`<div class="task-row"><div class="task-name">${t.name}</div><div class="task-effect">${t.effect}</div><div class="task-count">Assigned: <span>${a}</span></div></div>`;}
+  return h;
+}
+
+/* ═══════════════ GROUP PANEL ═══════════════ */
+let _openGroupId=null;
+function openGroupPanel(gid){_openGroupId=gid;document.getElementById('bottom-stub').classList.add('hidden');document.getElementById('group-panel').classList.remove('hidden');renderGroupPanel(gid);}
+function closeGroupPanel(){_openGroupId=null;document.getElementById('group-panel').classList.add('hidden');document.getElementById('bottom-stub').classList.remove('hidden');}
+document.getElementById('gp-close').addEventListener('click',closeGroupPanel);
+
+function renderGroupPanel(gid){
+  const org=playerOrg(),group=org?.groups.find(g=>g.id===gid);
+  if(!group){closeGroupPanel();return;}
+  document.getElementById('gp-name').textContent=group.name;
+  document.getElementById('gp-role').textContent=group.role;
+  let status='';
+  if(group.inTransitTo){const dest=group.inTransitTo.type==='city'?GS.world.cities.find(c=>c.id===group.inTransitTo.targetId)?.name:GS.world.pois.find(p=>p.id===group.inTransitTo.targetId)?.name;status=`→ ${dest??'?'} (${Math.round((group._transitProgress??0)*100)}%)`;}
+  else if(group.currentCityId){status='At: '+GS.world.cities.find(c=>c.id===group.currentCityId)?.name;}
+  else if(group.locationPoiId){const poi=GS.world.pois.find(p=>p.id===group.locationPoiId);const zone=poi?.zones.find(z=>z.id===group.locationZoneId);status=`In: ${poi?.name??'POI'}${zone?` / ${zone.name}`:''}`;}
+  document.getElementById('gp-status').textContent=status;
+  const membersEl=document.getElementById('gp-members');membersEl.innerHTML='';
+  if(!group.memberIds.length){membersEl.innerHTML='<span style="font-family:var(--mono);font-size:10px;color:var(--text-dim)">No members</span>';}
+  else for(const id of group.memberIds){const r=org.recruits.find(r=>r.id===id);if(!r)continue;const chip=document.createElement('div');chip.className='gp-member-chip';const za=r._zoneAction??{type:null};chip.textContent=r.name.split(' ')[0]+(za.type?` [${ACTIONS[za.type]?.label?.split(' ')[0]??'?'}]`:'');chip.title=`${r.name} — SPD ${r.characteristics.movementSpeed}`;membersEl.appendChild(chip);}
+  const actEl=document.getElementById('gp-actions');actEl.innerHTML='';
+  const tLabel=document.createElement('div');tLabel.className='gp-section-label';tLabel.textContent='Travel';actEl.appendChild(tLabel);
+  if(group.inTransitTo){
+    const info=document.createElement('div');info.className='gp-transit-info';const turns=turnsToTravel(group,group.inTransitTo.type,group.inTransitTo.targetId,GS.world,org);const dest=group.inTransitTo.type==='city'?GS.world.cities.find(c=>c.id===group.inTransitTo.targetId)?.name:GS.world.pois.find(p=>p.id===group.inTransitTo.targetId)?.name;info.innerHTML=`→ <span>${dest??'?'}</span> ~<span>${turns??'?'}</span> turns`;actEl.appendChild(info);
+    const cb=document.createElement('button');cb.className='btn btn-sm btn-danger';cb.textContent='Cancel Travel';cb.addEventListener('click',()=>{group.inTransitTo=null;group._transitFrom=null;group._transitTo=null;group._transitProgress=0;group.state=undefined;renderGroupPanel(gid);MapRenderer.rebuildGroups(GS.world,org);});actEl.appendChild(cb);
+  } else {
+    const row=document.createElement('div');row.className='gp-dest-row';
+    const sel=document.createElement('select');sel.className='gp-dest-select';
+    const blank=document.createElement('option');blank.value='';blank.textContent='Select destination…';sel.appendChild(blank);
+    const cg=document.createElement('optgroup');cg.label='Cities';for(const c of GS.world.cities){const o=document.createElement('option');o.value=`city:${c.id}`;o.textContent=c.name;cg.appendChild(o);}sel.appendChild(cg);
+    const dp=GS.world.pois.filter(p=>p.discovered);if(dp.length){const pg=document.createElement('optgroup');pg.label='Discovered POIs';for(const p of dp){const o=document.createElement('option');o.value=`poi:${p.id}`;o.textContent=`${p.name} (${p.type})`;pg.appendChild(o);}sel.appendChild(pg);}
+    const goBtn=document.createElement('button');goBtn.className='btn btn-sm btn-primary gp-travel-btn';goBtn.textContent='Send';goBtn.disabled=true;
+    sel.addEventListener('change',()=>{goBtn.disabled=!sel.value;});
+    goBtn.addEventListener('click',()=>{const[type,id]=sel.value.split(':');if(!type||!id)return;const turns=turnsToTravel(group,type,id,GS.world,org);assignTravel(group,type,id,GS.world,org);for(const mid of group.memberIds){const r=org.recruits.find(r=>r.id===mid);if(r)r.state='Deployed';}MapRenderer.rebuildGroups(GS.world,org);renderGroupPanel(gid);showToast(`${group.name} dispatched — ~${turns??'?'} turns`);});
+    row.appendChild(sel);row.appendChild(goBtn);actEl.appendChild(row);
+    // Enter POI if at POI
+    if(group.locationPoiId){const epBtn=document.createElement('button');epBtn.className='btn btn-sm btn-primary';epBtn.style.marginTop='6px';epBtn.textContent='Enter Zone View';epBtn.addEventListener('click',()=>{openPOILayout(group.locationPoiId);});actEl.appendChild(epBtn);}
+  }
+  const sLabel=document.createElement('div');sLabel.className='gp-section-label';sLabel.style.marginTop='8px';sLabel.textContent='Daily Schedule';actEl.appendChild(sLabel);
+  const schedRow=document.createElement('div');schedRow.className='gp-schedule';
+  for(let i=0;i<6;i++){const slot=document.createElement('div');slot.className='sched-slot'+(group.schedule[i]?' rest':'');slot.textContent=group.schedule[i]?'Z':(i+1).toString();slot.addEventListener('click',()=>{group.schedule[i]=!group.schedule[i];slot.classList.toggle('rest',group.schedule[i]);slot.textContent=group.schedule[i]?'Z':(i+1).toString();});schedRow.appendChild(slot);}
+  actEl.appendChild(schedRow);
+}
+
+/* ═══════════════ ENTER GAME ═══════════════ */
 function enterGame(){
   showScreen('game');updateToolbar();
   requestAnimationFrame(()=>{
@@ -1587,7 +1689,7 @@ function enterGame(){
   });
 }
 
-/* ═══════════════════ TOOLBAR & DEV ═══════════════════ */
+/* ═══════════════ TOOLBAR & DEV ═══════════════ */
 function updateToolbar(){if(!GS)return;const org=playerOrg();document.getElementById('tb-turn').textContent=GS.turn;document.getElementById('tb-day').textContent=TIME.turnToDay(GS.turn);document.getElementById('tb-gold').textContent=org?org.gold.toLocaleString():'0';document.getElementById('tb-roster').textContent=org?org.recruits.length:'0';document.getElementById('tb-pois').textContent=GS.world.pois.length;}
 function toggleDevMode(){
   if(!GS)return;GS._devMode=!GS._devMode;
@@ -1595,35 +1697,66 @@ function toggleDevMode(){
   document.getElementById('dev-panel').classList.toggle('hidden',!GS._devMode);
   MapRenderer.rebuildPOIs(GS.world,GS._devMode);
   if(GS._devMode)refreshDevPanel();
-  // Re-render open views
   if(_currentPoiId){const poi=GS.world.pois.find(p=>p.id===_currentPoiId);if(poi){renderPoiSidebar(poi);drawPoiGraph();}}
-  if(_currentZoneId){const poi=GS.world.pois.find(p=>p.id===_currentPoiId);const zone=poi?.zones.find(z=>z.id===_currentZoneId);if(zone&&poi){renderZoneObjects(zone);renderZoneSidebar(zone,poi);}}
+  if(_currentZoneId&&_currentPoiId){const poi=GS.world.pois.find(p=>p.id===_currentPoiId);const zone=poi?.zones.find(z=>z.id===_currentZoneId);if(zone&&poi){renderZoneObjects(zone);renderZoneSidebar(zone,poi);}}
 }
 function refreshDevPanel(){
   const el=document.getElementById('dev-state-dump');if(!el)return;
   const org=playerOrg();
-  const d={...GS,world:{...GS.world,tiles:`[${GS.world.tiles.length} tiles]`,pois:GS.world.pois.map(p=>({id:p.id,name:p.name,type:p.type,size:p.size,discovered:p.discovered,despawnTimer:p.despawnTimer,zones:p.zones.length}))},_hirePool:`[${(GS._hirePool||[]).length} recruits]`};
+  const d={...GS,world:{...GS.world,tiles:`[${GS.world.tiles.length} tiles]`,pois:GS.world.pois.map(p=>({id:p.id,name:p.name,type:p.type,discovered:p.discovered,despawnTimer:p.despawnTimer,zones:p.zones.length}))},_hirePool:`[${(GS._hirePool||[]).length} recruits]`};
   el.textContent=JSON.stringify(d,null,2);
 }
 
-/* ═══════════════════ SCREEN MANAGEMENT ═══════════════════ */
+/* ═══════════════ SCREEN MANAGEMENT ═══════════════ */
 const SCREENS=['screen-launch','screen-world-options','screen-test-scenario','screen-game'];
 function showScreen(n){SCREENS.forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('hidden',id!=='screen-'+n);});}
 function showToast(msg,type=''){const c=document.getElementById('toast-container');const t=document.createElement('div');t.className='toast'+(type?' '+type:'');t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),2900);}
 
-/* ═══════════════════ TEST SCENARIOS ═══════════════════ */
+/* ═══════════════ TEST SCENARIOS ═══════════════ */
 const TEST_SCENARIOS=[
+  {id:'action_test',name:'Action System Test',
+   desc:'Group pre-placed inside entry zone of a discovered POI. Open the POI → click a member → assign Scout Zone → End Turn to watch awareness grow.',
+   build(){
+     const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:12});
+     s._startingChars=3;generateWorld(s);
+     const org=s.organizations[0];
+     // Find a discovered POI, generate its zones, place group inside entry zone
+     const poi=s.world.pois.find(p=>p.discovered);
+     if(poi){
+       const rng=makePRNG(poi.id.split('').reduce((h,c)=>Math.imul(31,h)+c.charCodeAt(0)|0,0));
+       generateZones(poi,rng);
+       if(org.recruits.length>=2){
+         const g=makeGroup({name:'Alpha Squad',role:'Scout',memberIds:org.recruits.slice(0,2).map(r=>r.id),cityId:org.hqCityId});
+         g.currentCityId=null;g.locationPoiId=poi.id;g.locationZoneId=poi.zones[0].id;
+         org.groups.push(g);org.recruits.slice(0,2).forEach(r=>r.state='Deployed');
+         initFactionForZone(PLAYER_FACTION,poi.zones[0]);poi.zones[0].state='Scouted';
+       }
+     }
+     return s;
+   }},
   {id:'zone_explore',name:'Zone Exploration',
-   desc:'World with 20 POIs. Click a Discovered POI (◆) to open its zone graph. Click zones to view objects and awareness states.',
+   desc:'World with 20 POIs. Click a Discovered POI (◆) to open zone graph, then explore zones and assign actions.',
    build(){const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:12});s._startingChars=3;generateWorld(s);return s;}},
-  {id:'dev_zones',name:'Dev Mode Zone Test',
-   desc:'Same as above but Dev Mode is pre-enabled, revealing all hidden state including Undiscovered objects and Unknown zones.',
-   build(){const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:12});s._startingChars=3;generateWorld(s);s._devMode=true;return s;}},
-  {id:'groups_test',name:'Groups & Travel',
-   desc:'5 recruits, 4200 gold. Tests full group lifecycle including POI entry.',
-   build(){const s=makeGameState({orgName:'Test Guild',gold:4200,mapSize:128,targetPois:20,targetKnownPois:8});s._startingChars=5;generateWorld(s);return s;}},
-  {id:'fast_despawn',name:'Fast Despawn',
-   desc:'POIs with short timers. Advance turns to watch despawn cycle.',
+  {id:'dev_actions',name:'Dev Mode Action Test',
+   desc:'Action test with Dev Mode pre-enabled. All objects visible, all zones accessible.',
+   build(){
+     const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:12});
+     s._startingChars=3;generateWorld(s);s._devMode=true;
+     const org=s.organizations[0];
+     const poi=s.world.pois.find(p=>p.discovered);
+     if(poi){
+       const rng=makePRNG(poi.id.split('').reduce((h,c)=>Math.imul(31,h)+c.charCodeAt(0)|0,0));
+       generateZones(poi,rng);
+       if(org.recruits.length>=2){
+         const g=makeGroup({name:'Alpha Squad',role:'Scout',memberIds:org.recruits.slice(0,2).map(r=>r.id),cityId:org.hqCityId});
+         g.currentCityId=null;g.locationPoiId=poi.id;g.locationZoneId=poi.zones[0].id;
+         org.groups.push(g);org.recruits.slice(0,2).forEach(r=>r.state='Deployed');
+         initFactionForZone(PLAYER_FACTION,poi.zones[0]);poi.zones[0].state='Scouted';
+       }
+     }
+     return s;
+   }},
+  {id:'fast_despawn',name:'Fast Despawn',desc:'Short timers. Advance turns to watch despawn.',
    build(){const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:8});generateWorld(s);const rng=makePRNG(0xFADE);s.world.pois.forEach(p=>{p.despawnTimer=rng.int(3,8);});return s;}},
 ];
 
@@ -1639,7 +1772,7 @@ function buildScenarioList(){
   });
 }
 
-/* ═══════════════════ LAUNCH / OPTIONS / WIRING ═══════════════════ */
+/* ═══════════════ EVENT WIRING ═══════════════ */
 function showLaunchError(m){const e=document.getElementById('launch-error');e.textContent=m;e.classList.add('visible');}
 function clearLaunchError(){document.getElementById('launch-error').classList.remove('visible');}
 document.getElementById('btn-new-game').addEventListener('click',()=>{clearLaunchError();showScreen('world-options');});
@@ -1673,10 +1806,13 @@ window.addEventListener('keydown',e=>{
     hidePopup();
   }
 });
-window.addEventListener('resize',()=>{if(GS&&GS.world.tiles.length){syncVPState();if(_currentPoiId){resizePoiGraphCanvas();const poi=GS.world.pois.find(p=>p.id===_currentPoiId);if(poi){poi._layoutPositions=null;drawPoiGraph();}}}});
+window.addEventListener('resize',()=>{
+  if(GS&&GS.world.tiles.length){syncVPState();
+  if(_currentPoiId){resizePoiGraphCanvas();const poi=GS.world.pois.find(p=>p.id===_currentPoiId);if(poi){poi._layoutPositions=null;drawPoiGraph();}}}
+});
 window.addEventListener('beforeunload',()=>{if(GS)autosave();});
 
-/* ═══════════════════ AUTOSAVE RESTORE ═══════════════════ */
+/* ═══════════════ AUTOSAVE RESTORE ═══════════════ */
 (function checkAutosave(){
   try{const raw=localStorage.getItem(AUTOSAVE_KEY);if(!raw)return;const s=JSON.parse(raw);if(!s||typeof s.turn!=='number')return;
   const btnLoad=document.getElementById('btn-load-game');const btnAuto=document.createElement('button');btnAuto.className='btn';

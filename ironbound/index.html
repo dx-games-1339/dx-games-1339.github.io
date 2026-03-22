@@ -191,7 +191,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 .task-count{font-family:var(--mono);font-size:11px;color:var(--text-dim);}
 .task-count span{color:var(--amber);}
 /* POI Layout overlay */
-#poi-overlay{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;background:var(--bg);}
+#poi-overlay{position:absolute;top:44px;left:0;right:0;bottom:0;z-index:20;display:flex;flex-direction:column;background:var(--bg);}
 .poi-header{display:flex;align-items:center;height:44px;min-height:44px;flex-shrink:0;background:var(--bg-panel);border-bottom:1px solid var(--border);padding:0 16px;gap:12px;}
 .poi-header-name{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:.14em;color:var(--parchment);}
 .poi-header-type{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber-dim);}
@@ -210,7 +210,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 .poi-back-btn{padding:5px 12px;background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:10px;letter-spacing:.08em;cursor:pointer;text-transform:uppercase;outline:none;transition:border-color .12s,color .12s;flex-shrink:0;}
 .poi-back-btn:hover{border-color:var(--parchment);color:var(--parchment);}
 /* Zone Detail overlay */
-#zone-overlay{position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;background:var(--bg);}
+#zone-overlay{position:absolute;top:44px;left:0;right:0;bottom:0;z-index:30;display:flex;flex-direction:column;background:var(--bg);}
 .zone-header{display:flex;align-items:center;height:44px;min-height:44px;flex-shrink:0;background:var(--bg-panel);border-bottom:1px solid var(--border);padding:0 16px;gap:12px;}
 .zone-header-name{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:.14em;color:var(--parchment);}
 .zone-header-state{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border:1px solid;}
@@ -303,7 +303,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
     <div class="launch-error" id="launch-error"></div>
   </div>
   <input type="file" id="file-load-input" accept=".json" style="display:none">
-  <div class="launch-version">v0.7 — Step 7</div>
+  <div class="launch-version">v0.7.1 — Step 7.1 Maintenance</div>
 </div>
 <!-- WORLD OPTIONS -->
 <div id="screen-world-options" class="hidden">
@@ -358,6 +358,13 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
       <div class="popup-row"  id="popup-row1"></div>
       <div class="popup-row"  id="popup-row2"></div>
       <div class="popup-row"  id="popup-dev" style="display:none"></div>
+      <button id="popup-enter-btn" style="display:none;margin-top:9px;width:100%;padding:5px 10px;background:transparent;border:1px solid var(--amber-dim);color:var(--amber-bright);font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;text-align:center;transition:background .12s,border-color .12s;" onmouseover="this.style.background='rgba(122,85,24,.25)'" onmouseout="this.style.background='transparent'">Enter POI →</button>
+    </div>
+    <!-- Fix 4: Disambiguation menu -->
+    <div id="disambig-menu" style="display:none;position:absolute;background:var(--bg-panel);border:1px solid var(--border-accent);padding:6px;z-index:8;min-width:160px;pointer-events:auto;">
+      <div style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);padding:3px 6px 6px;">Select target</div>
+      <button id="disambig-group-btn" style="display:block;width:100%;padding:5px 10px;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--parchment);font-family:var(--mono);font-size:10px;text-align:left;cursor:pointer;letter-spacing:.06em;" onmouseover="this.style.background='rgba(200,144,42,.12)'" onmouseout="this.style.background='transparent'">⬡ Open Group</button>
+      <button id="disambig-poi-btn" style="display:block;width:100%;padding:5px 10px;background:transparent;border:none;color:var(--amber-bright);font-family:var(--mono);font-size:10px;text-align:left;cursor:pointer;letter-spacing:.06em;" onmouseover="this.style.background='rgba(200,144,42,.12)'" onmouseout="this.style.background='transparent'">◆ Open POI</button>
     </div>
     <div id="map-legend">
       <span style="background:#2d4a2a"></span>Forest &nbsp;<span style="background:#3a3a28"></span>Plains &nbsp;<span style="background:#3a3530"></span>Hills &nbsp;<span style="background:#1a2a3a"></span>Water
@@ -365,7 +372,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
     <div id="dev-panel" class="hidden"><h3>⬡ Dev Mode — Game State</h3><pre id="dev-state-dump"></pre></div>
   </div>
   <div id="bottom-panel">
-    <div class="bottom-stub" id="bottom-stub">Click a group token on the map · Click a Discovered POI to explore</div>
+    <div class="bottom-stub" id="bottom-stub">Click a group token · Click any POI for details · Click a group+POI overlap to disambiguate</div>
     <div id="group-panel" class="hidden">
       <div class="gp-header">
         <span class="gp-name" id="gp-name">—</span><span class="gp-role" id="gp-role"></span>
@@ -435,7 +442,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 <script>
 'use strict';
 /* ═══════════════ CONSTANTS ═══════════════ */
-const VERSION='0.7-step7',AUTOSAVE_KEY='ironbound_autosave',AUTOSAVE_EVERY=5;
+const VERSION='0.7.1-step7_1',AUTOSAVE_KEY='ironbound_autosave',AUTOSAVE_EVERY=5;
 const PLAYER_FACTION='player';
 
 /* ═══════════════ TIME ═══════════════ */
@@ -979,7 +986,7 @@ function processGroupTravel(gs){
 
 function advanceTurn(){
   if(!GS)return;
-  hidePopup();
+  // Fix 2: do NOT close the POI popup — it will be refreshed in-place below
   GS.turn++;
 
   const expired=worldConsistencyCheck(GS);
@@ -1006,6 +1013,8 @@ function advanceTurn(){
   }
   if(!document.getElementById('city-overlay').classList.contains('hidden')&&_openCityId)renderCityPanel(_openCityId,_openCityTabId??'roster');
   if(_openGroupId)renderGroupPanel(_openGroupId);
+  // Fix 2: refresh popup in-place if one is open
+  if(_openPopupPoiId)refreshPOIPopup();
 
   const parts=[`Turn ${GS.turn}`,...(expired>0?[`${expired} POI${expired>1?'s':''} expired`]:[]),...(arrivals.length?[arrivals.join(', ')]:[]),(actionEvents.length?[`${actionEvents.length} action event${actionEvents.length>1?'s':''}`]:[])].filter(Boolean);
   showToast(parts.join(' — '));
@@ -1459,8 +1468,9 @@ let rafId=null,vpState={offset:{x:0,y:0},scale:1};
 function syncVPState(){const w0=MapRenderer.screenToWorld(0,0),w1=MapRenderer.screenToWorld(1,0);vpState.offset={x:w0.x,y:w0.y};vpState.scale=1/(w1.x-w0.x);}
 function startRenderLoop(){
   function frame(){
-    const inOverlay=!document.getElementById('city-overlay').classList.contains('hidden')||!document.getElementById('poi-overlay').classList.contains('hidden');
-    if(GS&&GS.world.tiles.length&&!inOverlay){MapRenderer.draw(GS.world,GS._devMode);LabelRenderer.draw(GS.world,vpState,GS._devMode);}
+    // City overlay covers the full game screen; POI/Zone overlays now only cover canvas-area below toolbar
+    const cityOpen=!document.getElementById('city-overlay').classList.contains('hidden');
+    if(GS&&GS.world.tiles.length&&!cityOpen){MapRenderer.draw(GS.world,GS._devMode);LabelRenderer.draw(GS.world,vpState,GS._devMode);}
     rafId=requestAnimationFrame(frame);
   }
   if(rafId)cancelAnimationFrame(rafId);rafId=requestAnimationFrame(frame);
@@ -1470,7 +1480,7 @@ function startRenderLoop(){
 function initMapInput(){
   const c=document.getElementById('map-canvas');
   let dragging=false,lastX=0,lastY=0,didDrag=false;
-  c.addEventListener('mousedown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;didDrag=false;c.classList.add('panning');hidePopup();});
+  c.addEventListener('mousedown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;didDrag=false;c.classList.add('panning');hideDisambig();});
   window.addEventListener('mouseup',()=>{dragging=false;c.classList.remove('panning');});
   window.addEventListener('mousemove',e=>{if(!dragging)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;if(Math.abs(dx)>2||Math.abs(dy)>2)didDrag=true;MapRenderer.pan(dx,dy);syncVPState();lastX=e.clientX;lastY=e.clientY;});
   c.addEventListener('wheel',e=>{e.preventDefault();MapRenderer.zoom(e.deltaY<0?1.12:1/1.12,e.offsetX,e.offsetY);syncVPState();},{passive:false});
@@ -1481,19 +1491,67 @@ function handleMapClick(sx,sy,cx,cy){
   const w=MapRenderer.screenToWorld(sx,sy);
   const area=document.getElementById('canvas-area').getBoundingClientRect();
   const org=playerOrg();
-  if(org)for(const g of org.groups){const coords=groupCoords(g,GS.world);if(coords&&Math.hypot(coords.x-w.x,coords.y-w.y)<1.8){openGroupPanel(g.id);return;}}
-  for(const c of GS.world.cities)if(Math.hypot(c.x+.5-w.x,c.y+.5-w.y)<2.2){openCityPanel(c.id);return;}
-  for(const p of GS.world.pois){
-    if(Math.hypot(p.x+.5-w.x,p.y+.5-w.y)<1.6){
-      if(p.discovered)openPOILayout(p.id);
-      else showPOIPopup(p,cx-area.left,cy-area.top);
-      return;
-    }
+
+  // Fix 4: collect all hits at this point
+  const hitGroup=org?.groups.find(g=>{const coords=groupCoords(g,GS.world);return coords&&Math.hypot(coords.x-w.x,coords.y-w.y)<1.8;})||null;
+  const hitCity=GS.world.cities.find(c=>Math.hypot(c.x+.5-w.x,c.y+.5-w.y)<2.2)||null;
+  const hitPOI=GS.world.pois.find(p=>Math.hypot(p.x+.5-w.x,p.y+.5-w.y)<1.6)||null;
+
+  // City always direct-opens (no overlap case needed)
+  if(hitCity&&!hitGroup&&!hitPOI){openCityPanel(hitCity.id);return;}
+
+  // Fix 4: group AND poi overlap → show disambiguation menu
+  if(hitGroup&&hitPOI){
+    hideDisambig();
+    const lx=cx-area.left,ly=cy-area.top;
+    showDisambig(lx,ly,()=>openGroupPanel(hitGroup.id),()=>showPOIPopup(hitPOI,lx,ly));
+    return;
   }
+
+  // Group only
+  if(hitGroup&&!hitPOI){openGroupPanel(hitGroup.id);return;}
+
+  // Fix 1: POI (discovered or undiscovered) → always show popup first
+  if(hitPOI){showPOIPopup(hitPOI,cx-area.left,cy-area.top);return;}
+
   hidePopup();
 }
-function positionPopup(lx,ly){const p=document.getElementById('map-popup'),area=document.getElementById('canvas-area').getBoundingClientRect();p.style.left=Math.min(lx+14,area.width-235)+'px';p.style.top=Math.min(ly+14,area.height-110)+'px';p.classList.add('visible');p.style.pointerEvents='auto';}
+
+/* Fix 4: disambiguation menu */
+let _disambigGroupCb=null,_disambigPOICb=null;
+function showDisambig(lx,ly,groupCb,poiCb){
+  _disambigGroupCb=groupCb;_disambigPOICb=poiCb;
+  const menu=document.getElementById('disambig-menu');
+  const area=document.getElementById('canvas-area').getBoundingClientRect();
+  menu.style.left=Math.min(lx+4,area.width-175)+'px';
+  menu.style.top=Math.min(ly+4,area.height-80)+'px';
+  menu.style.display='block';
+}
+function hideDisambig(){
+  document.getElementById('disambig-menu').style.display='none';
+  _disambigGroupCb=null;_disambigPOICb=null;
+}
+document.getElementById('disambig-group-btn').addEventListener('click',()=>{const cb=_disambigGroupCb;hideDisambig();if(cb)cb();});
+document.getElementById('disambig-poi-btn').addEventListener('click',()=>{const cb=_disambigPOICb;hideDisambig();if(cb)cb();});
+
+/* Fix 1+2: popup state */
+let _openPopupPoiId=null;
+
+function positionPopup(lx,ly){
+  const p=document.getElementById('map-popup'),area=document.getElementById('canvas-area').getBoundingClientRect();
+  p.style.left=Math.min(lx+14,area.width-235)+'px';
+  p.style.top=Math.min(ly+14,area.height-140)+'px';
+  p.classList.add('visible');p.style.pointerEvents='auto';
+}
+
 function showPOIPopup(poi,lx,ly){
+  hideDisambig();
+  _openPopupPoiId=poi.id;
+  _fillPOIPopup(poi);
+  positionPopup(lx,ly);
+}
+
+function _fillPOIPopup(poi){
   document.getElementById('popup-name').textContent=poi.name;
   const tag=document.getElementById('popup-tag');
   if(poi.discovered){tag.className='popup-tag discovered';tag.textContent='◆ Discovered';}
@@ -1502,14 +1560,39 @@ function showPOIPopup(poi,lx,ly){
   document.getElementById('popup-row2').innerHTML=`Despawn: <span>${poi.despawnTimer} turns</span>`;
   const dev=document.getElementById('popup-dev');
   if(GS._devMode){dev.style.display='block';dev.className='popup-row popup-tag dev-info';dev.innerHTML=`Size: <span>${poi.size}</span> &nbsp; Zones: <span>${poi._zoneCount}</span>`;}
-  else{if(!poi.discovered){document.getElementById('popup-row1').textContent='Location known — interact to discover.';document.getElementById('popup-row2').textContent='';}dev.style.display='none';}
-  positionPopup(lx,ly);
+  else{
+    if(!poi.discovered){document.getElementById('popup-row1').textContent='Location known — interact to discover.';document.getElementById('popup-row2').textContent='';}
+    dev.style.display='none';
+  }
+  // Fix 1: Enter POI button for discovered POIs
+  const enterBtn=document.getElementById('popup-enter-btn');
+  if(poi.discovered){
+    enterBtn.style.display='block';
+    enterBtn.onclick=()=>{hidePopup();openPOILayout(poi.id);};
+  } else {
+    enterBtn.style.display='none';
+    enterBtn.onclick=null;
+  }
 }
-function hidePopup(){document.getElementById('map-popup').classList.remove('visible');}
+
+/* Fix 2: refresh popup in-place after turn advance */
+function refreshPOIPopup(){
+  if(!_openPopupPoiId)return;
+  const poi=GS.world.pois.find(p=>p.id===_openPopupPoiId);
+  if(!poi){hidePopup();return;} // POI despawned — close now
+  _fillPOIPopup(poi);
+}
+
+function hidePopup(){
+  document.getElementById('map-popup').classList.remove('visible');
+  _openPopupPoiId=null;
+  hideDisambig();
+}
 
 /* ═══════════════ CITY LAYOUT (carried from Step 6) ═══════════════ */
 let _openCityId=null,_openCityTabId=null;
 function openCityPanel(cid){
+  hidePopup();
   _openCityId=cid;_openCityTabId=null;const city=GS.world.cities.find(c=>c.id===cid);if(!city)return;
   const org=playerOrg(),isHQ=org&&org.hqCityId===cid;
   document.getElementById('city-header-name').textContent=city.name;
@@ -1632,7 +1715,7 @@ function renderStaffPanel(org){
 
 /* ═══════════════ GROUP PANEL ═══════════════ */
 let _openGroupId=null;
-function openGroupPanel(gid){_openGroupId=gid;document.getElementById('bottom-stub').classList.add('hidden');document.getElementById('group-panel').classList.remove('hidden');renderGroupPanel(gid);}
+function openGroupPanel(gid){hidePopup();_openGroupId=gid;document.getElementById('bottom-stub').classList.add('hidden');document.getElementById('group-panel').classList.remove('hidden');renderGroupPanel(gid);}
 function closeGroupPanel(){_openGroupId=null;document.getElementById('group-panel').classList.add('hidden');document.getElementById('bottom-stub').classList.remove('hidden');}
 document.getElementById('gp-close').addEventListener('click',closeGroupPanel);
 
@@ -1798,6 +1881,7 @@ document.getElementById('btn-close-poi').addEventListener('click',closePOILayout
 document.getElementById('btn-close-zone').addEventListener('click',closeZoneDetail);
 window.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
+    if(document.getElementById('disambig-menu').style.display!=='none'){hideDisambig();return;}
     if(!document.getElementById('zone-overlay').classList.contains('hidden')){closeZoneDetail();return;}
     if(!document.getElementById('poi-overlay').classList.contains('hidden')){closePOILayout();return;}
     if(!document.getElementById('city-overlay').classList.contains('hidden')){closeCityPanel();return;}

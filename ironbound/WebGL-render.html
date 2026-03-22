@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ironbound</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; overflow: hidden; width: 100vw; height: 100vh; }
+  canvas { display: block; width: 100vw; height: 100vh; cursor: default; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+'use strict';
+
+// ─────────────────────────────────────────────
+//  CONSTANTS
+// ─────────────────────────────────────────────
+const W = () => canvas.width;
+const H = () => canvas.height;
+
+// ─────────────────────────────────────────────
+//  CANVAS + GL SETUP
+// ─────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const gl = canvas.getContext('webgl', { antialias: true });
+
+function resize() {
+  canvas.width  = window.innerWidth  * devicePixelRatio;
+  canvas.height = window.innerHeight * devicePixelRatio;
+  canvas.style.width  = window.innerWidth  + 'px';
+  canvas.style.height = window.innerHeight + 'px';
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  if (renderer) renderer.onResize();
+}
+window.addEventListener('resize', resize);
+
+// ─────────────────────────────────────────────
+//  SHADER UTILITIES
+// ─────────────────────────────────────────────
+function compileShader(src, type) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS))
+    throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+
+function makeProgram(vsrc, fsrc) {
+  const prog = gl.createProgram();
+  gl.attachShader(prog, compileShader(vsrc, gl.VERTEX_SHADER));
+  gl.attachShader(prog, compileShader(fsrc, gl.FRAGMENT_SHADER));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS))
+    throw new Error(gl.getProgramInfoLog(prog));
+  return prog;
+}
+
+// ─────────────────────────────────────────────
+//  COLOUR UTILITIES
+// ─────────────────────────────────────────────
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16)/255;
+  const g = parseInt(hex.slice(3,5),16)/255;
+  const b = parseInt(hex.slice(5,7),16)/255;
+  return [r, g, b];
+}
+
+// ─────────────────────────────────────────────
+//  PALETTE
+// ─────────────────────────────────────────────
+const PAL = {
+  bg:          '#0a0c10',
+  panel:       '#12151c',
+  panelBorder: '#2a2f3d',
+  text:        '#c8cfd8',
+  textDim:     '#5a6070',
+  textBright:  '#eef2f8',
+  accent:      '#8b6914',
+  accentBright:'#c8971e',
+  accentGlow:  '#d4a832',
+  danger:      '#7a2020',
+  discovered:  '#c8971e',
+  undiscovered:'#3a4050',
+  city:        '#6fa8dc',
+  terrain: {
+    plains: '#1a1f14',
+    forest: '#141a10',
+    hills:  '#1a1714',
+    water:  '#0d1318',
+  }
+};
+
+// ─────────────────────────────────────────────
+//  IMMEDIATE MODE RENDERER (2D shapes on WebGL)
+//  Uses a simple batched quad/triangle renderer
+//  that flushes on each draw call category.
+// ─────────────────────────────────────────────
+const VS_FLAT = `
+  attribute vec2 a_pos;
+  attribute vec4 a_col;
+  uniform vec2 u_res;
+  varying vec4 v_col;
+  void main() {
+    vec2 clip = (a_pos / u_res) * 2.0 - 1.0;
+    gl_Position = vec4(clip.x, -clip.y, 0.0, 1.0);
+    v_col = a_col;
+  }
+`;
+const FS_FLAT = `
+  precision mediump float;
+  varying vec4 v_col;
+  void main() { gl_FragColor = v_col; }
+`;
+
+class Renderer {
+  constructor() {
+    this.prog = makeProgram(VS_FLAT, FS_FLAT);
+    this.aPos = gl.getAttribLocation(this.prog, 'a_pos');
+    this.aCol = gl.getAttribLocation(this.prog, 'a_col');
+    this.uRes = gl.getUniformLocation(this.prog, 'u_res');
+
+    this.MAX = 65536;
+    this.posData = new Float32Array(this.MAX * 2);
+    this.colData = new Float32Array(this.MAX * 4);
+    this.idxData = new Uint16Array(this.MAX * 3);
+    this.verts = 0; this.tris = 0;
+
+    this.posBuf = gl.createBuffer();
+    this.colBuf = gl.createBuffer();
+    this.idxBuf = gl.createBuffer();
+
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  }
+
+  onResize() { /* viewport already set */ }
+
+  _push(x, y, r, g, b, a) {
+    const v = this.verts;
+    this.posData[v*2]   = x; this.posData[v*2+1] = y;
+    this.colData[v*4]   = r; this.colData[v*4+1] = g;
+    this.colData[v*4+2] = b; this.colData[v*4+3] = a;
+    this.verts++;
+    return v;
+  }
+
+  _tri(a, b, c) {
+    const t = this.tris * 3;
+    this.idxData[t] = a; this.idxData[t+1] = b; this.idxData[t+2] = c;
+    this.tris++;
+  }
+
+  quad(x, y, w, h, hex, alpha=1) {
+    const [r,g,b] = hexToRgb(hex), a=alpha;
+    const v0=this._push(x,   y,   r,g,b,a);
+    const v1=this._push(x+w, y,   r,g,b,a);
+    const v2=this._push(x+w, y+h, r,g,b,a);
+    const v3=this._push(x,   y+h, r,g,b,a);
+    this._tri(v0,v1,v2); this._tri(v0,v2,v3);
+  }
+
+  // Outlined rect
+  rect(x, y, w, h, hex, alpha=1, thickness=1) {
+    this.quad(x,         y,          w,         thickness, hex, alpha);
+    this.quad(x,         y+h-thickness, w,       thickness, hex, alpha);
+    this.quad(x,         y,          thickness, h,         hex, alpha);
+    this.quad(x+w-thickness, y,      thickness, h,         hex, alpha);
+  }
+
+  circle(cx, cy, r, hex, alpha=1, segments=32) {
+    const [cr,cg,cb] = hexToRgb(hex), a=alpha;
+    const cen = this._push(cx, cy, cr,cg,cb,a);
+    const first = this.verts;
+    for (let i=0; i<=segments; i++) {
+      const ang = (i/segments)*Math.PI*2;
+      this._push(cx+Math.cos(ang)*r, cy+Math.sin(ang)*r, cr,cg,cb,a);
+    }
+    for (let i=0; i<segments; i++) this._tri(cen, first+i, first+i+1);
+  }
+
+  // Diamond / rhombus
+  diamond(cx, cy, rx, ry, hex, alpha=1) {
+    const [r,g,b] = hexToRgb(hex), a=alpha;
+    const v0=this._push(cx,    cy-ry, r,g,b,a);
+    const v1=this._push(cx+rx, cy,    r,g,b,a);
+    const v2=this._push(cx,    cy+ry, r,g,b,a);
+    const v3=this._push(cx-rx, cy,    r,g,b,a);
+    this._tri(v0,v1,v2); this._tri(v0,v2,v3);
+  }
+
+  // Thin line via two triangles
+  line(x0, y0, x1, y1, hex, alpha=1, thickness=1.5) {
+    const dx = x1-x0, dy = y1-y0;
+    const len = Math.sqrt(dx*dx+dy*dy)||1;
+    const nx = -dy/len*thickness*0.5, ny = dx/len*thickness*0.5;
+    const [r,g,b] = hexToRgb(hex), a=alpha;
+    const v0=this._push(x0+nx,y0+ny,r,g,b,a);
+    const v1=this._push(x0-nx,y0-ny,r,g,b,a);
+    const v2=this._push(x1-nx,y1-ny,r,g,b,a);
+    const v3=this._push(x1+nx,y1+ny,r,g,b,a);
+    this._tri(v0,v1,v2); this._tri(v0,v2,v3);
+  }
+
+  flush() {
+    if (!this.tris) return;
+    gl.useProgram(this.prog);
+    gl.uniform2f(this.uRes, canvas.width, canvas.height);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.posBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, this.posData.subarray(0, this.verts*2), gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(this.aPos);
+    gl.vertexAttribPointer(this.aPos, 2, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.colBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, this.colData.subarray(0, this.verts*4), gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(this.aCol);
+    gl.vertexAttribPointer(this.aCol, 4, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.idxBuf);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.idxData.subarray(0, this.tris*3), gl.DYNAMIC_DRAW);
+
+    gl.drawElements(gl.TRIANGLES, this.tris*3, gl.UNSIGNED_SHORT, 0);
+    this.verts = 0; this.tris = 0;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  TEXT RENDERER (2D canvas blit approach)
+//  We use an offscreen 2D canvas for text,
+//  upload as WebGL texture, blit as quads.
+// ─────────────────────────────────────────────
+const txt2d = document.createElement('canvas');
+txt2d.width = 2048; txt2d.height = 512;
+const ctx2d = txt2d.getContext('2d');
+
+const VS_TEX = `
+  attribute vec2 a_pos;
+  attribute vec2 a_uv;
+  uniform vec2 u_res;
+  varying vec2 v_uv;
+  void main() {
+    vec2 clip = (a_pos / u_res) * 2.0 - 1.0;
+    gl_Position = vec4(clip.x, -clip.y, 0.0, 1.0);
+    v_uv = a_uv;
+  }
+`;
+const FS_TEX = `
+  precision mediump float;
+  uniform sampler2D u_tex;
+  uniform vec4 u_col;
+  varying vec2 v_uv;
+  void main() {
+    float a = texture2D(u_tex, v_uv).a;
+    gl_FragColor = vec4(u_col.rgb, u_col.a * a);
+  }
+`;
+
+class TextRenderer {
+  constructor() {
+    this.prog = makeProgram(VS_TEX, FS_TEX);
+    this.aPos = gl.getAttribLocation(this.prog, 'a_pos');
+    this.aUv  = gl.getAttribLocation(this.prog, 'a_uv');
+    this.uRes = gl.getUniformLocation(this.prog, 'u_res');
+    this.uTex = gl.getUniformLocation(this.prog, 'u_tex');
+    this.uCol = gl.getUniformLocation(this.prog, 'u_col');
+    this.tex  = gl.createTexture();
+    this.posBuf = gl.createBuffer();
+    this.uvBuf  = gl.createBuffer();
+    this.idxBuf = gl.createBuffer();
+    this.dirty  = false;
+  }
+
+  _upload() {
+    gl.bindTexture(gl.TEXTURE_2D, this.tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, txt2d);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  }
+
+  draw(text, x, y, opts={}) {
+    const {
+      size=14, font='monospace', color='#c8cfd8',
+      align='left', alpha=1, bold=false
+    } = opts;
+    const s = devicePixelRatio;
+    ctx2d.clearRect(0, 0, txt2d.width, txt2d.height);
+    ctx2d.font = `${bold?'bold ':''} ${Math.round(size*s)}px ${font}`;
+    ctx2d.fillStyle = '#ffffff';
+    ctx2d.textAlign = 'left';
+    ctx2d.textBaseline = 'top';
+    ctx2d.fillText(text, 4, 4);
+    const m = ctx2d.measureText(text);
+    const tw = Math.ceil(m.width) + 8;
+    const th = Math.round(size*s*1.4) + 8;
+    this._upload();
+
+    const [r,g,b] = hexToRgb(color);
+    const offX = align==='center' ? -tw/(2*s) : align==='right' ? -tw/s : 0;
+    const px = x + offX, py = y - 4/s;
+    const pw = tw/s, ph = th/s;
+    const u0=4/txt2d.width, v0=4/txt2d.height;
+    const u1=(tw)/txt2d.width, v1=(th)/txt2d.height;
+
+    const pos = new Float32Array([px,py, px+pw,py, px+pw,py+ph, px,py+ph]);
+    const uvs = new Float32Array([u0,v0, u1,v0, u1,v1, u0,v1]);
+    const idx = new Uint16Array([0,1,2, 0,2,3]);
+
+    gl.useProgram(this.prog);
+    gl.uniform2f(this.uRes, canvas.width, canvas.height);
+    gl.uniform4f(this.uCol, r, g, b, alpha);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this.tex);
+    gl.uniform1i(this.uTex, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.posBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, pos, gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(this.aPos);
+    gl.vertexAttribPointer(this.aPos, 2, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, uvs, gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(this.aUv);
+    gl.vertexAttribPointer(this.aUv, 2, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.idxBuf);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idx, gl.DYNAMIC_DRAW);
+    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+  }
+}
+
+// ─────────────────────────────────────────────
+//  WORLD GENERATION
+// ─────────────────────────────────────────────
+function rng(seed) {
+  let s = seed ^ 0xdeadbeef;
+  return () => { s = Math.imul(s^(s>>>16), 0x45d9f3b); s ^= s>>>15; return (s>>>0)/4294967296; };
+}
+
+function generateWorld(seed=42) {
+  const r = rng(seed);
+  const MAP = 128;
+
+  // Terrain (simple noise using sum of sines)
+  const tiles = [];
+  for (let y=0; y<MAP; y++) {
+    tiles[y] = [];
+    for (let x=0; x<MAP; x++) {
+      const n = Math.sin(x*0.08+seed)*0.5 + Math.cos(y*0.06+seed*2)*0.4
+              + Math.sin((x+y)*0.04)*0.3 + Math.cos((x-y)*0.07)*0.2;
+      const v = (n + 1.5) / 3;
+      let type = 'plains';
+      if (v < 0.3) type = 'water';
+      else if (v < 0.45) type = 'plains';
+      else if (v < 0.65) type = 'forest';
+      else type = 'hills';
+      tiles[y][x] = { type };
+    }
+  }
+
+  // 3 cities at guaranteed spacing
+  const cityNames = ['Valdenmoor','Ashford','Irongate'];
+  const cities = [
+    { id:'c0', name:cityNames[0], x:22, y:20 },
+    { id:'c1', name:cityNames[1], x:95, y:18 },
+    { id:'c2', name:cityNames[2], x:58, y:95 },
+  ];
+
+  // Assign starting HQ to random city
+  const hqIdx = Math.floor(r()*3);
+  cities[hqIdx].isHQ = true;
+
+  // POIs
+  const poiTypes = ['dungeon','ruins','camp','cave','forest zone'];
+  const poiNames = ['Ironveil Hollow','The Pale Crossing','Sundermark','Ashrift Den',
+                    'Grey Barrow','Coldfen','Embervault','The Sunken Keep',
+                    'Duskfall Ridge','Thornmere'];
+  const pois = [];
+  for (let i=0; i<14; i++) {
+    let x, y, tries=0;
+    do {
+      x = Math.floor(r()*100)+8;
+      y = Math.floor(r()*100)+8;
+      tries++;
+    } while (tiles[y][x].type==='water' && tries<50);
+    const size = r()<0.3 ? 'small' : r()<0.6 ? 'medium' : 'large';
+    const days = size==='small' ? 2+Math.floor(r()*8)
+               : size==='medium'? 10+Math.floor(r()*50)
+               : 30+Math.floor(r()*150);
+    pois.push({
+      id:'p'+i,
+      name: poiNames[i % poiNames.length],
+      type: poiTypes[Math.floor(r()*poiTypes.length)],
+      x, y,
+      size,
+      despawnTimer: days * 6,
+      discovered: i < 8,   // 8 discovered by default
+      zones: 3 + Math.floor(r()*8),
+    });
+  }
+
+  return {
+    seed, MAP, tiles, cities, pois,
+    playerHQCity: cities[hqIdx].id,
+  };
+}
+
+// ─────────────────────────────────────────────
+//  GAME STATE
+// ─────────────────────────────────────────────
+let GameState = null;
+
+function newGame(opts={}) {
+  const world = generateWorld(Date.now() & 0xffff);
+  GameState = {
+    turn: 1,
+    world,
+    organizations: [{
+      id: 'player',
+      name: opts.orgName || 'The Guild',
+      gold: opts.startGold ?? 4200,
+      hqCityId: world.playerHQCity,
+      recruits: [],
+      groups: [],
+      inventory: { food:[], equipment:[], weapons:[], misc:[], forSale:[] },
+      criminalRecord: [],
+    }],
+    playerOrgId: 'player',
+  };
+}
+
+function playerOrg() { return GameState.organizations.find(o=>o.id===GameState.playerOrgId); }
+
+// ─────────────────────────────────────────────
+//  UI STATE MACHINE
+// ─────────────────────────────────────────────
+const Screen = { LAUNCH:'launch', NEW_GAME:'new_game', GLOBAL_MAP:'global_map' };
+let currentScreen = Screen.LAUNCH;
+
+// Map pan/zoom
+const cam = { x:0, y:0, zoom:1, tx:0, ty:0, tz:1 };
+let mapDrag = null;
+
+// Input
+const mouse = { x:0, y:0, down:false, clicked:false };
+const keys  = {};
+
+// ─────────────────────────────────────────────
+//  UI COMPONENTS — all drawn in WebGL via R
+// ─────────────────────────────────────────────
+const buttons = []; // cleared each frame
+
+function addButton(x, y, w, h, label, action, opts={}) {
+  buttons.push({ x, y, w, h, label, action, opts });
+}
+
+function drawButton(r, t, x, y, w, h, label, hovered, opts={}) {
+  const { size=13, font='monospace', bold=false } = opts;
+  const bg    = hovered ? PAL.accent      : PAL.panel;
+  const border= hovered ? PAL.accentBright: PAL.panelBorder;
+  const col   = hovered ? PAL.textBright  : PAL.text;
+  r.quad(x, y, w, h, bg, 0.97);
+  r.rect(x, y, w, h, border, 1, 1);
+  r.flush();
+  t.draw(label, x+w/2, y+h/2-size*0.5, { size, font, color:col, align:'center', bold });
+}
+
+function isHovered(bx, by, bw, bh) {
+  const mx = mouse.x * devicePixelRatio;
+  const my = mouse.y * devicePixelRatio;
+  return mx>=bx && mx<=bx+bw && my>=by && my<=by+bh;
+}
+
+// ─────────────────────────────────────────────
+//  SCREENS
+// ─────────────────────────────────────────────
+
+// New Game form state
+const newGameForm = {
+  orgName: 'The Guild',
+  startGold: 4200,
+  targetPOIs: 20,
+  mapSize: 128,
+  knownPOIs: 8,
+  focusField: null,
+};
+
+function drawLaunchScreen(r, t) {
+  const cw = canvas.width, ch = canvas.height;
+  // Background
+  r.quad(0, 0, cw, ch, PAL.bg, 1);
+  // Subtle grid
+  for (let x=0; x<cw; x+=60) r.line(x, 0, x, ch, '#1a1f2a', 0.4, 1);
+  for (let y=0; y<ch; y+=60) r.line(0, y, cw, y, '#1a1f2a', 0.4, 1);
+  r.flush();
+
+  // Title block
+  const cx = cw/2, cy = ch/2;
+  t.draw('IRONBOUND', cx, cy-140, { size:52, font:'serif', color:PAL.accentGlow, align:'center', bold:true });
+  t.draw('MERCENARY GUILD MANAGEMENT', cx, cy-80, { size:13, font:'monospace', color:PAL.textDim, align:'center' });
+
+  // Separator
+  r.line(cx-180, cy-58, cx+180, cy-58, PAL.accent, 0.5, 1);
+  r.flush();
+
+  const bw=260, bh=44, bx=cx-130;
+  const b1y=cy-40, b2y=cy+16, b3y=cy+72;
+
+  const h1=isHovered(bx,b1y,bw,bh), h2=isHovered(bx,b2y,bw,bh), h3=isHovered(bx,b3y,bw,bh);
+  drawButton(r,t, bx,b1y,bw,bh, '▶  START NEW GAME', h1, {size:13,bold:true});
+  drawButton(r,t, bx,b2y,bw,bh, '⟳  LOAD GAME',      h2, {size:13});
+  drawButton(r,t, bx,b3y,bw,bh, '⚙  TEST SCENARIO',  h3, {size:13});
+
+  addButton(bx,b1y,bw,bh,'start', ()=>{ currentScreen=Screen.NEW_GAME; });
+  addButton(bx,b2y,bw,bh,'load',  ()=>{ /* TODO load */ });
+  addButton(bx,b3y,bw,bh,'test',  ()=>{ /* TODO test */ });
+
+  t.draw('v0.1 scaffold', cx, ch-30, {size:10, font:'monospace', color:PAL.textDim, align:'center'});
+}
+
+function drawNewGameScreen(r, t) {
+  const cw=canvas.width, ch=canvas.height;
+  r.quad(0,0,cw,ch,PAL.bg,1);
+  for (let x=0;x<cw;x+=60) r.line(x,0,x,ch,'#1a1f2a',0.4,1);
+  for (let y=0;y<ch;y+=60) r.line(0,y,cw,y,'#1a1f2a',0.4,1);
+  r.flush();
+
+  const cx=cw/2, pw=480, ph=500;
+  const px=cx-pw/2, py=ch/2-ph/2-20;
+
+  r.quad(px,py,pw,ph,PAL.panel,0.97);
+  r.rect(px,py,pw,ph,PAL.panelBorder,1,1);
+  r.flush();
+
+  t.draw('WORLD OPTIONS', cx, py+28, {size:18,font:'serif',color:PAL.accentBright,align:'center',bold:true});
+  r.line(px+30,py+58,px+pw-30,py+58,PAL.accent,0.4,1);
+  r.flush();
+
+  const fields = [
+    { label:'Organization Name', key:'orgName',   type:'text',   y:py+80 },
+    { label:'Starting Gold',     key:'startGold', type:'number', y:py+140 },
+    { label:'Target World POIs', key:'targetPOIs',type:'number', y:py+200 },
+    { label:'Map Size (tiles)',  key:'mapSize',   type:'number', y:py+260 },
+    { label:'Known POIs',        key:'knownPOIs', type:'number', y:py+320 },
+  ];
+
+  fields.forEach(f => {
+    t.draw(f.label, px+40, f.y, {size:11, font:'monospace', color:PAL.textDim});
+    const fx=px+40, fy=f.y+18, fw=pw-80, fh=32;
+    const focused = newGameForm.focusField===f.key;
+    r.quad(fx,fy,fw,fh,'#090b0f',1);
+    r.rect(fx,fy,fw,fh,focused?PAL.accentBright:PAL.panelBorder,1,1);
+    r.flush();
+    t.draw(String(newGameForm[f.key]), fx+10, fy+8, {size:13, font:'monospace', color:PAL.textBright});
+    addButton(fx,fy,fw,fh,f.key,()=>{
+      newGameForm.focusField=f.key;
+    });
+  });
+
+  // Buttons
+  const bbw=180,bbh=44;
+  const bCancelX=px+40, bStartX=px+pw-40-bbw, bby=py+ph-64;
+  const hCancel=isHovered(bCancelX,bby,bbw,bbh);
+  const hStart=isHovered(bStartX,bby,bbw,bbh);
+  drawButton(r,t,bCancelX,bby,bbw,bbh,'◀  BACK',hCancel,{size:13});
+  drawButton(r,t,bStartX,bby,bbw,bbh,'▶  BEGIN',hStart,{size:13,bold:true});
+  addButton(bCancelX,bby,bbw,bbh,'back',()=>{currentScreen=Screen.LAUNCH; newGameForm.focusField=null;});
+  addButton(bStartX,bby,bbw,bbh,'begin',()=>{
+    newGame({ orgName:newGameForm.orgName, startGold:newGameForm.startGold });
+    currentScreen=Screen.GLOBAL_MAP;
+    newGameForm.focusField=null;
+    fitMapToView();
+  });
+}
+
+// ─────────────────────────────────────────────
+//  GLOBAL MAP
+// ─────────────────────────────────────────────
+function fitMapToView() {
+  if (!GameState) return;
+  const MAP = GameState.world.MAP;
+  const margin = 60 * devicePixelRatio;
+  const cw = canvas.width - 200*devicePixelRatio; // sidebar width
+  const ch = canvas.height - 60*devicePixelRatio; // toolbar height
+  const tileSize = Math.min((cw-margin*2)/MAP, (ch-margin*2)/MAP);
+  cam.tz = tileSize;
+  cam.tx = margin;
+  cam.ty = 60*devicePixelRatio + margin;
+  cam.zoom = 1; cam.x = 0; cam.y = 0;
+}
+
+function worldToScreen(wx, wy) {
+  return [
+    cam.tx + (wx - cam.x) * cam.tz * cam.zoom,
+    cam.ty + (wy - cam.y) * cam.tz * cam.zoom,
+  ];
+}
+
+function screenToWorld(sx, sy) {
+  return [
+    (sx - cam.tx) / (cam.tz * cam.zoom) + cam.x,
+    (sy - cam.ty) / (cam.tz * cam.zoom) + cam.y,
+  ];
+}
+
+// Selected POI for info panel
+let selectedPOI = null;
+
+function drawGlobalMap(r, t) {
+  const cw=canvas.width, ch=canvas.height;
+  const dpr=devicePixelRatio;
+  const world = GameState.world;
+  const org   = playerOrg();
+
+  // Background
+  r.quad(0,0,cw,ch,'#070810',1);
+
+  // ── Terrain tiles ──
+  const tileW = cam.tz * cam.zoom;
+  const MAP = world.MAP;
+  const x0 = Math.max(0, Math.floor(cam.x));
+  const y0 = Math.max(0, Math.floor(cam.y));
+  const x1 = Math.min(MAP, Math.ceil(cam.x + (cw - 200*dpr) / tileW));
+  const y1 = Math.min(MAP, Math.ceil(cam.y + (ch - 60*dpr) / tileW));
+
+  for (let ty=y0; ty<y1; ty++) {
+    for (let tx=x0; tx<x1; tx++) {
+      const tile = world.tiles[ty][tx];
+      const [sx,sy] = worldToScreen(tx, ty);
+      r.quad(sx, sy, tileW+0.5, tileW+0.5, PAL.terrain[tile.type], 1);
+    }
+  }
+
+  // ── Roads between cities ──
+  const cities = world.cities;
+  for (let i=0;i<cities.length;i++) {
+    for (let j=i+1;j<cities.length;j++) {
+      const [ax,ay]=worldToScreen(cities[i].x,cities[i].y);
+      const [bx,by]=worldToScreen(cities[j].x,cities[j].y);
+      r.line(ax,ay,bx,by,PAL.textDim,0.25,tileW*0.15);
+      r.line(ax,ay,bx,by,'#8b7040',0.15,tileW*0.06);
+    }
+  }
+
+  // ── POIs ──
+  world.pois.forEach(poi => {
+    const [sx,sy]=worldToScreen(poi.x,poi.y);
+    const pr=tileW*0.7;
+    if (pr<2) return;
+    if (poi.discovered) {
+      r.diamond(sx,sy,pr,pr*0.7,PAL.discovered,0.85);
+      r.diamond(sx,sy,pr*0.55,pr*0.38,'#1a1200',1);
+    } else {
+      r.diamond(sx,sy,pr,pr*0.7,PAL.undiscovered,0.5);
+      r.diamond(sx,sy,pr*0.55,pr*0.38,'#090c12',1);
+    }
+  });
+
+  // ── Cities ──
+  cities.forEach(city => {
+    const [sx,sy]=worldToScreen(city.x,city.y);
+    const cr=tileW*1.1;
+    if (cr<3) return;
+    r.circle(sx,sy,cr,PAL.city,0.9);
+    r.circle(sx,sy,cr*0.5,'#040610',1);
+    if (city.isHQ) {
+      r.diamond(sx,sy,cr*1.7,cr*1.7,PAL.accentGlow,0.18);
+      r.rect(sx-cr*1.7,sy-cr*1.7,cr*3.4,cr*3.4,PAL.accentGlow,0.35,1);
+    }
+  });
+
+  r.flush();
+
+  // ── Labels ──
+  if (tileW > 3) {
+    world.pois.forEach(poi => {
+      const [sx,sy]=worldToScreen(poi.x,poi.y);
+      const col = poi.discovered ? PAL.discovered : PAL.textDim;
+      const alpha = poi.discovered ? 0.9 : 0.45;
+      const sz = Math.min(13, Math.max(8, tileW*0.9));
+      t.draw(poi.name, sx, sy+tileW*0.9, {size:sz,font:'serif',color:col,align:'center',alpha});
+      if (!poi.discovered) t.draw('?', sx, sy-sz*0.5, {size:sz,font:'monospace',color:PAL.undiscovered,align:'center',alpha:0.6});
+    });
+    cities.forEach(city => {
+      const [sx,sy]=worldToScreen(city.x,city.y);
+      const sz = Math.min(15, Math.max(9, tileW*1.1));
+      t.draw(city.name, sx, sy+tileW*1.4, {size:sz,font:'serif',color:PAL.city,align:'center',bold:true});
+      if (city.isHQ) t.draw('[HQ]', sx, sy+tileW*1.4+sz*1.2, {size:sz*0.8,font:'monospace',color:PAL.accentGlow,align:'center'});
+    });
+  }
+
+  // ── Toolbar ──
+  const tbh=50*dpr;
+  r.quad(0,0,cw,tbh,PAL.panel,0.97);
+  r.line(0,tbh,cw,tbh,PAL.panelBorder,1,1);
+  r.flush();
+  t.draw('IRONBOUND', 20*dpr, 14*dpr, {size:14,font:'serif',color:PAL.accentGlow,bold:true});
+  t.draw(`TURN ${GameState.turn}`, 160*dpr, 14*dpr, {size:11,font:'monospace',color:PAL.textDim});
+  t.draw(`◎ ${org.gold} gold`, 310*dpr, 14*dpr, {size:12,font:'monospace',color:PAL.accentBright});
+  t.draw(`↺ END TURN`, cw-110*dpr, 15*dpr, {size:12,font:'monospace',color:PAL.text});
+
+  const etw=120*dpr,eth=30*dpr,etx=cw-etw-10*dpr,ety=10*dpr;
+  const eth2=isHovered(etx,ety,etw,eth);
+  drawButton(r,t,etx,ety,etw,eth,'↺  END TURN',eth2,{size:11,bold:true});
+  addButton(etx,ety,etw,eth,'endturn',()=>{
+    GameState.turn++;
+    selectedPOI=null;
+  });
+
+  // ── Sidebar ──
+  const sbw=200*dpr,sbx=cw-sbw;
+  r.quad(sbx,tbh,sbw,ch-tbh,PAL.panel,0.96);
+  r.line(sbx,tbh,sbx,ch,PAL.panelBorder,1,1);
+  r.flush();
+
+  t.draw('WORLD MAP', sbx+sbw/2, tbh+20*dpr, {size:10,font:'monospace',color:PAL.textDim,align:'center'});
+  r.line(sbx+20*dpr,tbh+36*dpr,sbx+sbw-20*dpr,tbh+36*dpr,PAL.panelBorder,0.7,1);
+  r.flush();
+
+  const hqCity=world.cities.find(c=>c.id===org.hqCityId);
+  if(hqCity){
+    t.draw('HQ: '+hqCity.name, sbx+sbw/2, tbh+50*dpr, {size:10,font:'monospace',color:PAL.accentGlow,align:'center'});
+  }
+  t.draw(`POIs: ${world.pois.filter(p=>p.discovered).length}/${world.pois.length}`, sbx+sbw/2, tbh+72*dpr, {size:10,font:'monospace',color:PAL.text,align:'center'});
+
+  // POI Info panel (when selected)
+  if (selectedPOI) {
+    const poi=selectedPOI;
+    const pw2=sbw-20*dpr,ph2=180*dpr,px2=sbx+10*dpr,py2=ch-ph2-10*dpr;
+    r.quad(px2,py2,pw2,ph2,'#0d1018',0.98);
+    r.rect(px2,py2,pw2,ph2,poi.discovered?PAL.accentBright:PAL.panelBorder,1,1);
+    r.flush();
+    const tc=poi.discovered?PAL.accentBright:PAL.textDim;
+    t.draw(poi.name, px2+pw2/2, py2+14*dpr, {size:11,font:'serif',color:tc,align:'center',bold:true});
+    t.draw(poi.type.toUpperCase(), px2+pw2/2, py2+30*dpr, {size:9,font:'monospace',color:PAL.textDim,align:'center'});
+    r.line(px2+10*dpr,py2+46*dpr,px2+pw2-10*dpr,py2+46*dpr,PAL.panelBorder,0.7,1);r.flush();
+    t.draw(`Size: ${poi.size}`, px2+14*dpr, py2+56*dpr, {size:9,font:'monospace',color:PAL.text});
+    t.draw(`Zones: ${poi.zones}`, px2+14*dpr, py2+72*dpr, {size:9,font:'monospace',color:PAL.text});
+    t.draw(`Despawn: ${Math.ceil(poi.despawnTimer/6)}d`, px2+14*dpr, py2+88*dpr, {size:9,font:'monospace',color:poi.despawnTimer<36?PAL.danger:PAL.text});
+    t.draw(poi.discovered?'✓ DISCOVERED':'✗ UNDISCOVERED', px2+14*dpr, py2+108*dpr, {size:9,font:'monospace',color:poi.discovered?PAL.accentGlow:PAL.textDim});
+    if (poi.discovered) {
+      const ebw=pw2-28*dpr,ebh=28*dpr,ebx=px2+14*dpr,eby=py2+ph2-42*dpr;
+      const hEnt=isHovered(ebx,eby,ebw,ebh);
+      drawButton(r,t,ebx,eby,ebw,ebh,'▶  ENTER POI',hEnt,{size:10,bold:true});
+      addButton(ebx,eby,ebw,ebh,'enterpoi',()=>{/* TODO POI layout */});
+    }
+  }
+
+  // Map click detection for POIs and cities
+  const mxW=mouse.x*dpr, myW=mouse.y*dpr;
+  if (mxW < sbx && myW > tbh) {
+    // POI hover highlight
+    world.pois.forEach(poi=>{
+      const [sx,sy]=worldToScreen(poi.x,poi.y);
+      const pr=tileW*1.2;
+      const dist=Math.hypot(mxW-sx,myW-sy);
+      if(dist<pr*dpr*0.5) {
+        r.diamond(sx,sy,pr*1.3,pr*0.9,poi.discovered?PAL.accentGlow:PAL.textDim,0.25);
+        r.flush();
+        if(mouse.clicked) selectedPOI=poi;
+      }
+    });
+    // Click on empty space deselects
+    if(mouse.clicked) {
+      let hit=false;
+      world.pois.forEach(poi=>{
+        const [sx,sy]=worldToScreen(poi.x,poi.y);
+        const pr=tileW*1.2;
+        if(Math.hypot(mxW-sx,myW-sy)<pr*dpr*0.5) hit=true;
+      });
+      if(!hit) selectedPOI=null;
+    }
+  }
+
+  // Zoom instructions
+  t.draw('scroll to zoom  ·  drag to pan', cw/2, ch-16*dpr, {size:9,font:'monospace',color:PAL.textDim,align:'center',alpha:0.5});
+}
+
+// ─────────────────────────────────────────────
+//  MAIN LOOP
+// ─────────────────────────────────────────────
+let renderer, textRenderer;
+
+function frame() {
+  requestAnimationFrame(frame);
+  buttons.length = 0;
+
+  gl.clearColor(0.04, 0.05, 0.08, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
+  if (currentScreen===Screen.LAUNCH)       drawLaunchScreen(renderer, textRenderer);
+  else if (currentScreen===Screen.NEW_GAME) drawNewGameScreen(renderer, textRenderer);
+  else if (currentScreen===Screen.GLOBAL_MAP) drawGlobalMap(renderer, textRenderer);
+
+  renderer.flush();
+
+  // Process clicks
+  if (mouse.clicked) {
+    const mx=mouse.x*devicePixelRatio, my=mouse.y*devicePixelRatio;
+    buttons.forEach(b=>{
+      if(mx>=b.x && mx<=b.x+b.w && my>=b.y && my<=b.y+b.h) b.action();
+    });
+  }
+  mouse.clicked = false;
+}
+
+// ─────────────────────────────────────────────
+//  INPUT
+// ─────────────────────────────────────────────
+canvas.addEventListener('mousemove', e=>{
+  mouse.x=e.clientX; mouse.y=e.clientY;
+  if(mapDrag && currentScreen===Screen.GLOBAL_MAP) {
+    const dpr=devicePixelRatio;
+    const dx=(e.clientX-mapDrag.sx)*dpr;
+    const dy=(e.clientY-mapDrag.sy)*dpr;
+    cam.x=mapDrag.cx - dx/(cam.tz*cam.zoom);
+    cam.y=mapDrag.cy - dy/(cam.tz*cam.zoom);
+  }
+});
+
+canvas.addEventListener('mousedown', e=>{
+  mouse.down=true;
+  if(currentScreen===Screen.GLOBAL_MAP) {
+    const dpr=devicePixelRatio;
+    if(e.clientX*dpr < canvas.width-200*dpr && e.clientY*dpr > 50*dpr) {
+      mapDrag={sx:e.clientX, sy:e.clientY, cx:cam.x, cy:cam.y};
+    }
+  }
+});
+
+canvas.addEventListener('mouseup', e=>{
+  mouse.down=false;
+  if(mapDrag) {
+    const dx=Math.abs(e.clientX-mapDrag.sx), dy=Math.abs(e.clientY-mapDrag.sy);
+    if(dx<4&&dy<4) mouse.clicked=true;
+    mapDrag=null;
+  } else {
+    mouse.clicked=true;
+  }
+});
+
+canvas.addEventListener('wheel', e=>{
+  if(currentScreen!==Screen.GLOBAL_MAP) return;
+  e.preventDefault();
+  const dpr=devicePixelRatio;
+  const factor=e.deltaY>0?0.85:1.18;
+  const mx=e.clientX*dpr, my=e.clientY*dpr;
+  const [wx,wy]=screenToWorld(mx,my);
+  cam.zoom=Math.max(0.3,Math.min(10,cam.zoom*factor));
+  const [nx,ny]=worldToScreen(wx,wy);
+  cam.tx+=mx-nx; cam.ty+=my-ny;
+},{passive:false});
+
+// Keyboard for new game form
+window.addEventListener('keydown', e=>{
+  if(currentScreen!==Screen.NEW_GAME) return;
+  const f=newGameForm.focusField;
+  if(!f) return;
+  const val=String(newGameForm[f]);
+  if(e.key==='Backspace') { newGameForm[f]=val.slice(0,-1)||''; }
+  else if(e.key==='Escape') { newGameForm.focusField=null; }
+  else if(e.key.length===1) {
+    if(f==='orgName') newGameForm[f]=(val+e.key).slice(0,32);
+    else if(/[0-9]/.test(e.key)) {
+      const n=parseInt((val+e.key).slice(0,6));
+      newGameForm[f]=isNaN(n)?0:n;
+    }
+  }
+});
+
+// ─────────────────────────────────────────────
+//  BOOT
+// ─────────────────────────────────────────────
+renderer = new Renderer();
+textRenderer = new TextRenderer();
+resize();
+frame();
+</script>
+</body>
+</html>

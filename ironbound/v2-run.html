@@ -82,6 +82,30 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 ::-webkit-scrollbar{width:4px;}
 ::-webkit-scrollbar-track{background:var(--panel);}
 ::-webkit-scrollbar-thumb{background:var(--border-b);}
+
+/* DEV PANEL */
+#dev-panel{position:fixed;bottom:0;left:0;right:0;height:260px;background:#05070d;border-top:2px solid #8b3a3a;font-family:var(--fm);font-size:11px;display:none;flex-direction:column;z-index:9999;}
+#dev-panel.open{display:flex;}
+#dev-toolbar{height:36px;background:#0a0c14;border-bottom:1px solid #1a2030;display:flex;align-items:center;padding:0 12px;gap:8px;flex-shrink:0;}
+#dev-toolbar span{color:#8b3a3a;font-size:10px;letter-spacing:.2em;margin-right:8px;}
+.dev-btn{padding:4px 12px;background:#0d1018;border:1px solid #2a1515;color:#c06060;font-family:var(--fm);font-size:10px;cursor:pointer;letter-spacing:.08em;transition:all .15s;}
+.dev-btn:hover{background:#1a0e0e;border-color:#8b3a3a;color:#e08080;}
+.dev-btn.ok{border-color:#1a3a1a;color:#60a060;}
+.dev-btn.ok:hover{background:#0e1a0e;border-color:#3a8a3a;color:#80d080;}
+#dev-body{display:flex;flex:1;overflow:hidden;}
+#dev-log{flex:1;overflow-y:auto;padding:8px 12px;line-height:1.7;}
+#dev-scenarios{width:200px;border-left:1px solid #1a2030;padding:8px;overflow-y:auto;flex-shrink:0;}
+#dev-scenarios .ds-title{font-size:9px;letter-spacing:.2em;color:#4a5568;text-transform:uppercase;margin-bottom:6px;}
+.dev-scenario-btn{display:block;width:100%;padding:6px 8px;margin-bottom:4px;background:#0d1018;border:1px solid #1e2535;color:#7a9abc;font-family:var(--fm);font-size:10px;cursor:pointer;text-align:left;transition:all .15s;}
+.dev-scenario-btn:hover{border-color:#2a4060;color:#aaccee;background:#0f1520;}
+.dev-log-entry{margin-bottom:1px;}
+.dev-log-entry.pass{color:#4a8a4a;}
+.dev-log-entry.fail{color:#c05050;}
+.dev-log-entry.warn{color:#a07020;}
+.dev-log-entry.info{color:#4a6080;}
+.dev-log-entry.head{color:#8888aa;border-top:1px solid #1a2030;margin-top:6px;padding-top:4px;}
+#dev-badge{position:fixed;bottom:4px;right:8px;background:#1a0808;border:1px solid #5a1a1a;color:#8b3a3a;font-family:var(--fm);font-size:9px;padding:3px 8px;cursor:pointer;z-index:9998;letter-spacing:.1em;display:none;}
+#dev-badge:hover{background:#2a0e0e;color:#c06060;}
 </style>
 </head>
 <body>
@@ -196,6 +220,32 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 </div>
 
 <div id="toast"></div>
+
+<!-- DEV PANEL (visible only with ?dev in URL) -->
+<div id="dev-badge" onclick="DEV.togglePanel()">DEV &#9650;</div>
+<div id="dev-panel">
+  <div id="dev-toolbar">
+    <span>&#9888; DEV MODE</span>
+    <button class="dev-btn ok" onclick="DEV.validate()">&#10003; VALIDATE STATE</button>
+    <button class="dev-btn" onclick="DEV.runScenario('world_gen')">&#9654; SCENARIO: World Gen</button>
+    <button class="dev-btn" onclick="DEV.runScenario('poi_discovery')">&#9654; SCENARIO: POI Discovery</button>
+    <button class="dev-btn" onclick="DEV.runScenario('corrupt_state')">&#9654; SCENARIO: Corrupt State</button>
+    <button class="dev-btn" onclick="DEV.clearLog()">&#10006; CLEAR</button>
+    <button class="dev-btn" style="margin-left:auto" onclick="DEV.togglePanel()">&#9660; HIDE</button>
+  </div>
+  <div id="dev-body">
+    <div id="dev-log"><div class="dev-log-entry info">Dev console ready. Run VALIDATE STATE or load a scenario.</div></div>
+    <div id="dev-scenarios">
+      <div class="ds-title">Quick Inject</div>
+      <button class="dev-scenario-btn" onclick="DEV.inject.emptyOrg()">Empty org state</button>
+      <button class="dev-scenario-btn" onclick="DEV.inject.richOrg()">Rich org (gold+recruits)</button>
+      <button class="dev-scenario-btn" onclick="DEV.inject.badPOI()">Bad POI (despawn=0)</button>
+      <button class="dev-scenario-btn" onclick="DEV.inject.allDiscovered()">All POIs discovered</button>
+      <button class="dev-scenario-btn" onclick="DEV.inject.negativeGold()">Negative gold</button>
+    </div>
+  </div>
+</div>
+
 
 <script>
 'use strict';
@@ -367,6 +417,407 @@ function showPOI(poi){
 function hidePOI(){document.getElementById('poi-panel').classList.remove('vis');}
 function deselectPOI(){selPOI=null;hidePOI();drawMap();}
 function enterPOI(id){const poi=GS.world.pois.find(p=>p.id===id);if(poi)showToast(poi.name+' — POI layout not yet implemented.');}
+
+
+// ─── DEV SYSTEM ──────────────────────────────────────────────────────────────
+// Activated by adding ?dev to the URL.
+// DEV.validate()          — check game state against GDD rules, log results
+// DEV.runScenario(name)   — load a pre-built world state for testing
+// DEV.inject.*()          — mutate current state to test edge cases
+// DEV.log(msg, level)     — write to dev console ('pass','fail','warn','info','head')
+
+const DEV = (() => {
+  const IS_DEV = location.search.includes('dev');
+
+  function init() {
+    if (!IS_DEV) return;
+    document.getElementById('dev-badge').style.display = 'block';
+    // Auto-run validate after every endTurn
+    const orig = window.endTurn;
+    window.endTurn = function() { orig(); DEV.validate(); };
+    log('Dev mode active — ' + location.href, 'info');
+  }
+
+  // ── Logging ────────────────────────────────────────────────────────────────
+  let passCount = 0, failCount = 0;
+
+  function log(msg, level = 'info') {
+    const el = document.getElementById('dev-log');
+    if (!el) { console.log('[DEV]', level, msg); return; }
+    const div = document.createElement('div');
+    div.className = 'dev-log-entry ' + level;
+    const icons = { pass:'✓', fail:'✗', warn:'⚠', info:'·', head:'▸' };
+    div.textContent = (icons[level] || '·') + ' ' + msg;
+    el.appendChild(div);
+    el.scrollTop = el.scrollHeight;
+    if (level === 'pass') passCount++;
+    if (level === 'fail') failCount++;
+  }
+
+  function clearLog() {
+    const el = document.getElementById('dev-log');
+    if (el) el.innerHTML = '';
+    passCount = 0; failCount = 0;
+  }
+
+  function togglePanel() {
+    const p = document.getElementById('dev-panel');
+    const b = document.getElementById('dev-badge');
+    if (p.classList.toggle('open')) {
+      b.innerHTML = 'DEV &#9660;';
+      document.getElementById('statusbar').style.marginBottom = '260px';
+    } else {
+      b.innerHTML = 'DEV &#9650;';
+      document.getElementById('statusbar').style.marginBottom = '';
+    }
+  }
+
+  // ── GDD Rule Definitions ───────────────────────────────────────────────────
+  // Each rule: { id, desc, check(gs) => true=pass / string=fail }
+  const RULES = [
+
+    // ── GameState structure ──
+    { id:'GS-001', desc:'GameState exists and has required top-level fields',
+      check: gs => {
+        if (!gs) return 'GameState is null';
+        const missing = ['turn','world','organizations','playerOrgId'].filter(k => !(k in gs));
+        return missing.length ? 'Missing fields: ' + missing.join(', ') : true;
+      }
+    },
+    { id:'GS-002', desc:'turn is a positive integer',
+      check: gs => (Number.isInteger(gs.turn) && gs.turn >= 1) || 'turn=' + gs.turn
+    },
+    { id:'GS-003', desc:'playerOrgId refers to an existing organization',
+      check: gs => gs.organizations.some(o => o.id === gs.playerOrgId) || 'playerOrgId not found: ' + gs.playerOrgId
+    },
+
+    // ── World ──
+    { id:'WO-001', desc:'World has tiles, cities, pois',
+      check: gs => {
+        const w = gs.world;
+        const missing = ['tiles','cities','pois','MAP'].filter(k => !(k in w));
+        return missing.length ? 'World missing: ' + missing.join(', ') : true;
+      }
+    },
+    { id:'WO-002', desc:'Exactly 3 cities (GDD §10)',
+      check: gs => gs.world.cities.length === 3 || 'Expected 3 cities, got ' + gs.world.cities.length
+    },
+    { id:'WO-003', desc:'Exactly one HQ city',
+      check: gs => {
+        const n = gs.world.cities.filter(c => c.isHQ).length;
+        return n === 1 || 'Expected 1 HQ city, got ' + n;
+      }
+    },
+    { id:'WO-004', desc:'Player org hqCityId matches a city',
+      check: gs => {
+        const org = gs.organizations.find(o => o.id === gs.playerOrgId);
+        return gs.world.cities.some(c => c.id === org.hqCityId) || 'hqCityId not found: ' + org.hqCityId;
+      }
+    },
+    { id:'WO-005', desc:'Map size within valid range 64–256 (GDD §12.2)',
+      check: gs => (gs.world.MAP >= 64 && gs.world.MAP <= 256) || 'MAP=' + gs.world.MAP
+    },
+    { id:'WO-006', desc:'All cities have x,y coordinates within map bounds',
+      check: gs => {
+        const bad = gs.world.cities.filter(c => c.x < 0 || c.y < 0 || c.x >= gs.world.MAP || c.y >= gs.world.MAP);
+        return bad.length === 0 || 'Cities out of bounds: ' + bad.map(c=>c.name).join(', ');
+      }
+    },
+    { id:'WO-007', desc:'All POIs have required fields',
+      check: gs => {
+        const required = ['id','name','type','x','y','size','despawnTimer','discovered','zones'];
+        const bad = gs.world.pois.filter(p => required.some(k => !(k in p)));
+        return bad.length === 0 || bad.length + ' POIs missing fields';
+      }
+    },
+    { id:'WO-008', desc:'No POI has despawnTimer < 0',
+      check: gs => {
+        const bad = gs.world.pois.filter(p => p.despawnTimer < 0);
+        return bad.length === 0 || bad.length + ' POIs with negative despawnTimer';
+      }
+    },
+    { id:'WO-009', desc:'POI zone count is 3–20 (GDD §8.3)',
+      check: gs => {
+        const bad = gs.world.pois.filter(p => p.zones < 3 || p.zones > 20);
+        return bad.length === 0 || bad.length + ' POIs with out-of-range zone count';
+      }
+    },
+    { id:'WO-010', desc:'No POI coordinates outside map bounds',
+      check: gs => {
+        const bad = gs.world.pois.filter(p => p.x < 0 || p.y < 0 || p.x >= gs.world.MAP || p.y >= gs.world.MAP);
+        return bad.length === 0 || bad.length + ' POIs out of bounds';
+      }
+    },
+    { id:'WO-011', desc:'Discovered POI count does not exceed total POI count',
+      check: gs => {
+        const disc = gs.world.pois.filter(p => p.discovered).length;
+        return disc <= gs.world.pois.length || 'More discovered (' + disc + ') than total (' + gs.world.pois.length + ')';
+      }
+    },
+    { id:'WO-012', desc:'Tile grid dimensions match MAP value',
+      check: gs => {
+        const w = gs.world;
+        if (w.tiles.length !== w.MAP) return 'tiles rows=' + w.tiles.length + ' expected ' + w.MAP;
+        const badRow = w.tiles.findIndex(r => r.length !== w.MAP);
+        return badRow === -1 || 'tiles row ' + badRow + ' has ' + w.tiles[badRow].length + ' cols';
+      }
+    },
+
+    // ── Organization ──
+    { id:'OR-001', desc:'Player org has required fields',
+      check: gs => {
+        const org = gs.organizations.find(o => o.id === gs.playerOrgId);
+        const required = ['id','name','gold','hqCityId','recruits','groups','inventory','criminalRecord'];
+        const missing = required.filter(k => !(k in org));
+        return missing.length === 0 || 'Org missing: ' + missing.join(', ');
+      }
+    },
+    { id:'OR-002', desc:'Org gold is a number (may be negative — game-over state)',
+      check: gs => {
+        const org = gs.organizations.find(o => o.id === gs.playerOrgId);
+        return typeof org.gold === 'number' || 'gold is not a number: ' + typeof org.gold;
+      }
+    },
+    { id:'OR-003', desc:'Org gold >= 0 (negative gold should have triggered game-over)',
+      check: gs => {
+        const org = gs.organizations.find(o => o.id === gs.playerOrgId);
+        return org.gold >= 0 || 'WARN: gold is negative (' + org.gold + ') — should trigger game-over';
+      }
+    },
+    { id:'OR-004', desc:'Org inventory has all required categories (GDD §11.2)',
+      check: gs => {
+        const inv = gs.organizations.find(o=>o.id===gs.playerOrgId).inventory;
+        const required = ['food','equipment','weapons','misc','forSale'];
+        const missing = required.filter(k => !Array.isArray(inv[k]));
+        return missing.length === 0 || 'Inventory missing: ' + missing.join(', ');
+      }
+    },
+
+    // ── Recruits ──
+    { id:'RC-001', desc:'All recruits have required fields',
+      check: gs => {
+        const org = gs.organizations.find(o=>o.id===gs.playerOrgId);
+        const required = ['id','name','race','level','upkeepBaseRate','traits','characteristics','equipment','inventory','wounds','hunger','statusEffects'];
+        const bad = org.recruits.filter(r => required.some(k => !(k in r)));
+        return bad.length === 0 || bad.length + ' recruits missing fields';
+      }
+    },
+    { id:'RC-002', desc:'Recruit level is 1–10 (GDD §5.3.2)',
+      check: gs => {
+        const org = gs.organizations.find(o=>o.id===gs.playerOrgId);
+        const bad = org.recruits.filter(r => r.level < 1 || r.level > 10);
+        return bad.length === 0 || bad.length + ' recruits with level out of 1–10';
+      }
+    },
+    { id:'RC-003', desc:'Recruit loyalty is 0–30 (GDD §5.3.2)',
+      check: gs => {
+        const org = gs.organizations.find(o=>o.id===gs.playerOrgId);
+        const bad = org.recruits.filter(r => {
+          const l = r.characteristics?.loyalty;
+          return typeof l === 'number' && (l < 0 || l > 30);
+        });
+        return bad.length === 0 || bad.length + ' recruits with loyalty out of 0–30';
+      }
+    },
+    { id:'RC-004', desc:'Recruit traits count is 0–2 (GDD §5.5)',
+      check: gs => {
+        const org = gs.organizations.find(o=>o.id===gs.playerOrgId);
+        const bad = org.recruits.filter(r => (r.traits?.length ?? 0) > 2);
+        return bad.length === 0 || bad.length + ' recruits with more than 2 traits';
+      }
+    },
+    { id:'RC-005', desc:'Recruit hunger stage is valid (GDD §5.6.1 / §11.2)',
+      check: gs => {
+        const org = gs.organizations.find(o=>o.id===gs.playerOrgId);
+        const valid = ['Hunger','Starvation','Famine','StarvedToDeath'];
+        const bad = org.recruits.filter(r => r.hunger && !valid.includes(r.hunger.stage));
+        return bad.length === 0 || bad.length + ' recruits with invalid hunger stage';
+      }
+    },
+    { id:'RC-006', desc:'Recruit hunger charges within stage bounds (GDD §5.6.1)',
+      check: gs => {
+        const org = gs.organizations.find(o=>o.id===gs.playerOrgId);
+        const maxes = { Hunger:120, Starvation:300, Famine:100, StarvedToDeath:1 };
+        const bad = org.recruits.filter(r => {
+          if (!r.hunger) return false;
+          const max = maxes[r.hunger.stage];
+          return max !== undefined && (r.hunger.charges < 0 || r.hunger.charges > max);
+        });
+        return bad.length === 0 || bad.length + ' recruits with hunger charges out of bounds';
+      }
+    },
+
+    // ── Groups ──
+    { id:'GR-001', desc:'All groups have required fields',
+      check: gs => {
+        const org = gs.organizations.find(o=>o.id===gs.playerOrgId);
+        const required = ['id','name','role','memberIds','schedule','taskList','config'];
+        const bad = org.groups.filter(g => required.some(k => !(k in g)));
+        return bad.length === 0 || bad.length + ' groups missing fields';
+      }
+    },
+    { id:'GR-002', desc:'Group member count is 1–9 (GDD §7)',
+      check: gs => {
+        const org = gs.organizations.find(o=>o.id===gs.playerOrgId);
+        const bad = org.groups.filter(g => g.memberIds.length < 1 || g.memberIds.length > 9);
+        return bad.length === 0 || bad.length + ' groups with member count outside 1–9';
+      }
+    },
+    { id:'GR-003', desc:'Group members all exist in org roster',
+      check: gs => {
+        const org = gs.organizations.find(o=>o.id===gs.playerOrgId);
+        const ids = new Set(org.recruits.map(r=>r.id));
+        let missing = 0;
+        org.groups.forEach(g => g.memberIds.forEach(mid => { if (!ids.has(mid)) missing++; }));
+        return missing === 0 || missing + ' group member IDs not found in roster';
+      }
+    },
+    { id:'GR-004', desc:'Group schedule is a 6-element boolean array (GDD §7)',
+      check: gs => {
+        const org = gs.organizations.find(o=>o.id===gs.playerOrgId);
+        const bad = org.groups.filter(g => !Array.isArray(g.schedule) || g.schedule.length !== 6);
+        return bad.length === 0 || bad.length + ' groups with invalid schedule';
+      }
+    },
+    { id:'GR-005', desc:'Group role is one of valid values (GDD §7)',
+      check: gs => {
+        const org = gs.organizations.find(o=>o.id===gs.playerOrgId);
+        const valid = ['Scout','Combat','Supply','Rescue'];
+        const bad = org.groups.filter(g => !valid.includes(g.role));
+        return bad.length === 0 || bad.length + ' groups with invalid role: ' + org.groups.filter(g=>!valid.includes(g.role)).map(g=>g.role).join(', ');
+      }
+    },
+
+    // ── Wounds ──
+    { id:'WD-001', desc:'Wound category is Progressive, Stackable, or Special (GDD §5.3.6)',
+      check: gs => {
+        const org = gs.organizations.find(o=>o.id===gs.playerOrgId);
+        const valid = ['Progressive','Stackable','Special'];
+        let bad = 0;
+        org.recruits.forEach(r => (r.wounds||[]).forEach(w => { if (!valid.includes(w.category)) bad++; }));
+        return bad === 0 || bad + ' wounds with invalid category';
+      }
+    },
+    { id:'WD-002', desc:'Wound charges are non-negative and do not exceed maxCharges',
+      check: gs => {
+        const org = gs.organizations.find(o=>o.id===gs.playerOrgId);
+        let bad = 0;
+        org.recruits.forEach(r => (r.wounds||[]).forEach(w => {
+          if (w.charges < 0 || (w.maxCharges && w.charges > w.maxCharges)) bad++;
+        }));
+        return bad === 0 || bad + ' wounds with charges out of bounds';
+      }
+    },
+  ];
+
+  // ── Validate ────────────────────────────────────────────────────────────────
+  function validate() {
+    clearLog();
+    if (!GS) { log('No game state loaded. Start a game first.', 'warn'); return; }
+
+    log('Validation — Turn ' + GS.turn + ' — ' + new Date().toLocaleTimeString(), 'head');
+    passCount = 0; failCount = 0;
+
+    RULES.forEach(rule => {
+      let result;
+      try { result = rule.check(GS); }
+      catch(e) { result = 'ERROR: ' + e.message; }
+      if (result === true) {
+        log('[' + rule.id + '] ' + rule.desc, 'pass');
+      } else {
+        log('[' + rule.id + '] ' + rule.desc + ' → ' + result, 'fail');
+      }
+    });
+
+    log('─── ' + passCount + ' passed, ' + failCount + ' failed ───', 'head');
+    if (!document.getElementById('dev-panel').classList.contains('open')) {
+      DEV.togglePanel();
+    }
+  }
+
+  // ── Scenarios ───────────────────────────────────────────────────────────────
+  function runScenario(name) {
+    log('Running scenario: ' + name, 'head');
+    const scenarios = {
+      world_gen: () => {
+        startNewGame();
+        log('New game created — validating...', 'info');
+        validate();
+        log('Scenario world_gen complete.', 'info');
+      },
+      poi_discovery: () => {
+        if (!GS) { log('Start a game first.', 'warn'); return; }
+        const before = GS.world.pois.filter(p=>p.discovered).length;
+        GS.world.pois.forEach(p => { p.discovered = true; });
+        updateUI(); drawMap();
+        log('All ' + GS.world.pois.length + ' POIs set to discovered (was ' + before + ').', 'info');
+        validate();
+      },
+      corrupt_state: () => {
+        if (!GS) { log('Start a game first.', 'warn'); return; }
+        // Introduce known violations for testing
+        const org = pOrg();
+        org.gold = -500; // should fail OR-003
+        GS.world.pois[0].despawnTimer = -10; // should fail WO-008
+        GS.world.pois[0].zones = 25; // should fail WO-009
+        GS.world.cities.push({id:'c99',name:'Extra',x:5,y:5}); // should fail WO-002
+        log('Injected 4 violations: negative gold, negative despawnTimer, zones=25, extra city.', 'warn');
+        validate();
+      },
+    };
+    if (scenarios[name]) { scenarios[name](); }
+    else { log('Unknown scenario: ' + name, 'warn'); }
+    if (!document.getElementById('dev-panel').classList.contains('open')) DEV.togglePanel();
+  }
+
+  // ── Inject helpers ──────────────────────────────────────────────────────────
+  const inject = {
+    emptyOrg: () => {
+      if (!GS) { log('Start a game first.', 'warn'); return; }
+      const org = pOrg(); org.gold = 0; org.recruits = []; org.groups = [];
+      updateUI(); log('Injected: empty org (gold=0, no recruits, no groups).', 'warn'); validate();
+    },
+    richOrg: () => {
+      if (!GS) { log('Start a game first.', 'warn'); return; }
+      const org = pOrg(); org.gold = 99999;
+      // Inject 3 minimal recruits
+      const races = ['human'];
+      for (let i = 0; i < 3; i++) {
+        org.recruits.push({
+          id: 'r_inject_' + i, name: 'Test Recruit ' + i, race: 'human',
+          level: 5, upkeepBaseRate: 10, traits: [],
+          characteristics: { health:100, regeneration:5, movementSpeed:10, baseCarryCapacity:7, strength:10, dexterity:10, perception:10, loyalty:15 },
+          equipment: { garment:null, head:null, backpack:null, trinket:null, trinket2:null },
+          inventory: [], statusEffects: [], wounds: [],
+          hunger: { stage:'Hunger', charges:0 }, incapacitated: null,
+          state: 'Available'
+        });
+      }
+      updateUI(); log('Injected: gold=99999, 3 test recruits.', 'info'); validate();
+    },
+    badPOI: () => {
+      if (!GS) { log('Start a game first.', 'warn'); return; }
+      GS.world.pois[0].despawnTimer = -1;
+      log('Injected: pois[0].despawnTimer = -1.', 'warn'); validate();
+    },
+    allDiscovered: () => {
+      if (!GS) { log('Start a game first.', 'warn'); return; }
+      GS.world.pois.forEach(p => p.discovered = true);
+      updateUI(); drawMap(); log('All POIs set to discovered.', 'info'); validate();
+    },
+    negativeGold: () => {
+      if (!GS) { log('Start a game first.', 'warn'); return; }
+      pOrg().gold = -1000;
+      updateUI(); log('Injected: gold = -1000.', 'warn'); validate();
+    },
+  };
+
+  // ── Boot ────────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', init);
+
+  return { validate, runScenario, clearLog, togglePanel, log, inject, RULES, IS_DEV };
+})();
+
 </script>
 </body>
 </html>

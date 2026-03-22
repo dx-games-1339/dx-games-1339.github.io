@@ -347,6 +347,25 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 .for-sale-box{background:var(--bg-raised);border:1px solid var(--border-accent);padding:10px 12px;}
 .for-sale-total{font-family:var(--mono);font-size:11px;color:var(--amber);margin:6px 0;}
 .upkeep-warning{background:rgba(139,48,48,.15);border:1px solid var(--red);padding:8px 12px;font-family:var(--mono);font-size:10px;color:var(--red-bright);margin-bottom:10px;}
+/* ── Step 10: Task System & Group Config ── */
+.task-list-wrap{margin-top:8px;}
+.task-list-title{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-dim);margin-bottom:5px;}
+.task-entry{display:flex;align-items:center;gap:6px;padding:4px 6px;background:var(--bg-raised);border:1px solid var(--border);margin-bottom:3px;}
+.task-entry.active-task{border-color:var(--amber-dim);background:rgba(74,63,40,.18);}
+.task-entry.goal-task{border-color:var(--green);background:rgba(42,90,48,.10);}
+.task-entry-label{font-family:var(--mono);font-size:9px;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.task-entry-assignee{font-family:var(--mono);font-size:8px;color:var(--amber-dim);flex-shrink:0;}
+.task-entry-giveup{font-family:var(--mono);font-size:8px;color:var(--text-dim);flex-shrink:0;}
+.task-rm-btn{padding:1px 5px;background:transparent;border:1px solid var(--border);color:var(--text-dim);font-size:9px;cursor:pointer;outline:none;flex-shrink:0;}
+.task-rm-btn:hover{border-color:var(--red);color:var(--red-bright);}
+.task-add-section{margin-top:6px;}
+.task-add-row{display:flex;gap:4px;margin-top:4px;}
+.task-add-row select{flex:1;font-size:9px;padding:3px 6px;}
+.task-add-row button{flex-shrink:0;}
+.group-config-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-family:var(--mono);font-size:9px;color:var(--text-dim);}
+.group-config-row input[type=checkbox]{accent-color:var(--amber);width:12px;height:12px;cursor:pointer;}
+.group-config-row input[type=number]{width:50px;padding:2px 5px;font-size:9px;}
+.maintenance-badge{display:inline-block;font-family:var(--mono);font-size:8px;letter-spacing:.06em;text-transform:uppercase;padding:1px 4px;border:1px solid var(--amber);color:var(--amber);margin-left:4px;}
 @keyframes toast-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes toast-out{from{opacity:1}to{opacity:0}}
 </style>
@@ -366,7 +385,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
     <div class="launch-error" id="launch-error"></div>
   </div>
   <input type="file" id="file-load-input" accept=".json" style="display:none">
-  <div class="launch-version">v0.9 — Step 9</div>
+  <div class="launch-version">v1.0 — Step 10 (Final)</div>
 </div>
 <!-- WORLD OPTIONS -->
 <div id="screen-world-options" class="hidden">
@@ -505,7 +524,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 <script>
 'use strict';
 /* ═══════════════ CONSTANTS ═══════════════ */
-const VERSION='0.9-step9',AUTOSAVE_KEY='ironbound_autosave',AUTOSAVE_EVERY=5;
+const VERSION='0.10-step10',AUTOSAVE_KEY='ironbound_autosave',AUTOSAVE_EVERY=5;
 const PLAYER_FACTION='player';
 
 /* ═══════════════ TIME ═══════════════ */
@@ -1780,8 +1799,271 @@ let GS=null;
 function playerOrg(){return GS.organizations.find(o=>o.id===GS.playerOrgId);}
 
 /* ═══════════════ TURN ORDER ═══════════════ */
+/* ══════════════════════════════════════════════════════════
+   STEP 10 — TASK SYSTEM, MAINTENANCE LIFECYCLE, FULL TURN ORDER
+══════════════════════════════════════════════════════════ */
+
+/* ── Task factory (Section 13.2) ── */
+function makeTask(opts={}){
+  return{
+    id:makeId(),
+    action:opts.action??'scout_zone',    // zone action key or goal type
+    assigneeId:opts.assigneeId??null,
+    targetObjectId:opts.targetObjectId??null,
+    isGoal:opts.isGoal??false,
+    goalType:opts.goalType??null,
+    goalLifetimeRemaining:opts.goalLifetime??null,
+    giveUpCounter:0,
+    _firstExecutionTurn:null,
+  };
+}
+
+/* ── Suitability scoring (Section 13.3) ── */
+function taskSuitabilityScore(recruit,actionKey){
+  if(!recruit||recruit.state==='Dead'||recruit.incapacitated)return-1;
+  const ch=recruit.characteristics;
+  switch(actionKey){
+    case'scout_zone':return ch.perception*2+ch.level;
+    case'search_for': return ch.perception*2+ch.dexterity;
+    case'treat':      return ch.dexterity*2+ch.level;
+    case'conceal':    return ch.dexterity+ch.perception;
+    case'hide':       return ch.dexterity+ch.perception;
+    case'rest':       return 1; // any idle member
+    case'eat':        return 1;
+    default:          return ch.level;
+  }
+}
+
+/* ── Abstract goal decomposition (Section 13.4) ── */
+/* Returns an array of Task objects to prepend/append to group task list */
+function decomposeGoal(goal,group,poi,org){
+  const tasks=[];
+  switch(goal.goalType){
+    case'explore':{
+      // Push a scout_zone task for every Unknown zone reachable from current position
+      if(poi&&group.locationZoneId){
+        const zone=poi.zones.find(z=>z.id===group.locationZoneId);
+        for(const adjId of(zone?._passages||[])){
+          const adj=poi.zones.find(z=>z.id===adjId);
+          if(adj&&adj.state==='Unknown')
+            tasks.push(makeTask({action:'scout_zone',goalType:'explore'}));
+        }
+      }
+      if(!tasks.length)tasks.push(makeTask({action:'scout_zone',goalType:'explore'}));
+      break;
+    }
+    case'gather_valuables':{
+      // Scout first, then gather the highest-value located object in zone
+      tasks.push(makeTask({action:'scout_zone',goalType:'gather_valuables'}));
+      if(poi&&group.locationZoneId){
+        const zone=poi.zones.find(z=>z.id===group.locationZoneId);
+        if(zone){
+          const located=zone.objects
+            .filter(o=>!o.isBody&&getAwarenessState(PLAYER_FACTION,zone,o.id)==='Located')
+            .sort((a,b)=>(b.goldValueMax??0)-(a.goldValueMax??0));
+          if(located.length)
+            tasks.push(makeTask({action:'gather_resources',targetObjectId:located[0].id,goalType:'gather_valuables'}));
+        }
+      }
+      break;
+    }
+    case'gather_resource':{
+      tasks.push(makeTask({action:'scout_zone',goalType:'gather_resource'}));
+      tasks.push(makeTask({action:'gather_resources',goalType:'gather_resource'}));
+      break;
+    }
+    case'encamp':{
+      tasks.push(makeTask({action:'rest',goalType:'encamp'}));
+      break;
+    }
+  }
+  return tasks;
+}
+
+/* ── Maintenance lifecycle (Section 13.6) ── */
+function runMaintenanceLifecycle(group,org,gs){
+  if(group.config?.overrideMaintenanceLifecycle)return;
+  if(!group.locationPoiId||!group.locationZoneId)return;
+
+  for(const rid of group.memberIds){
+    const r=org.recruits.find(r=>r.id===rid);if(!r||r.state==='Dead')continue;
+
+    // Wound treatment: untreated wounds → insert Treat task
+    const untreated=(r.wounds||[]).filter(w=>!w.bandaged&&!w.lethal);
+    if(untreated.length){
+      const already=group.taskList.some(t=>t.action==='treat'&&t.assigneeId===rid);
+      if(!already){
+        // Find another member who can treat (or self-treat if no one else)
+        const treater=group.memberIds
+          .map(id=>org.recruits.find(r=>r.id===id))
+          .filter(r=>r&&r.id!==rid&&r.state!=='Dead'&&!r.incapacitated)
+          .sort((a,b)=>taskSuitabilityScore(b,'treat')-taskSuitabilityScore(a,'treat'))[0];
+        const performerId=treater?.id??rid;
+        const t=makeTask({action:'treat',assigneeId:performerId,targetObjectId:`${rid}:${untreated[0].id}`});
+        group.taskList.unshift(t);
+      }
+    }
+
+    // Hunger: no food and hungry → insert Eat task or redistribute
+    ensureHunger(r);
+    const hasFood=r.inventory.some(i=>i.tags&&i.tags.some(t=>t.type==='Food'));
+    const needsFood=r.hunger.stage!=='Hunger'||(r.hunger.stage==='Hunger'&&r.hunger.charges>80);
+    if(needsFood&&!hasFood){
+      // Try redistribution from teammates
+      for(const mid of group.memberIds){
+        if(mid===rid)continue;
+        const m=org.recruits.find(r=>r.id===mid);if(!m)continue;
+        const surplus=m.inventory.filter(i=>i.tags&&i.tags.some(t=>t.type==='Food'));
+        if(surplus.length){
+          // Transfer one food item
+          const item=surplus[0];
+          const idx=m.inventory.findIndex(i=>i.id===item.id);
+          if(idx>=0){m.inventory.splice(idx,1);r.inventory.push(item);}
+          break;
+        }
+      }
+    }
+    const hasFoodNow=r.inventory.some(i=>i.tags&&i.tags.some(t=>t.type==='Food'));
+    if(needsFood&&hasFoodNow){
+      const already=group.taskList.some(t=>t.action==='eat'&&t.assigneeId===rid);
+      if(!already){
+        const t=makeTask({action:'eat',assigneeId:rid});
+        group.taskList.unshift(t);
+      }
+    }
+  }
+}
+
+/* ── Task assignment step (Section 13.3 / 13.7 step 5) ── */
+function runTaskAssignment(group,org){
+  if(!group.locationPoiId||!group.locationZoneId)return;
+  const poi=GS?.world.pois.find(p=>p.id===group.locationPoiId);
+  if(!poi)return;
+
+  // Find members without an active _zoneAction (idle)
+  const idleMembers=group.memberIds
+    .map(id=>org.recruits.find(r=>r.id===id))
+    .filter(r=>r&&r.state!=='Dead'&&!r.incapacitated&&(!r._zoneAction||!r._zoneAction.type));
+
+  for(const task of group.taskList){
+    if(task.assigneeId){
+      // Already assigned — apply the action to the recruit if they are idle
+      const r=org.recruits.find(r=>r.id===task.assigneeId);
+      if(r&&(!r._zoneAction||!r._zoneAction.type)){
+        assignAction(r,group,task.action,task.targetObjectId);
+        if(!task._firstExecutionTurn)task._firstExecutionTurn=GS.turn;
+      }
+      continue;
+    }
+    if(!idleMembers.length)break;
+    // Score each idle member for this task, pick best
+    const scored=idleMembers
+      .map(r=>({r,score:taskSuitabilityScore(r,task.action)}))
+      .filter(({score})=>score>=0)
+      .sort((a,b)=>b.score-a.score);
+    if(!scored.length)continue;
+    const best=scored[0].r;
+    task.assigneeId=best.id;
+    assignAction(best,group,task.action,task.targetObjectId);
+    if(!task._firstExecutionTurn)task._firstExecutionTurn=GS.turn;
+    idleMembers.splice(idleMembers.indexOf(best),1);
+  }
+}
+
+/* ── Task completion & give-up check (called after action resolution) ── */
+function updateTaskList(group,org,gs){
+  if(!group.locationPoiId)return;
+  const completed=[];
+  for(const task of group.taskList){
+    if(!task.assigneeId)continue;
+    const r=org.recruits.find(r=>r.id===task.assigneeId);
+    if(!r)continue;
+
+    // Check if still working
+    const stillWorking=r._zoneAction&&r._zoneAction.type===task.action;
+    if(!stillWorking){
+      // Task finished (recruit cleared their action) or interrupted
+      completed.push(task.id);
+      continue;
+    }
+
+    // Give-up counter for goals
+    if(task.goalType){
+      task.giveUpCounter=(task.giveUpCounter??0)+1;
+      const limit=group.config?.giveUpTurnCount??7;
+      if(task.giveUpCounter>=limit){
+        // Cancel this goal and all related sub-tasks
+        const cancelIds=group.taskList.filter(t=>t.goalType===task.goalType).map(t=>t.id);
+        for(const id of cancelIds)completed.push(id);
+        continue;
+      }
+    }
+
+    // Lifetime check
+    if(task.goalLifetimeRemaining!==null&&task._firstExecutionTurn!==null){
+      const elapsed=gs.turn-task._firstExecutionTurn;
+      if(elapsed>=task.goalLifetimeRemaining){completed.push(task.id);continue;}
+    }
+  }
+  group.taskList=group.taskList.filter(t=>!completed.includes(t.id));
+
+  // Decompose goal tasks into sub-tasks if needed
+  const poi=GS?.world.pois.find(p=>p.id===group.locationPoiId);
+  for(const task of group.taskList){
+    if(!task.isGoal||task.assigneeId)continue;
+    const subs=decomposeGoal(task,group,poi,org);
+    if(subs.length){
+      const idx=group.taskList.indexOf(task);
+      group.taskList.splice(idx,1,...subs);
+    }
+  }
+}
+
+/* ── Full maintenance + assignment pass (steps 4-5 of turn order) ── */
+function processTaskSystem(gs){
+  const org=playerOrg();if(!org)return;
+  for(const group of org.groups){
+    if(!group.locationPoiId)continue;
+    runMaintenanceLifecycle(group,org,gs);
+    runTaskAssignment(group,org);
+  }
+}
+
+/* ── Post-resolution task cleanup (step after action resolution) ── */
+function postResolutionTaskUpdate(gs){
+  const org=playerOrg();if(!org)return;
+  for(const group of org.groups){
+    if(!group.locationPoiId)continue;
+    updateTaskList(group,org,gs);
+  }
+}
+
+/* ── Add a local action task to a group's task list ── */
+function addLocalTask(group,actionKey,targetObjectId=null,assigneeId=null){
+  const t=makeTask({action:actionKey,assigneeId,targetObjectId});
+  group.taskList.push(t);
+}
+
+/* ── Add a goal task to a group's task list ── */
+function addGoalTask(group,goalType,lifetime=60){
+  const t=makeTask({isGoal:true,action:goalType,goalType,goalLifetime:lifetime});
+  group.taskList.push(t);
+}
+
+/* ── Remove a task ── */
+function removeTask(group,taskId){
+  const task=group.taskList.find(t=>t.id===taskId);
+  if(task?.assigneeId){
+    const org=playerOrg();
+    const r=org?.recruits.find(r=>r.id===task.assigneeId);
+    if(r&&r._zoneAction?.type===task.action)
+      r._zoneAction={type:null,targetObjectId:null,progress:0};
+  }
+  group.taskList=group.taskList.filter(t=>t.id!==taskId);
+}
+
+/* ═══════════════ WORLD CONSISTENCY ═══════════════ */
 function worldConsistencyCheck(gs){
-  const w=gs.world,before=w.pois.length;
   w.pois=w.pois.filter(p=>{p.despawnTimer--;return p.despawnTimer>0;});
   if(_currentPoiId&&!w.pois.find(p=>p.id===_currentPoiId)){closePOILayout();closeZoneDetail();}
   if(w.pois.length<w._targetPois)populatePOIs(gs);
@@ -1804,32 +2086,45 @@ function processGroupTravel(gs){
 
 function advanceTurn(){
   if(!GS)return;
-  // Fix 2: do NOT close the POI popup — it will be refreshed in-place below
   GS.turn++;
 
+  // Step 1 — World consistency check
   const expired=worldConsistencyCheck(GS);
-  const arrivals=processGroupTravel(GS);
-  const actionEvents=processZoneActions(GS); // Step 7
-  const woundEvents=advanceWounds(GS);       // Step 8
-  const incapEvents=processIncapacitation(GS); // Step 8
-  const hungerEvents=processHunger(GS);      // Step 9
 
-  if(TIME.isFirstTurnOfWeek(GS.turn)){refreshHirePool(GS);showToast('Weekly rotation — new recruits available');}
-
-  // Monthly operations
+  // Step 2 — Monthly financial operations
   if(TIME.isUpkeepTurn(GS.turn)){
     const org=playerOrg();
     if(org){
-      // Disloyal loyalty deduction (Section 5.5.2)
       for(const r of org.recruits){
         if(r.traits.includes('Disloyal')&&!r.traits.includes('Loyal'))
           r.characteristics.loyalty=Math.max(0,r.characteristics.loyalty-5);
       }
-      // Upkeep deduction (Section 5.7)
       const upkeepMsgs=processUpkeep(GS);
       if(upkeepMsgs.length)showToast(upkeepMsgs[0]);
     }
   }
+
+  // Step 3 — Weekly rotation
+  if(TIME.isFirstTurnOfWeek(GS.turn)){refreshHirePool(GS);showToast('Weekly rotation — new recruits available');}
+
+  // Group travel (global map movement, not in Section 13.7 but prereq for in-zone steps)
+  const arrivals=processGroupTravel(GS);
+
+  // Step 4 — Maintenance lifecycle checks
+  // Step 5 — Task assignment
+  processTaskSystem(GS);
+
+  // Step 6+7 — Character action determination + Action resolution
+  const actionEvents=processZoneActions(GS);
+
+  // Post-resolution: update task completion and give-up counters
+  postResolutionTaskUpdate(GS);
+
+  // Step 8 — Status effect update
+  const woundEvents=advanceWounds(GS);
+  const incapEvents=processIncapacitation(GS);
+  const hungerEvents=processHunger(GS);
+
   if((GS.turn-GS._autosaveTurn)>=AUTOSAVE_EVERY){autosave();GS._autosaveTurn=GS.turn;}
 
   updateToolbar();
@@ -1837,7 +2132,6 @@ function advanceTurn(){
   MapRenderer.rebuildGroups(GS.world,playerOrg());
   if(GS._devMode)refreshDevPanel();
 
-  // Update open overlays
   if(_currentPoiId){
     const poi=GS.world.pois.find(p=>p.id===_currentPoiId);
     if(poi){document.getElementById('poi-header-timer').textContent=poi.despawnTimer;renderPoiSidebar(poi);drawPoiGraph();}
@@ -1849,7 +2143,6 @@ function advanceTurn(){
   }
   if(!document.getElementById('city-overlay').classList.contains('hidden')&&_openCityId)renderCityPanel(_openCityId,_openCityTabId??'roster');
   if(_openGroupId)renderGroupPanel(_openGroupId);
-  // Fix 2: refresh popup in-place if one is open
   if(_openPopupPoiId)refreshPOIPopup();
 
   const allExtra=[...arrivals,...(actionEvents.length?[`${actionEvents.length} action event${actionEvents.length>1?'s':''}`]:[]),...woundEvents,...incapEvents,...hungerEvents].filter(Boolean);
@@ -2171,7 +2464,65 @@ function renderZoneSidebar(zone,poi){
     }
   }
 
-  // ── Selected member details & action assignment ──
+  // ── Task list for each group in zone ──
+  for(const group of groupsHere){
+    const tl=group.taskList??[];
+    html+=`<div class="task-list-wrap">
+      <div class="task-list-title">⬡ ${group.name} — Task Queue (${tl.length})</div>`;
+    if(!tl.length){
+      html+=`<div style="font-family:var(--body);font-style:italic;font-size:11px;color:var(--text-dim)">No tasks queued. Add tasks below.</div>`;
+    } else {
+      for(const task of tl){
+        const assigneeName=task.assigneeId?org?.recruits.find(r=>r.id===task.assigneeId)?.name.split(' ')[0]??'?':'—';
+        const isActive=!!task.assigneeId;
+        const isGoal=!!task.isGoal;
+        const actionLabel=ACTIONS[task.action]?.label??task.goalType??task.action;
+        html+=`<div class="task-entry${isActive?' active-task':''}${isGoal?' goal-task':''}">
+          <span class="task-entry-label">${isGoal?'⊕ ':''}${actionLabel}${task.targetObjectId&&!task.isGoal?` ↳ target`:''}</span>
+          <span class="task-entry-assignee">${assigneeName}</span>
+          ${task.giveUpCounter>0?`<span class="task-entry-giveup">${task.giveUpCounter}/${group.config?.giveUpTurnCount??7}</span>`:''}
+          <button class="task-rm-btn" data-task-id="${task.id}" data-group-id="${group.id}">✕</button>
+        </div>`;
+      }
+    }
+    // Add task controls
+    html+=`<div class="task-add-section">
+      <div class="task-add-row">
+        <select id="new-task-action-${group.id}">
+          <optgroup label="Local Actions">
+            <option value="scout_zone">Scout Zone</option>
+            <option value="search_for">Search For</option>
+            <option value="rest">Rest</option>
+            <option value="hide">Hide</option>
+            <option value="eat">Eat</option>
+          </optgroup>
+          <optgroup label="Goals">
+            <option value="goal:explore">⊕ Explore</option>
+            <option value="goal:gather_valuables">⊕ Gather Valuables</option>
+            <option value="goal:gather_resource">⊕ Gather Resource</option>
+            <option value="goal:encamp">⊕ Encamp</option>
+          </optgroup>
+        </select>
+        <button class="zone-action-btn" data-add-task-group="${group.id}">+ Add</button>
+      </div>
+    </div>`;
+    // Group config
+    const cfg=group.config??{};
+    html+=`<div style="margin-top:6px">
+      <div class="group-config-row">
+        <input type="checkbox" id="cfg-maintenance-${group.id}" ${!cfg.overrideMaintenanceLifecycle?'checked':''}>
+        <label for="cfg-maintenance-${group.id}" style="margin-bottom:0;cursor:pointer">Auto-maintenance</label>
+      </div>
+      <div class="group-config-row">
+        <input type="checkbox" id="cfg-zonetravel-${group.id}" ${cfg.zoneTravelAllowed!==false?'checked':''}>
+        <label for="cfg-zonetravel-${group.id}" style="margin-bottom:0;cursor:pointer">Zone travel allowed</label>
+      </div>
+      <div class="group-config-row">
+        Give-up after&nbsp;<input type="number" id="cfg-giveup-${group.id}" value="${cfg.giveUpTurnCount??7}" min="1" max="30">&nbsp;turns
+      </div>
+    </div>`;
+    html+='</div>'; // close task-list-wrap
+  }
   const selRecruit=_selectedMemberId?org?.recruits.find(r=>r.id===_selectedMemberId):null;
   const selGroup=selRecruit?groupsHere.find(g=>g.memberIds.includes(_selectedMemberId)):null;
 
@@ -2273,7 +2624,45 @@ function renderZoneSidebar(zone,poi){
 
   sb.innerHTML=html;
 
-  // Wire member chip selection
+  // Wire task remove buttons
+  sb.querySelectorAll('.task-rm-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const gid=btn.dataset.groupId;
+      const tid=btn.dataset.taskId;
+      const g=org?.groups.find(g=>g.id===gid);if(!g)return;
+      removeTask(g,tid);
+      renderZoneSidebar(zone,poi);
+    });
+  });
+
+  // Wire add-task buttons
+  sb.querySelectorAll('[data-add-task-group]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const gid=btn.dataset.addTaskGroup;
+      const g=org?.groups.find(g=>g.id===gid);if(!g)return;
+      const sel=sb.querySelector(`#new-task-action-${gid}`);if(!sel)return;
+      const val=sel.value;
+      if(val.startsWith('goal:')){
+        addGoalTask(g,val.slice(5));
+        showToast(`Goal added: ${val.slice(5)}`);
+      } else {
+        addLocalTask(g,val);
+        showToast(`Task added: ${ACTIONS[val]?.label??val}`);
+      }
+      renderZoneSidebar(zone,poi);
+    });
+  });
+
+  // Wire group config checkboxes and number inputs
+  for(const group of groupsHere){
+    const cfg=group.config??{};
+    const maintEl=sb.querySelector(`#cfg-maintenance-${group.id}`);
+    if(maintEl)maintEl.addEventListener('change',()=>{cfg.overrideMaintenanceLifecycle=!maintEl.checked;});
+    const travelEl=sb.querySelector(`#cfg-zonetravel-${group.id}`);
+    if(travelEl)travelEl.addEventListener('change',()=>{cfg.zoneTravelAllowed=travelEl.checked;});
+    const giveUpEl=sb.querySelector(`#cfg-giveup-${group.id}`);
+    if(giveUpEl)giveUpEl.addEventListener('change',()=>{const v=parseInt(giveUpEl.value,10);if(!isNaN(v))cfg.giveUpTurnCount=Math.max(1,v);});
+  }
   sb.querySelectorAll('.member-chip-sel').forEach(btn=>{
     btn.addEventListener('click',()=>{
       const rid=btn.dataset.rid;
@@ -3010,6 +3399,49 @@ function showToast(msg,type=''){const c=document.getElementById('toast-container
 
 /* ═══════════════ TEST SCENARIOS ═══════════════ */
 const TEST_SCENARIOS=[
+  {id:'task_system',name:'Task System Test',
+   desc:'Group pre-placed in entry zone. Open Zone Detail — use the Task Queue to add an Explore goal and a Scout Zone task. Advance turns to watch automated assignment and execution.',
+   build(){
+     const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:12});
+     s._startingChars=3;generateWorld(s);
+     const org=s.organizations[0];
+     const poi=s.world.pois.find(p=>p.discovered);
+     if(poi){
+       const rng=makePRNG(poi.id.split('').reduce((h,c)=>Math.imul(31,h)+c.charCodeAt(0)|0,0));
+       generateZones(poi,rng);
+       if(org.recruits.length>=3){
+         const g=makeGroup({name:'Alpha Squad',role:'Scout',memberIds:org.recruits.slice(0,3).map(r=>r.id)});
+         g.currentCityId=null;g.locationPoiId=poi.id;g.locationZoneId=poi.zones[0].id;
+         org.groups.push(g);org.recruits.slice(0,3).forEach(r=>r.state='Deployed');
+         initFactionForZone(PLAYER_FACTION,poi.zones[0]);poi.zones[0].state='Scouted';
+         // Pre-add an Explore goal
+         addGoalTask(g,'explore',30);
+       }
+     }
+     return s;
+   }},
+  {id:'maintenance_test',name:'Maintenance Lifecycle Test',
+   desc:'One recruit with a wound, another with no food. Maintenance lifecycle auto-inserts Treat and Eat tasks each turn. Advance turns to observe.',
+   build(){
+     const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:12});
+     s._startingChars=3;generateWorld(s);
+     const org=s.organizations[0];
+     const poi=s.world.pois.find(p=>p.discovered);
+     if(poi&&org.recruits.length>=2){
+       const rng=makePRNG(poi.id.split('').reduce((h,c)=>Math.imul(31,h)+c.charCodeAt(0)|0,0));
+       generateZones(poi,rng);
+       const g=makeGroup({name:'Field Team',role:'Combat',memberIds:org.recruits.slice(0,2).map(r=>r.id)});
+       g.currentCityId=null;g.locationPoiId=poi.id;g.locationZoneId=poi.zones[0].id;
+       org.groups.push(g);org.recruits.slice(0,2).forEach(r=>r.state='Deployed');
+       initFactionForZone(PLAYER_FACTION,poi.zones[0]);poi.zones[0].state='Scouted';
+       // Apply a wound to recruit 0
+       const w=makeWoundInstance(WOUND_SEQUENCES.arm_left[0],'arm_left',0);
+       org.recruits[0].wounds=[w];
+       // Give recruit 1 food, recruit 0 none — maintenance will redistribute
+       org.recruits[1].inventory=[{...MARKET_STOCK_PERMANENT[0],id:makeId()}];
+     }
+     return s;
+   }},
   {id:'hunger_test',name:'Hunger System Test',
    desc:'Three recruits: one in Hunger, one in Starvation, one in Famine. Advance turns to watch stage progression and stat penalties. Open HQ → Roster to monitor hunger stage.',
    build(){

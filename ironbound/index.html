@@ -328,7 +328,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
     <div class="launch-error" id="launch-error"></div>
   </div>
   <input type="file" id="file-load-input" accept=".json" style="display:none">
-  <div class="launch-version">v0.8 — Step 8</div>
+  <div class="launch-version">v0.8.1 — Step 8.1 Maintenance</div>
 </div>
 <!-- WORLD OPTIONS -->
 <div id="screen-world-options" class="hidden">
@@ -467,7 +467,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 <script>
 'use strict';
 /* ═══════════════ CONSTANTS ═══════════════ */
-const VERSION='0.8-step8',AUTOSAVE_KEY='ironbound_autosave',AUTOSAVE_EVERY=5;
+const VERSION='0.8.1-step8_1',AUTOSAVE_KEY='ironbound_autosave',AUTOSAVE_EVERY=5;
 const PLAYER_FACTION='player';
 
 /* ═══════════════ TIME ═══════════════ */
@@ -559,7 +559,24 @@ function refreshHirePool(gs){const week=TIME.turnToWeek(gs.turn);gs._hirePoolSee
 function makeGroup(opts={}){
   return{id:makeId(),name:opts.name??'New Group',role:opts.role??'Scout',memberIds:opts.memberIds??[],locationPoiId:null,locationZoneId:null,currentCityId:opts.cityId??null,inTransitTo:null,_transitProgress:0,schedule:[false,false,false,false,false,true],taskList:[],config:{zoneTravelAllowed:true,giveUpTurnCount:7,overrideMaintenanceLifecycle:false}};
 }
-function groupSpeed(group,org){if(!group.memberIds.length)return 10;let min=Infinity;for(const id of group.memberIds){const r=org.recruits.find(r=>r.id===id);if(r)min=Math.min(min,r.characteristics.movementSpeed);}return min===Infinity?10:min;}
+/* Effective movement speed for a single recruit after wound penalties (Section 5.3.3, 5.8) */
+function effectiveSpeed(recruit){
+  if(!recruit||recruit.state==='Dead'||recruit.incapacitated) return 0;
+  const mods=computeWoundModifiers(recruit);
+  if(mods.immobile) return 0;
+  return Math.max(0, Math.round(recruit.characteristics.movementSpeed * mods.speedMult));
+}
+
+/* Group travels at the speed of its slowest member, accounting for wound penalties (Section 7) */
+function groupSpeed(group,org){
+  if(!group.memberIds.length) return 10;
+  let min=Infinity;
+  for(const id of group.memberIds){
+    const r=org.recruits.find(r=>r.id===id);
+    if(r) min=Math.min(min, effectiveSpeed(r));
+  }
+  return min===Infinity?10:min;
+}
 function locationCoords(type,id,world){if(type==='city'){const c=world.cities.find(c=>c.id===id);return c?{x:c.x+.5,y:c.y+.5}:null;}const p=world.pois.find(p=>p.id===id);return p?{x:p.x+.5,y:p.y+.5}:null;}
 function groupCoords(group,world){
   if(group.currentCityId){const c=world.cities.find(c=>c.id===group.currentCityId);if(c)return{x:c.x+.5,y:c.y+.5};}
@@ -642,20 +659,21 @@ const ACTIONS={
   },
 };
 
-/* Effective AP cost including head-wound modifier (Section 4.8.2)
-   Placeholder: no wounds yet, so increase=0 always */
-function effectiveAPCost(recruit,actionType){
-  const base=ACTIONS[actionType]?.apCost??5;
-  const increase=recruit._headWoundCostIncrease??0; // 0..0.40
-  return Math.min(50,Math.ceil(base*(1+increase)));
-}
-
-/* Progress per attempt for a given recruit */
+/* Progress per attempt for a given recruit.
+   Chest wounds apply strDexPerMult to STR/DEX/PER characteristics (Section 5.8). */
 function progressPerAttempt(recruit,actionType){
   const def=ACTIONS[actionType];if(!def)return 0;
   if(def.fixedProgress!==undefined)return def.fixedProgress;
   const ch=recruit.characteristics;
-  return def.factors.reduce((s,f)=>s+(ch[f.s]??0)*f.m,0);
+  // Apply strDexPerMult wound modifier to relevant characteristics
+  const mods=computeWoundModifiers(recruit);
+  const effective={
+    ...ch,
+    strength:  Math.round(ch.strength   * mods.strDexPerMult),
+    dexterity: Math.round(ch.dexterity  * mods.strDexPerMult),
+    perception:Math.round(ch.perception * mods.strDexPerMult),
+  };
+  return def.factors.reduce((s,f)=>s+(effective[f.s]??0)*f.m,0);
 }
 
 /* ── Awareness helpers ── */
@@ -806,37 +824,36 @@ function applyRest(recruit){
 */
 const WOUND_SEQUENCES = {
   arm_left: [
-    { key:'arm_left_light',   displayName:'Light arm wound (L)',  healthPenalty:15, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{} },
-    { key:'arm_left_medium',  displayName:'Medium arm wound (L)', healthPenalty:35, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{noTwoHanded:true} },
-    { key:'arm_left_severe',  displayName:'Severe arm wound (L)', healthPenalty:45, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{noTwoHanded:true, carryMult:0.90} },
-    // final stage → incapacitation
+    { key:'arm_left_light',   displayName:'Light arm wound (L)',  healthPenalty:15, startCharges:230, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{} },
+    { key:'arm_left_medium',  displayName:'Medium arm wound (L)', healthPenalty:35, startCharges:400, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{noTwoHanded:true} },
+    { key:'arm_left_severe',  displayName:'Severe arm wound (L)', healthPenalty:45, startCharges:600, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{noTwoHanded:true, carryMult:0.90} },
   ],
   arm_right: [
-    { key:'arm_right_light',  displayName:'Light arm wound (R)',  healthPenalty:15, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{} },
-    { key:'arm_right_medium', displayName:'Medium arm wound (R)', healthPenalty:35, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{noTwoHanded:true} },
-    { key:'arm_right_severe', displayName:'Severe arm wound (R)', healthPenalty:45, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{noTwoHanded:true, carryMult:0.90} },
+    { key:'arm_right_light',  displayName:'Light arm wound (R)',  healthPenalty:15, startCharges:230, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{} },
+    { key:'arm_right_medium', displayName:'Medium arm wound (R)', healthPenalty:35, startCharges:400, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{noTwoHanded:true} },
+    { key:'arm_right_severe', displayName:'Severe arm wound (R)', healthPenalty:45, startCharges:600, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{noTwoHanded:true, carryMult:0.90} },
   ],
   leg_left: [
-    { key:'leg_left_light',   displayName:'Light leg wound (L)',  healthPenalty:20, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{speedMult:0.80} },
-    { key:'leg_left_medium',  displayName:'Medium leg wound (L)', healthPenalty:40, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{speedMult:0.60, carryMult:0.85} },
-    { key:'leg_left_severe',  displayName:'Severe leg wound (L)', healthPenalty:60, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{immobile:true} },
+    { key:'leg_left_light',   displayName:'Light leg wound (L)',  healthPenalty:20, startCharges:230, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{speedMult:0.80} },
+    { key:'leg_left_medium',  displayName:'Medium leg wound (L)', healthPenalty:40, startCharges:400, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{speedMult:0.60, carryMult:0.85} },
+    { key:'leg_left_severe',  displayName:'Severe leg wound (L)', healthPenalty:60, startCharges:600, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{immobile:true} },
   ],
   leg_right: [
-    { key:'leg_right_light',  displayName:'Light leg wound (R)',  healthPenalty:20, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{speedMult:0.80} },
-    { key:'leg_right_medium', displayName:'Medium leg wound (R)', healthPenalty:40, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{speedMult:0.60, carryMult:0.85} },
-    { key:'leg_right_severe', displayName:'Severe leg wound (R)', healthPenalty:60, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{immobile:true} },
+    { key:'leg_right_light',  displayName:'Light leg wound (R)',  healthPenalty:20, startCharges:230, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{speedMult:0.80} },
+    { key:'leg_right_medium', displayName:'Medium leg wound (R)', healthPenalty:40, startCharges:400, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{speedMult:0.60, carryMult:0.85} },
+    { key:'leg_right_severe', displayName:'Severe leg wound (R)', healthPenalty:60, startCharges:600, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{immobile:true} },
   ],
   head: [
-    { key:'head_light',  displayName:'Light head wound',  healthPenalty:20, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{} },
-    { key:'head_medium', displayName:'Medium head wound', healthPenalty:40, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{actionCostIncrease:0.20} },
-    { key:'head_severe', displayName:'Severe head wound', healthPenalty:70, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{actionCostIncrease:0.40} },
-    { key:'head_lethal', displayName:'Lethal head wound', healthPenalty:0,  maxCharges:1,    degRange:[0,0],   bandagedDegRange:[0,0],   effects:{}, lethal:true },
+    { key:'head_light',  displayName:'Light head wound',  healthPenalty:20, startCharges:230, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{} },
+    { key:'head_medium', displayName:'Medium head wound', healthPenalty:40, startCharges:400, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{actionCostIncrease:0.20} },
+    { key:'head_severe', displayName:'Severe head wound', healthPenalty:70, startCharges:600, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{actionCostIncrease:0.40} },
+    { key:'head_lethal', displayName:'Lethal head wound', healthPenalty:0,  startCharges:1,   maxCharges:1,    degRange:[0,0],   bandagedDegRange:[0,0],   effects:{}, lethal:true },
   ],
   chest: [
-    { key:'chest_light',  displayName:'Light chest wound',  healthPenalty:30, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{} },
-    { key:'chest_medium', displayName:'Medium chest wound', healthPenalty:45, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{strDexPerMult:0.70} },
-    { key:'chest_severe', displayName:'Severe chest wound', healthPenalty:60, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{strDexPerMult:0.25} },
-    { key:'chest_lethal', displayName:'Lethal chest wound', healthPenalty:0,  maxCharges:1,    degRange:[0,0],   bandagedDegRange:[0,0],   effects:{}, lethal:true },
+    { key:'chest_light',  displayName:'Light chest wound',  healthPenalty:30, startCharges:230, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{} },
+    { key:'chest_medium', displayName:'Medium chest wound', healthPenalty:45, startCharges:400, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{strDexPerMult:0.70} },
+    { key:'chest_severe', displayName:'Severe chest wound', healthPenalty:60, startCharges:600, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{strDexPerMult:0.25} },
+    { key:'chest_lethal', displayName:'Lethal chest wound', healthPenalty:0,  startCharges:1,   maxCharges:1,    degRange:[0,0],   bandagedDegRange:[0,0],   effects:{}, lethal:true },
   ],
 };
 
@@ -923,6 +940,18 @@ function killCharacter(recruit, zone, poi, cause){
     zone.objects.push(bodyObj);
     initFactionForZone(PLAYER_FACTION,zone);
   }
+
+  // Remove from active roster (Section 5.4: "removed from the guild's active roster immediately")
+  // Keep the recruit object accessible via group.memberIds for body-in-zone reference,
+  // but remove from org.recruits so they don't count for upkeep or toolbar stats.
+  const org=GS?.organizations.find(o=>o.id===GS.playerOrgId);
+  if(org){
+    org.recruits=org.recruits.filter(r=>r.id!==recruit.id);
+    // Remove from any group they belong to
+    for(const g of org.groups){
+      g.memberIds=g.memberIds.filter(id=>id!==recruit.id);
+    }
+  }
 }
 
 /* ── Sigmoid gate function (Section 4.9.4) ── */
@@ -964,13 +993,13 @@ function rollSeverityTier(weights, rng){
 function makeWoundInstance(stageDef, slotKey, stageIdx){
   return{
     id:makeId(),
-    slotKey,           // e.g. 'arm_left'
+    slotKey,
     stageIndex:stageIdx,
     key:stageDef.key,
     displayName:stageDef.displayName,
     healthPenalty:stageDef.healthPenalty,
     maxCharges:stageDef.maxCharges,
-    currentCharges:stageDef.startCharges ?? (stageIdx===0?230:stageIdx===1?400:600),
+    currentCharges:stageDef.startCharges,  // always defined explicitly in WOUND_SEQUENCES
     degRange:stageDef.degRange,
     bandagedDegRange:stageDef.bandagedDegRange,
     effects:stageDef.effects??{},
@@ -1102,7 +1131,7 @@ function checkWoundProgression(recruit, wound, zone, poi){
   Object.assign(wound, {
     stageIndex:nextIdx, key:nextStage.key, displayName:nextStage.displayName,
     healthPenalty:nextStage.healthPenalty, maxCharges:nextStage.maxCharges,
-    currentCharges:nextIdx===1?400:nextIdx===2?600:wound.currentCharges,
+    currentCharges:nextStage.startCharges,
     degRange:nextStage.degRange, bandagedDegRange:nextStage.bandagedDegRange,
     effects:nextStage.effects??{}, bandaged:false,
   });
@@ -1511,6 +1540,18 @@ function advanceTurn(){
   const incapEvents=processIncapacitation(GS); // Step 8
 
   if(TIME.isFirstTurnOfWeek(GS.turn)){refreshHirePool(GS);showToast('Weekly rotation — new recruits available');}
+
+  // Monthly operations: Disloyal loyalty deduction (Section 5.5.2)
+  if(TIME.isUpkeepTurn(GS.turn)){
+    const org=playerOrg();
+    if(org){
+      for(const r of org.recruits){
+        if(r.traits.includes('Disloyal')&&!r.traits.includes('Loyal')){
+          r.characteristics.loyalty=Math.max(0, r.characteristics.loyalty-5);
+        }
+      }
+    }
+  }
   if((GS.turn-GS._autosaveTurn)>=AUTOSAVE_EVERY){autosave();GS._autosaveTurn=GS.turn;}
 
   updateToolbar();

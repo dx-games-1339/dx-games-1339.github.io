@@ -284,6 +284,31 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 .toast{padding:8px 16px;background:var(--bg-panel);border:1px solid var(--border-accent);font-family:var(--mono);font-size:11px;color:var(--parchment);letter-spacing:.08em;animation:toast-in .2s ease,toast-out .3s ease 2.5s forwards;pointer-events:none;}
 .toast.error{border-color:var(--red);color:var(--red-bright);}
 .toast.success{border-color:var(--green-bright);color:var(--green-bright);}
+/* ── Wound & Character Status UI ── */
+.char-status-card{background:var(--bg-raised);border:1px solid var(--border);padding:8px 10px;margin-bottom:6px;}
+.char-status-header{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.char-status-name{font-family:var(--serif);font-size:12px;font-weight:600;color:var(--parchment);}
+.char-status-hp{font-family:var(--mono);font-size:10px;margin-left:auto;}
+.char-status-hp.healthy{color:var(--green-bright);}
+.char-status-hp.wounded{color:var(--amber);}
+.char-status-hp.critical{color:var(--red-bright);}
+.char-status-hp.dead{color:var(--text-dim);}
+.char-status-incap{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;border:1px solid var(--red);color:var(--red-bright);background:rgba(139,48,48,.12);margin-left:6px;}
+.char-status-dead{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;border:1px solid var(--text-dim);color:var(--text-dim);}
+.wound-list{display:flex;flex-direction:column;gap:3px;margin-top:4px;}
+.wound-row{display:flex;align-items:center;gap:6px;}
+.wound-name{font-family:var(--mono);font-size:9px;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wound-name.bandaged{color:var(--green-bright);}
+.wound-name.lethal{color:var(--red-bright);}
+.wound-bar-track{width:70px;height:4px;background:var(--bg-input);border:1px solid var(--border);position:relative;flex-shrink:0;}
+.wound-bar-fill{position:absolute;top:0;left:0;height:100%;background:var(--red-bright);}
+.wound-bar-fill.bandaged{background:var(--green);}
+.wound-bar-fill.incap{background:var(--red);}
+.wound-hp{font-family:var(--mono);font-size:9px;color:var(--text-dim);flex-shrink:0;}
+.body-card{background:rgba(20,14,14,.6);border:1px solid var(--red);padding:8px 10px;margin-bottom:6px;}
+.body-card-name{font-family:var(--serif);font-size:12px;color:var(--red-bright);margin-bottom:2px;}
+.body-card-info{font-family:var(--mono);font-size:9px;color:var(--text-dim);}
+.hazard-tag{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;border:1px solid var(--red);color:var(--red-bright);margin-bottom:4px;display:inline-block;}
 @keyframes toast-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes toast-out{from{opacity:1}to{opacity:0}}
 </style>
@@ -303,7 +328,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
     <div class="launch-error" id="launch-error"></div>
   </div>
   <input type="file" id="file-load-input" accept=".json" style="display:none">
-  <div class="launch-version">v0.7.1 — Step 7.1 Maintenance</div>
+  <div class="launch-version">v0.8 — Step 8</div>
 </div>
 <!-- WORLD OPTIONS -->
 <div id="screen-world-options" class="hidden">
@@ -442,7 +467,7 @@ select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:u
 <script>
 'use strict';
 /* ═══════════════ CONSTANTS ═══════════════ */
-const VERSION='0.7.1-step7_1',AUTOSAVE_KEY='ironbound_autosave',AUTOSAVE_EVERY=5;
+const VERSION='0.8-step8',AUTOSAVE_KEY='ironbound_autosave',AUTOSAVE_EVERY=5;
 const PLAYER_FACTION='player';
 
 /* ═══════════════ TIME ═══════════════ */
@@ -610,6 +635,11 @@ const ACTIONS={
     fixedProgress:100,  // one attempt = instant execution
     barClass:'rest',
   },
+  treat:{
+    label:'Treat',apCost:5,threshold:100,
+    factors:[{s:'dexterity',m:1.5},{s:'level',m:0.5}],
+    requiresTarget:true,barClass:'conceal',
+  },
 };
 
 /* Effective AP cost including head-wound modifier (Section 4.8.2)
@@ -763,11 +793,477 @@ function applyRest(recruit){
   return[];
 }
 
+/* ══════════════════════════════════════════════════════════
+   STEP 8 — WOUND TABLE, DAMAGE PIPELINE, INCAPACITATION, DEATH
+══════════════════════════════════════════════════════════ */
+
+/* ── Human Race Wound Table (Section 5.8) ──
+   Each progressive sequence: array of stages, light→medium→severe[→lethal]
+   Each stage: { key, displayName, healthPenalty, effects, maxCharges, degRange, bandagedDegRange }
+   effects: { actionCostIncrease, speedMult, carryMult, strDexPerMult, noTwoHanded, immobile }
+   degRange: [min, max] per-turn charge gain (positive = worsening)
+   bandagedDegRange: [min, max] per-turn charge change while bandaged (negative = healing)
+*/
+const WOUND_SEQUENCES = {
+  arm_left: [
+    { key:'arm_left_light',   displayName:'Light arm wound (L)',  healthPenalty:15, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{} },
+    { key:'arm_left_medium',  displayName:'Medium arm wound (L)', healthPenalty:35, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{noTwoHanded:true} },
+    { key:'arm_left_severe',  displayName:'Severe arm wound (L)', healthPenalty:45, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{noTwoHanded:true, carryMult:0.90} },
+    // final stage → incapacitation
+  ],
+  arm_right: [
+    { key:'arm_right_light',  displayName:'Light arm wound (R)',  healthPenalty:15, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{} },
+    { key:'arm_right_medium', displayName:'Medium arm wound (R)', healthPenalty:35, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{noTwoHanded:true} },
+    { key:'arm_right_severe', displayName:'Severe arm wound (R)', healthPenalty:45, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{noTwoHanded:true, carryMult:0.90} },
+  ],
+  leg_left: [
+    { key:'leg_left_light',   displayName:'Light leg wound (L)',  healthPenalty:20, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{speedMult:0.80} },
+    { key:'leg_left_medium',  displayName:'Medium leg wound (L)', healthPenalty:40, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{speedMult:0.60, carryMult:0.85} },
+    { key:'leg_left_severe',  displayName:'Severe leg wound (L)', healthPenalty:60, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{immobile:true} },
+  ],
+  leg_right: [
+    { key:'leg_right_light',  displayName:'Light leg wound (R)',  healthPenalty:20, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{speedMult:0.80} },
+    { key:'leg_right_medium', displayName:'Medium leg wound (R)', healthPenalty:40, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{speedMult:0.60, carryMult:0.85} },
+    { key:'leg_right_severe', displayName:'Severe leg wound (R)', healthPenalty:60, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{immobile:true} },
+  ],
+  head: [
+    { key:'head_light',  displayName:'Light head wound',  healthPenalty:20, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{} },
+    { key:'head_medium', displayName:'Medium head wound', healthPenalty:40, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{actionCostIncrease:0.20} },
+    { key:'head_severe', displayName:'Severe head wound', healthPenalty:70, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{actionCostIncrease:0.40} },
+    { key:'head_lethal', displayName:'Lethal head wound', healthPenalty:0,  maxCharges:1,    degRange:[0,0],   bandagedDegRange:[0,0],   effects:{}, lethal:true },
+  ],
+  chest: [
+    { key:'chest_light',  displayName:'Light chest wound',  healthPenalty:30, maxCharges:1000, degRange:[8,18],  bandagedDegRange:[-14,-6], effects:{} },
+    { key:'chest_medium', displayName:'Medium chest wound', healthPenalty:45, maxCharges:1200, degRange:[12,22], bandagedDegRange:[-12,-5], effects:{strDexPerMult:0.70} },
+    { key:'chest_severe', displayName:'Severe chest wound', healthPenalty:60, maxCharges:1500, degRange:[15,28], bandagedDegRange:[-10,-4], effects:{strDexPerMult:0.25} },
+    { key:'chest_lethal', displayName:'Lethal chest wound', healthPenalty:0,  maxCharges:1,    degRange:[0,0],   bandagedDegRange:[0,0],   effects:{}, lethal:true },
+  ],
+};
+
+// Slot groups used by wound selection — each maps to one slot (only one progressive wound per slot at a time)
+const PROGRESSIVE_SLOTS = ['arm_left','arm_right','leg_left','leg_right','head','chest'];
+
+// Stackable wound definitions
+const STACKABLE_WOUNDS = {
+  scratch:{ displayName:'Scratch', healthPenalty:3,  startCharges:50, maxCharges:300, degRange:[5,10], bandagedDegRange:[-12,-5], hitTypes:['bladed','piercing'] },
+  bruise: { displayName:'Bruise',  healthPenalty:2,  startCharges:50, maxCharges:350, degRange:[3,7],  bandagedDegRange:[-10,-4], hitTypes:['blunt'] },
+};
+
+// Special wound definitions
+const SPECIAL_WOUNDS = {
+  animal_bite:{ displayName:'Animal bite', healthPenalty:20, startCharges:100, maxCharges:400, degRange:[10,20], bandagedDegRange:[-12,-5] },
+  burn:       { displayName:'Burn',        healthPenalty:10, startCharges:80,  maxCharges:300, degRange:[15,28], bandagedDegRange:[-10,-4] },
+  poisoned:   { displayName:'Poisoned',    healthPenalty:5,  startCharges:60,  maxCharges:250, degRange:[8,18],  bandagedDegRange:[-8,-3] },
+};
+
+/* ── Effective health computation (Section 5.3.1) ── */
+function effectiveHealth(recruit){
+  const base=recruit.characteristics.health;
+  const woundPenalty=(recruit.wounds||[]).reduce((s,w)=>s+w.healthPenalty,0);
+  return Math.max(0, base - woundPenalty);
+}
+
+/* ── Aggregate wound modifier effects (Section 5.8) ── */
+function computeWoundModifiers(recruit){
+  const mods={actionCostIncrease:0, speedMult:1, carryMult:1, strDexPerMult:1, noTwoHanded:false, immobile:false};
+  for(const w of (recruit.wounds||[])){
+    const eff=w.effects??{};
+    if(eff.actionCostIncrease) mods.actionCostIncrease=Math.max(mods.actionCostIncrease, eff.actionCostIncrease);
+    if(eff.speedMult!=null)    mods.speedMult   = Math.min(mods.speedMult, eff.speedMult);
+    if(eff.carryMult!=null)    mods.carryMult   = Math.min(mods.carryMult, eff.carryMult);
+    if(eff.strDexPerMult!=null)mods.strDexPerMult = Math.min(mods.strDexPerMult, eff.strDexPerMult);
+    if(eff.noTwoHanded)        mods.noTwoHanded = true;
+    if(eff.immobile)           mods.immobile    = true;
+  }
+  return mods;
+}
+
+/* ── Effective AP cost reads real wound modifiers now (Section 4.8.2) ── */
+// (Overrides the placeholder in the action system above)
+function effectiveAPCost(recruit, actionType){
+  const base=ACTIONS[actionType]?.apCost??5;
+  const mods=computeWoundModifiers(recruit);
+  return Math.min(50, Math.ceil(base*(1+mods.actionCostIncrease)));
+}
+
+/* ── Incapacitation (Section 4.9.7) ── */
+function applyIncapacitation(recruit){
+  const maxH=recruit.characteristics.health;
+  const curH=Math.max(1, effectiveHealth(recruit));
+  const charges=Math.min(200, Math.round(40 + 20*(maxH/curH)));
+  recruit.incapacitated={charges, maxCharges:200};
+  recruit.state='Incapacitated';
+}
+
+/* ── Death handling (Section 5.4) ── */
+function killCharacter(recruit, zone, poi, cause){
+  recruit.state='Dead';
+  recruit._deathCause=cause??'unknown';
+  recruit._zoneAction={type:null,targetObjectId:null,progress:0};
+  recruit.incapacitated=null;
+
+  // Place body as a non-living zone object
+  if(zone){
+    const bodyObj={
+      id:makeId(),
+      name:`${recruit.name}'s body`,
+      type:'body',
+      isAlive:false,
+      isBody:true,
+      recruitId:recruit.id,
+      size:4,
+      discoverValue:0,visibilityValue:4,
+      visibility:300,upperBoundVisibility:300,
+      goldValueMin:0,goldValueMax:0,
+      tags:[],specialActions:[],
+      factionAwareness:{},
+      _frozenWounds:[...(recruit.wounds||[])],
+      _frozenState:recruit.state,
+    };
+    zone.objects.push(bodyObj);
+    initFactionForZone(PLAYER_FACTION,zone);
+  }
+}
+
+/* ── Sigmoid gate function (Section 4.9.4) ── */
+function gate(x, center, steepness){
+  return 1/(1+Math.exp(-steepness*(x-center)));
+}
+
+/* ── Damage ratio → severity weights (Section 4.9.4) ── */
+function computeSeverityWeights(R){
+  let wG, wL;
+  if(R<0.25){
+    const ratio = R<=0.10
+      ? Math.exp(4.790 - 36.917*R)
+      : Math.max(0, Math.exp(2.197 - 10.986*R));
+    wG = ratio; wL = 1.0;
+  } else {
+    wG = 0;
+    wL = gate(R, 0.10, 40) * gate(0.72-R, 0, 9);
+  }
+  const wM = R>=0.25 ? gate(R-0.25, 0.05, 30)*gate(1.7-R, 0, 4) : 0;
+  const wS = gate(R, 0.65, 13)*gate(10.0-R, 0, 4);
+  const wLe= R>=2.0 ? (R-2.0)*0.5 : 0;
+  const total=wG+wL+wM+wS+wLe;
+  if(total<=0) return {generic:1, light:0, medium:0, severe:0, lethal:0};
+  return {generic:wG/total, light:wL/total, medium:wM/total, severe:wS/total, lethal:wLe/total};
+}
+
+/* ── Roll severity tier from weights ── */
+function rollSeverityTier(weights, rng){
+  let r=rng.next();
+  if((r-=weights.generic)<0) return 'generic';
+  if((r-=weights.light)<0)   return 'light';
+  if((r-=weights.medium)<0)  return 'medium';
+  if((r-=weights.severe)<0)  return 'severe';
+  return 'lethal';
+}
+
+/* ── Create a new wound instance ── */
+function makeWoundInstance(stageDef, slotKey, stageIdx){
+  return{
+    id:makeId(),
+    slotKey,           // e.g. 'arm_left'
+    stageIndex:stageIdx,
+    key:stageDef.key,
+    displayName:stageDef.displayName,
+    healthPenalty:stageDef.healthPenalty,
+    maxCharges:stageDef.maxCharges,
+    currentCharges:stageDef.startCharges ?? (stageIdx===0?230:stageIdx===1?400:600),
+    degRange:stageDef.degRange,
+    bandagedDegRange:stageDef.bandagedDegRange,
+    effects:stageDef.effects??{},
+    bandaged:false,
+    lethal:stageDef.lethal??false,
+    category:'progressive',
+  };
+}
+
+/* ── Full damage pipeline (Section 4.9.3) ── */
+function applyDamage(recruit, rawDamage, hitType, rng, zone, poi){
+  const result={incapacitated:false, woundApplied:null, killed:false, msgs:[]};
+  if(recruit.state==='Dead') return result;
+
+  const curH=effectiveHealth(recruit);
+  const maxH=recruit.characteristics.health;
+  if(curH<=0){ killCharacter(recruit, zone, poi, 'wounds'); result.killed=true; return result; }
+
+  // Step 1 — incapacitation check
+  if(rawDamage>=curH){
+    applyIncapacitation(recruit);
+    result.incapacitated=true;
+    result.msgs.push(`${recruit.name.split(' ')[0]} incapacitated!`);
+  }
+
+  // Step 2 — wound probability
+  const R=rawDamage/Math.max(1,curH);
+  const weights=computeSeverityWeights(R);
+  const tier=rollSeverityTier(weights, rng);
+
+  // Step 3 — wound slot selection
+  if(tier==='generic'){
+    // Stackable generic wound
+    const wDef = (hitType==='blunt') ? STACKABLE_WOUNDS.bruise : STACKABLE_WOUNDS.scratch;
+    const wInst={id:makeId(), category:'stackable', key:hitType==='blunt'?'bruise':'scratch',
+      displayName:wDef.displayName, healthPenalty:wDef.healthPenalty,
+      currentCharges:wDef.startCharges, maxCharges:wDef.maxCharges,
+      degRange:wDef.degRange, bandagedDegRange:wDef.bandagedDegRange,
+      effects:{}, bandaged:false, lethal:false};
+    recruit.wounds.push(wInst);
+    result.woundApplied=wInst;
+    result.msgs.push(`${recruit.name.split(' ')[0]}: ${wInst.displayName}`);
+  } else {
+    // Map tier → which body slots can be selected
+    const tierToStageIdx={light:0, medium:1, severe:2, lethal:3};
+    const stageIdx=tierToStageIdx[tier]??0;
+
+    // Filter slots that have this stage defined
+    const eligibleSlots=PROGRESSIVE_SLOTS.filter(slot=>{
+      const seq=WOUND_SEQUENCES[slot];
+      return seq && seq[stageIdx] !== undefined;
+    });
+    if(!eligibleSlots.length){ return result; }
+
+    const chosenSlot=rng.pick(eligibleSlots);
+    const seq=WOUND_SEQUENCES[chosenSlot];
+    const stageDef=seq[stageIdx];
+
+    // Check if slot already occupied
+    const existing=recruit.wounds.find(w=>w.category==='progressive'&&w.slotKey===chosenSlot);
+
+    if(!existing){
+      // New wound
+      if(stageDef.lethal){
+        killCharacter(recruit, zone, poi, `${stageDef.displayName}`);
+        result.killed=true;
+        result.msgs.push(`${recruit.name.split(' ')[0]}: ${stageDef.displayName} — dead!`);
+      } else {
+        const wInst=makeWoundInstance(stageDef, chosenSlot, stageIdx);
+        recruit.wounds.push(wInst);
+        result.woundApplied=wInst;
+        result.msgs.push(`${recruit.name.split(' ')[0]}: ${stageDef.displayName}`);
+        // Check death by effective health
+        if(effectiveHealth(recruit)<=0){
+          killCharacter(recruit, zone, poi, 'wounds');
+          result.killed=true;
+          result.msgs.push(`${recruit.name.split(' ')[0]}: died from wounds`);
+        }
+      }
+    } else {
+      // Occupied slot: +200 charges → may progress
+      existing.currentCharges+=200;
+      result.msgs.push(`${recruit.name.split(' ')[0]}: wound worsens (+200 charges)`);
+      const woundProgResult=checkWoundProgression(recruit, existing, zone, poi);
+      result.msgs.push(...woundProgResult.msgs);
+      result.killed=result.killed||woundProgResult.killed;
+      if(woundProgResult.incapacitated) result.incapacitated=true;
+    }
+  }
+
+  // Update state if wounded but alive
+  if(!result.killed && result.woundApplied && recruit.state==='Available'){
+    // Don't override 'Deployed' or 'Incapacitated'
+  }
+  return result;
+}
+
+/* ── Wound progression check (called after charge injection or natural accumulation) ── */
+function checkWoundProgression(recruit, wound, zone, poi){
+  const result={msgs:[], killed:false, incapacitated:false};
+  if(wound.currentCharges < wound.maxCharges) return result;
+
+  if(wound.category==='stackable'){
+    // Stackable wounds resolve naturally at max charges
+    recruit.wounds=recruit.wounds.filter(w=>w.id!==wound.id);
+    result.msgs.push(`${wound.displayName} healed`);
+    return result;
+  }
+
+  // Progressive wound — advance to next stage
+  const seq=WOUND_SEQUENCES[wound.slotKey];
+  if(!seq) return result;
+  const nextIdx=wound.stageIndex+1;
+  if(nextIdx>=seq.length){
+    // Beyond final stage → incapacitation (or already lethal)
+    applyIncapacitation(recruit);
+    result.incapacitated=true;
+    result.msgs.push(`${wound.displayName}: collapse!`);
+    return result;
+  }
+  const nextStage=seq[nextIdx];
+  if(nextStage.lethal){
+    killCharacter(recruit, zone, poi, nextStage.displayName);
+    result.killed=true;
+    result.msgs.push(`${wound.displayName} → ${nextStage.displayName} — dead!`);
+    return result;
+  }
+  // Advance wound to next stage in-place
+  Object.assign(wound, {
+    stageIndex:nextIdx, key:nextStage.key, displayName:nextStage.displayName,
+    healthPenalty:nextStage.healthPenalty, maxCharges:nextStage.maxCharges,
+    currentCharges:nextIdx===1?400:nextIdx===2?600:wound.currentCharges,
+    degRange:nextStage.degRange, bandagedDegRange:nextStage.bandagedDegRange,
+    effects:nextStage.effects??{}, bandaged:false,
+  });
+  result.msgs.push(`Wound progressed: ${nextStage.displayName}`);
+  if(effectiveHealth(recruit)<=0){
+    killCharacter(recruit, zone, poi, 'wounds');
+    result.killed=true;
+    result.msgs.push(`${recruit.name.split(' ')[0]}: died from wounds`);
+  }
+  return result;
+}
+
+/* ── Per-turn wound charge accumulation (Section 5.3.10) ── */
+function advanceWounds(gs){
+  const org=playerOrg(); if(!org) return [];
+  const events=[];
+  const rng=makePRNG(((gs.turn+1)*0xC001CAFE)>>>0);
+
+  // Resolve POI context for in-zone characters
+  function findZonePoi(recruit){
+    for(const g of org.groups){
+      if(!g.memberIds.includes(recruit.id)) continue;
+      if(g.locationPoiId&&g.locationZoneId){
+        const poi=gs.world.pois.find(p=>p.id===g.locationPoiId);
+        const zone=poi?.zones.find(z=>z.id===g.locationZoneId);
+        return{poi,zone};
+      }
+    }
+    return{poi:null,zone:null};
+  }
+
+  for(const recruit of org.recruits){
+    if(recruit.state==='Dead') continue;
+    if(!(recruit.wounds||[]).length) continue;
+    const{poi,zone}=findZonePoi(recruit);
+    const regen=recruit.characteristics.regeneration;
+
+    const toRemove=[];
+    for(const wound of recruit.wounds){
+      const degRoll=rng.int(wound.degRange[0],wound.degRange[1]);
+      const regenRoll=rng.int(1, Math.max(1,regen));
+      let delta;
+      if(wound.bandaged){
+        // Bandaged: use bandagedDegRange (negative = healing)
+        const bandDeg=rng.int(wound.bandagedDegRange[0], wound.bandagedDegRange[1]);
+        delta=bandDeg - regenRoll;
+      } else {
+        delta=degRoll - regenRoll;
+      }
+      wound.currentCharges=Math.max(0, wound.currentCharges+delta);
+
+      if(wound.bandaged && wound.currentCharges<=0){
+        toRemove.push(wound.id);
+        events.push(`${recruit.name.split(' ')[0]}: ${wound.displayName} healed`);
+        continue;
+      }
+      if(wound.currentCharges>=wound.maxCharges){
+        const progResult=checkWoundProgression(recruit, wound, zone??null, poi??null);
+        events.push(...progResult.msgs);
+      }
+    }
+    recruit.wounds=recruit.wounds.filter(w=>!toRemove.includes(w.id));
+
+    // Death check after wound processing
+    if(recruit.state!=='Dead' && effectiveHealth(recruit)<=0){
+      killCharacter(recruit, zone??null, poi??null, 'wounds');
+      events.push(`${recruit.name.split(' ')[0]}: died from wounds`);
+    }
+  }
+  return events;
+}
+
+/* ── Per-turn incapacitation depletion (Section 4.9.7) ── */
+function processIncapacitation(gs){
+  const org=playerOrg(); if(!org) return [];
+  const events=[];
+  for(const recruit of org.recruits){
+    if(!recruit.incapacitated||recruit.state==='Dead') continue;
+    recruit.incapacitated.charges=Math.max(0, recruit.incapacitated.charges-20);
+    if(recruit.incapacitated.charges<=0){
+      recruit.incapacitated=null;
+      recruit.state='Available'; // restore to active (group deployment handled elsewhere)
+      events.push(`${recruit.name.split(' ')[0]}: regained consciousness`);
+    }
+  }
+  return events;
+}
+
+/* ── Treat action (Section 5.3.11) ── */
+function applyTreat(performer, targetRecruit, woundId){
+  const wound=(targetRecruit.wounds||[]).find(w=>w.id===woundId);
+  if(!wound||wound.bandaged||wound.lethal) return[];
+  wound.bandaged=true;
+  // Flip to bandaged degeneration; reset charges to halfway point for faster heal
+  wound.currentCharges=Math.floor(wound.currentCharges*0.8); // partial reduction on treatment
+  return[`${targetRecruit.name.split(' ')[0]}: ${wound.displayName} bandaged`];
+}
+
+/* ── Zone hazard data ── */
+const HAZARD_DEFS={
+  dangerous_exploration:{
+    label:'Dangerous Exploration',
+    events:[
+      {probability:0.08, damageRange:[5,15], hitType:'blunt'},
+      {probability:0.03, damageRange:[10,30], hitType:'blunt'},
+    ],
+    triggers:['scout_zone'],
+  },
+  unstable_ground:{
+    label:'Unstable Ground',
+    events:[
+      {probability:0.05, damageRange:[8,20], hitType:'blunt'},
+    ],
+    triggers:['scout_zone'],
+  },
+  toxic_air:{
+    label:'Toxic Air',
+    events:[
+      {probability:0.06, damageRange:[3,10], hitType:'piercing'},
+    ],
+    triggers:['scout_zone'],
+  },
+};
+
+// POI type → which hazards can appear and with what probability
+const POI_HAZARD_TABLE={
+  dungeon:       [{key:'dangerous_exploration',chance:.60},{key:'unstable_ground',chance:.30}],
+  'cave system': [{key:'dangerous_exploration',chance:.70},{key:'unstable_ground',chance:.50},{key:'toxic_air',chance:.20}],
+  mine:          [{key:'dangerous_exploration',chance:.50},{key:'unstable_ground',chance:.60},{key:'toxic_air',chance:.15}],
+  ruins:         [{key:'dangerous_exploration',chance:.35},{key:'unstable_ground',chance:.25}],
+  'abandoned fort':[{key:'dangerous_exploration',chance:.25},{key:'unstable_ground',chance:.20}],
+  'forest zone': [{key:'dangerous_exploration',chance:.10}],
+  camp:          [],
+  shrine:        [{key:'dangerous_exploration',chance:.15}],
+};
+
+/* ── Apply hazard damage during an action attempt ── */
+function rollHazardDamage(recruit, zone, actionType, rng, zone_, poi_){
+  if(!(zone.hazardConditions||[]).length) return[];
+  const msgs=[];
+  for(const hazKey of zone.hazardConditions){
+    const hDef=HAZARD_DEFS[hazKey]; if(!hDef) continue;
+    if(!hDef.triggers.includes(actionType)) continue;
+    for(const evt of hDef.events){
+      if(rng.next()<evt.probability){
+        const dmg=rng.int(evt.damageRange[0],evt.damageRange[1]);
+        const result=applyDamage(recruit,dmg,evt.hitType,rng,zone_,poi_);
+        msgs.push(...result.msgs);
+      }
+    }
+  }
+  return msgs;
+}
+
 /* ── Single-character action runner per turn ── */
 function runCharacterZoneAction(recruit,zone,poi,rng,turnEvents){
   if(!recruit._zoneAction)recruit._zoneAction={type:null,targetObjectId:null,progress:0};
   const za=recruit._zoneAction;
   if(!za.type)return;
+  // Skip if incapacitated or dead
+  if(recruit.state==='Dead'||recruit.incapacitated)return;
 
   const def=ACTIONS[za.type];if(!def)return;
   const apCost=effectiveAPCost(recruit,za.type);
@@ -777,8 +1273,14 @@ function runCharacterZoneAction(recruit,zone,poi,rng,turnEvents){
   while(ap>=apCost){
     ap-=apCost;
 
-    // Passive tick (Scout Zone only)
-    if(za.type==='scout_zone')applyScoutPassiveTick(recruit,zone);
+    // Passive tick (Scout Zone only) + hazard damage per attempt
+    if(za.type==='scout_zone'){
+      applyScoutPassiveTick(recruit,zone);
+      // Zone hazard damage per attempt (Section 4.9.2)
+      const hazMsgs=rollHazardDamage(recruit,zone,za.type,rng,zone,poi);
+      for(const m of hazMsgs)turnEvents.push(m);
+      if(recruit.state==='Dead'||recruit.incapacitated){za.progress=0;return;}
+    }
 
     za.progress+=ppa;
 
@@ -794,9 +1296,18 @@ function runCharacterZoneAction(recruit,zone,poi,rng,turnEvents){
         if(group)msgs=applyHide(recruit,group);
       }
       else if(za.type==='rest')msgs=applyRest(recruit);
+      else if(za.type==='treat'&&za.targetObjectId){
+        // targetObjectId encodes 'recruitId:woundId'
+        const[tRid,wId]=za.targetObjectId.split(':');
+        const org=playerOrg();
+        const tRecruit=org?.recruits.find(r=>r.id===tRid);
+        if(tRecruit)msgs=applyTreat(recruit,tRecruit,wId);
+      }
 
       for(const m of msgs)turnEvents.push(`${recruit.name.split(' ')[0]}: ${m}`);
     }
+
+    if(recruit.state==='Dead'||recruit.incapacitated){za.progress=0;return;}
   }
 }
 
@@ -902,7 +1413,11 @@ function generateZones(poi,rng){
     const lightLevel=rng.int(20,90),size=rng.int(3,12);
     const objCount=Math.max(1,Math.round(size*.6)+rng.int(0,2));
     const objects=[];for(let j=0;j<objCount;j++)objects.push(generateZoneObject(rng,poiType));
-    zones.push({id:makeId(),name:i===0?'Entry Hall':name,size,lightLevel,weatherEffects:[],hazardConditions:[],ownerFaction:null,objects,state:i===0?'Scouted':'Unknown',factionAwareness:{}});
+    // Hazard conditions per zone
+    const hazardConditions=[];
+    const hazTable=POI_HAZARD_TABLE[poiType]||[];
+    for(const h of hazTable){if(rng.next()<h.chance)hazardConditions.push(h.key);}
+    zones.push({id:makeId(),name:i===0?'Entry Hall':name,size,lightLevel,weatherEffects:[],hazardConditions,ownerFaction:null,objects,state:i===0?'Scouted':'Unknown',factionAwareness:{}});
   }
   const ids=zones.map(z=>z.id);
   const passages=buildPassages(ids,pattern,rng);
@@ -992,6 +1507,8 @@ function advanceTurn(){
   const expired=worldConsistencyCheck(GS);
   const arrivals=processGroupTravel(GS);
   const actionEvents=processZoneActions(GS); // Step 7
+  const woundEvents=advanceWounds(GS);       // Step 8
+  const incapEvents=processIncapacitation(GS); // Step 8
 
   if(TIME.isFirstTurnOfWeek(GS.turn)){refreshHirePool(GS);showToast('Weekly rotation — new recruits available');}
   if((GS.turn-GS._autosaveTurn)>=AUTOSAVE_EVERY){autosave();GS._autosaveTurn=GS.turn;}
@@ -1016,7 +1533,8 @@ function advanceTurn(){
   // Fix 2: refresh popup in-place if one is open
   if(_openPopupPoiId)refreshPOIPopup();
 
-  const parts=[`Turn ${GS.turn}`,...(expired>0?[`${expired} POI${expired>1?'s':''} expired`]:[]),...(arrivals.length?[arrivals.join(', ')]:[]),(actionEvents.length?[`${actionEvents.length} action event${actionEvents.length>1?'s':''}`]:[])].filter(Boolean);
+  const allExtra=[...arrivals,...(actionEvents.length?[`${actionEvents.length} action event${actionEvents.length>1?'s':''}`]:[]),...woundEvents,...incapEvents].filter(Boolean);
+  const parts=[`Turn ${GS.turn}`,...(expired>0?[`${expired} POI${expired>1?'s':''} expired`]:[]),...(allExtra.length>3?[`${allExtra.length} events`]:allExtra)];
   showToast(parts.join(' — '));
 }
 
@@ -1182,7 +1700,8 @@ function openZoneDetail(poi,zone){
   document.getElementById('zone-header-name').textContent=zone.name;
   const stEl=document.getElementById('zone-header-state');
   stEl.textContent=zone.state;stEl.className='zone-header-state '+(zone.state==='Scouted'?'scouted':'unknown');
-  document.getElementById('zone-header-conds').innerHTML=`Light: <span>${zone.lightLevel}%</span>`;
+  const hazLabels=(zone.hazardConditions||[]).map(k=>HAZARD_DEFS[k]?.label??k).join(', ');
+  document.getElementById('zone-header-conds').innerHTML=`Light: <span>${zone.lightLevel}%</span>${hazLabels?` &nbsp; <span style="color:var(--red-bright)">⚠ ${hazLabels}</span>`:''}`;
   renderZoneObjects(zone);
   renderZoneSidebar(zone,poi);
   document.getElementById('zone-overlay').classList.remove('hidden');
@@ -1196,11 +1715,38 @@ function closeZoneDetail(){
 function renderZoneObjects(zone){
   const dev=GS._devMode??false;
   const pane=document.getElementById('zone-objects-pane');
+  let html='';
+
+  // Hazard conditions banner
+  if(zone.hazardConditions&&zone.hazardConditions.length){
+    for(const hk of zone.hazardConditions){
+      const hd=HAZARD_DEFS[hk];
+      html+=`<span class="hazard-tag">⚠ ${hd?hd.label:hk}</span> `;
+    }
+    html+='<br>';
+  }
+
+  // Separate bodies from regular objects
+  const bodyObjs=zone.objects.filter(o=>o.isBody);
+  const regularObjs=zone.objects.filter(o=>!o.isBody);
+
+  // Bodies section (always located for player faction)
+  if(bodyObjs.length){
+    html+=`<div class="zone-section-title">Bodies (${bodyObjs.length})</div>`;
+    for(const b of bodyObjs){
+      html+=`<div class="body-card">
+        <div class="body-card-name">☠ ${b.name}</div>
+        <div class="body-card-info">Inspect with Examine action for wounds &amp; equipment.</div>
+      </div>`;
+    }
+  }
+
   const located=[],known=[],undisc=[];
-  for(const obj of zone.objects){
+  for(const obj of regularObjs){
     const st=getAwarenessState(PLAYER_FACTION,zone,obj.id);
     if(st==='Located')located.push(obj);else if(st==='Known')known.push(obj);else undisc.push(obj);
   }
+
   function entryHTML(obj,state,showFull){
     const ic=obj.isAlive?'rh sq':'sq',devIC=dev&&state==='Undiscovered'?'dev-icon':'';
     const letter=obj.isAlive?'♦':'■';
@@ -1212,17 +1758,52 @@ function renderZoneObjects(zone){
     h+=`</div><span class="obj-awareness ${awClass}">${state}</span></div>`;
     return h;
   }
-  let html='';
+
   if(located.length){html+=`<div class="zone-section-title">Located (${located.length})</div>`;for(const o of located)html+=entryHTML(o,'Located',true);}
   if(known.length){html+=`<div class="zone-section-title">Known (${known.length})</div>`;for(const o of known)html+=entryHTML(o,'Known',false);}
-  if(!located.length&&!known.length&&!dev)html+='<div class="zone-unknown-msg">Nothing observed yet. Scout this zone to discover objects.</div>';
+  if(!located.length&&!known.length&&!bodyObjs.length&&!dev)html+='<div class="zone-unknown-msg">Nothing observed yet. Scout this zone to discover objects.</div>';
   if(dev&&undisc.length){html+=`<div class="zone-section-title" style="color:var(--green-bright)">Undiscovered — Dev Mode (${undisc.length})</div>`;for(const o of undisc)html+=entryHTML(o,'Undiscovered',true);}
   pane.innerHTML=html;
 }
 
 /* ══════════════════════════════════════════════════════
-   ZONE SIDEBAR — FULL ACTION UI  (Step 7 core deliverable)
+   ZONE SIDEBAR — ACTION UI + WOUND DISPLAY (Step 8)
 ══════════════════════════════════════════════════════ */
+
+/* Helper: render compact wound bars for a recruit */
+function woundSummaryHTML(recruit){
+  const wounds=recruit.wounds||[];
+  const effH=effectiveHealth(recruit);
+  const maxH=recruit.characteristics.health;
+  const hpPct=Math.round(effH/Math.max(1,maxH)*100);
+  const hpClass=effH<=0?'dead':hpPct<=25?'critical':hpPct<=60?'wounded':'healthy';
+  let h=`<div class="char-status-card">
+    <div class="char-status-header">
+      <span class="char-status-name">${recruit.name.split(' ')[0]}</span>`;
+  if(recruit.state==='Dead'){
+    h+=`<span class="char-status-dead">DEAD</span>`;
+  } else if(recruit.incapacitated){
+    h+=`<span class="char-status-incap">INCAP ${recruit.incapacitated.charges}/${recruit.incapacitated.maxCharges}</span>`;
+  }
+  h+=`<span class="char-status-hp ${hpClass} " style="margin-left:auto">HP ${effH}/${maxH}</span>
+    </div>`;
+  if(wounds.length){
+    h+='<div class="wound-list">';
+    for(const w of wounds){
+      const pct=Math.round((w.currentCharges/w.maxCharges)*100);
+      const fillClass=w.bandaged?'bandaged':w.lethal?'lethal':'';
+      h+=`<div class="wound-row">
+        <span class="wound-name${w.bandaged?' bandaged':w.lethal?' lethal':''}">${w.displayName}${w.bandaged?' ✚':''}</span>
+        <div class="wound-bar-track"><div class="wound-bar-fill ${fillClass}" style="width:${pct}%"></div></div>
+        <span class="wound-hp">${w.currentCharges}/${w.maxCharges}</span>
+      </div>`;
+    }
+    h+='</div>';
+  }
+  h+='</div>';
+  return h;
+}
+
 function renderZoneSidebar(zone,poi){
   const sb=document.getElementById('zone-sidebar');
   const org=playerOrg();
@@ -1232,7 +1813,7 @@ function renderZoneSidebar(zone,poi){
   let html='<div class="zone-section-title">Groups in Zone</div>';
 
   if(!groupsHere.length){
-    html+='<div class="no-group-msg">No groups in this zone. Send a group to this POI to perform actions.</div>';
+    html+='<div class="no-group-msg">No groups in this zone.</div>';
   } else {
     for(const group of groupsHere){
       html+=`<div class="group-in-zone"><div class="group-in-zone-name">⬡ ${group.name} (${group.role})</div>`;
@@ -1240,11 +1821,14 @@ function renderZoneSidebar(zone,poi){
         const r=org.recruits.find(r=>r.id===rid);if(!r)continue;
         const za=r._zoneAction??{type:null,progress:0};
         const isSelected=rid===_selectedMemberId;
-        const actionLabel=za.type?ACTIONS[za.type]?.label??za.type:'Idle';
-        const pct=za.type?(za.progress/ACTIONS[za.type].threshold*100).toFixed(0):0;
+        const isDead=r.state==='Dead';
+        const isIncap=!!r.incapacitated;
+        let actionLabel=isDead?'Dead':isIncap?`Incap (${r.incapacitated.charges})`:za.type?ACTIONS[za.type]?.label??za.type:'Idle';
+        const pct=za.type&&!isDead&&!isIncap?(za.progress/ACTIONS[za.type].threshold*100).toFixed(0):0;
         const barClass=za.type?ACTIONS[za.type].barClass:'';
+        const chipExtra=isDead?' style="border-color:var(--text-dim);color:var(--text-dim)"':isIncap?' style="border-color:var(--red);color:var(--red-bright)"':'';
         html+=`<div class="member-action-row">
-          <button class="member-chip-sel${isSelected?' active':''}" data-rid="${rid}" data-gid="${group.id}">${r.name.split(' ')[0]}</button>
+          <button class="member-chip-sel${isSelected?' active':''}" data-rid="${rid}" data-gid="${group.id}"${chipExtra}>${r.name.split(' ')[0]}</button>
           <div class="action-progress-wrap">
             <div class="action-label">${actionLabel}</div>
             <div class="action-bar-track"><div class="action-bar-fill ${barClass}" style="width:${pct}%"></div></div>
@@ -1255,18 +1839,36 @@ function renderZoneSidebar(zone,poi){
     }
   }
 
-  // ── Selected member & action assignment ──
+  // ── Selected member details & action assignment ──
   const selRecruit=_selectedMemberId?org?.recruits.find(r=>r.id===_selectedMemberId):null;
   const selGroup=selRecruit?groupsHere.find(g=>g.memberIds.includes(_selectedMemberId)):null;
 
-  if(selRecruit&&selGroup){
+  if(selRecruit){
+    // Wound status card
+    html+=`<div class="zone-section-title">Status — ${selRecruit.name.split(' ')[0]}</div>`;
+    html+=woundSummaryHTML(selRecruit);
+  }
+
+  if(selRecruit&&selGroup&&selRecruit.state!=='Dead'&&!selRecruit.incapacitated){
     const za=selRecruit._zoneAction??{type:null,progress:0};
-    const knownObjs=zone.objects.filter(o=>getAwarenessState(PLAYER_FACTION,zone,o.id)==='Known');
-    const locatedObjs=zone.objects.filter(o=>getAwarenessState(PLAYER_FACTION,zone,o.id)==='Located');
+    const knownObjs=zone.objects.filter(o=>!o.isBody&&getAwarenessState(PLAYER_FACTION,zone,o.id)==='Known');
+    const locatedObjs=zone.objects.filter(o=>!o.isBody&&getAwarenessState(PLAYER_FACTION,zone,o.id)==='Located');
     const adjZones=(zone._passages||[]).map(id=>poi.zones.find(z=>z.id===id)).filter(Boolean);
 
+    // Wounded recruits in same zone that can be treated
+    const woundedHere=[];
+    for(const g of groupsHere){
+      for(const rid of g.memberIds){
+        if(rid===selRecruit.id) continue;
+        const r=org.recruits.find(r=>r.id===rid);
+        if(!r||r.state==='Dead') continue;
+        const untreated=(r.wounds||[]).filter(w=>!w.bandaged&&!w.lethal);
+        if(untreated.length) woundedHere.push({recruit:r, wounds:untreated});
+      }
+    }
+
     html+=`<div class="action-assign-section">
-      <div class="zone-section-title">Assign Action — <span style="color:var(--parchment)">${selRecruit.name.split(' ')[0]}</span></div>
+      <div class="zone-section-title">Assign Action</div>
       <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-bottom:6px">PER ${selRecruit.characteristics.perception} · DEX ${selRecruit.characteristics.dexterity} · LVL ${selRecruit.characteristics.level}</div>
       <div class="action-btn-grid">
         <button class="zone-action-btn${za.type==='scout_zone'?' active-action':''}" data-action="scout_zone">Scout Zone</button>
@@ -1274,28 +1876,41 @@ function renderZoneSidebar(zone,poi){
         <button class="zone-action-btn${za.type==='hide'?' active-action':''}" data-action="hide">Hide</button>
       </div>`;
 
-    // Search For picker (Known objects only)
+    // Search For picker
     if(knownObjs.length){
-      html+=`<div style="margin-top:6px"><div class="zone-section-title" style="margin-top:6px">Search For (Known)</div>
+      html+=`<div class="zone-section-title" style="margin-top:6px">Search For</div>
       <div class="target-picker">
-        <select id="sf-target">
-          <option value="">Select target…</option>
+        <select id="sf-target"><option value="">Select Known object…</option>
           ${knownObjs.map(o=>`<option value="${o.id}"${za.type==='search_for'&&za.targetObjectId===o.id?' selected':''}>${OBJ_PLACEHOLDER[o.type]??o.type}</option>`).join('')}
         </select>
-        <button class="zone-action-btn" data-action="search_for" style="margin-top:4px;width:100%">Search For Target</button>
-      </div></div>`;
+        <button class="zone-action-btn" data-action="search_for" style="margin-top:4px;width:100%">Search For</button>
+      </div>`;
     }
 
-    // Conceal picker (Located objects only)
+    // Conceal picker
     if(locatedObjs.length){
-      html+=`<div style="margin-top:6px"><div class="zone-section-title" style="margin-top:6px">Conceal (Located)</div>
+      html+=`<div class="zone-section-title" style="margin-top:6px">Conceal</div>
       <div class="target-picker">
-        <select id="conceal-target">
-          <option value="">Select target…</option>
+        <select id="conceal-target"><option value="">Select Located object…</option>
           ${locatedObjs.map(o=>`<option value="${o.id}"${za.type==='conceal'&&za.targetObjectId===o.id?' selected':''}>${o.name}</option>`).join('')}
         </select>
-        <button class="zone-action-btn" data-action="conceal" style="margin-top:4px;width:100%">Conceal Target</button>
-      </div></div>`;
+        <button class="zone-action-btn" data-action="conceal" style="margin-top:4px;width:100%">Conceal</button>
+      </div>`;
+    }
+
+    // Treat picker (Step 8) — wounded recruits in same zone
+    if(woundedHere.length){
+      html+=`<div class="zone-section-title" style="margin-top:6px">Treat Wound</div>
+      <div class="target-picker">
+        <select id="treat-target"><option value="">Select recruit:wound…</option>`;
+      for(const{recruit:tr,wounds}of woundedHere){
+        for(const w of wounds){
+          html+=`<option value="${tr.id}:${w.id}"${za.type==='treat'&&za.targetObjectId===`${tr.id}:${w.id}`?' selected':''}>${tr.name.split(' ')[0]}: ${w.displayName}</option>`;
+        }
+      }
+      html+=`</select>
+        <button class="zone-action-btn" data-action="treat" style="margin-top:4px;width:100%">Treat</button>
+      </div>`;
     }
 
     // Move to adjacent zone
@@ -1307,18 +1922,25 @@ function renderZoneSidebar(zone,poi){
       }
     }
 
-    // Clear action
     if(za.type){html+=`<button class="zone-action-btn" data-action="clear" style="margin-top:8px;border-color:var(--red-bright);color:var(--red-bright)">Clear Action</button>`;}
     html+='</div>';
+  } else if(selRecruit&&selRecruit.incapacitated){
+    html+=`<div class="no-group-msg" style="color:var(--red-bright)">Incapacitated — cannot act. Recovers in ${Math.ceil(selRecruit.incapacitated.charges/20)} turn${Math.ceil(selRecruit.incapacitated.charges/20)!==1?'s':''}.</div>`;
+  } else if(selRecruit&&selRecruit.state==='Dead'){
+    html+=`<div class="no-group-msg" style="color:var(--text-dim)">This recruit has died.</div>`;
   }
 
-  // ── Adjacent zone info ──
+  // Adjacent zone info
   html+=`<div class="zone-section-title" style="margin-top:14px">Adjacent Zones</div>`;
-  for(const adjId of(zone._passages||[])){const adj=poi.zones.find(z=>z.id===adjId);if(!adj)continue;const st=adj.state==='Scouted'?'Scouted':'Unknown';html+=`<div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:3px">${adj.name} <span style="color:${st==='Scouted'?'var(--green-bright)':'var(--text-dim)'}">[${st}]</span></div>`;}
+  for(const adjId of(zone._passages||[])){
+    const adj=poi.zones.find(z=>z.id===adjId);if(!adj)continue;
+    const st=adj.state==='Scouted'?'Scouted':'Unknown';
+    html+=`<div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:3px">${adj.name} <span style="color:${st==='Scouted'?'var(--green-bright)':'var(--text-dim)'}">[${st}]</span></div>`;
+  }
 
   sb.innerHTML=html;
 
-  // Wire up member selection chips
+  // Wire member chip selection
   sb.querySelectorAll('.member-chip-sel').forEach(btn=>{
     btn.addEventListener('click',()=>{
       const rid=btn.dataset.rid;
@@ -1327,7 +1949,7 @@ function renderZoneSidebar(zone,poi){
     });
   });
 
-  // Wire up action buttons
+  // Wire action buttons
   sb.querySelectorAll('[data-action]').forEach(btn=>{
     btn.addEventListener('click',()=>{
       if(!selRecruit||!selGroup)return;
@@ -1336,23 +1958,21 @@ function renderZoneSidebar(zone,poi){
       let targetId=null;
       if(action==='search_for'){targetId=sb.querySelector('#sf-target')?.value||null;if(!targetId){showToast('Select a Known object first.','error');return;}}
       if(action==='conceal'){targetId=sb.querySelector('#conceal-target')?.value||null;if(!targetId){showToast('Select a Located object first.','error');return;}}
+      if(action==='treat'){targetId=sb.querySelector('#treat-target')?.value||null;if(!targetId){showToast('Select a recruit and wound to treat.','error');return;}}
       assignAction(selRecruit,selGroup,action,targetId);
       renderZoneSidebar(zone,poi);
-      const label=ACTIONS[action]?.label??action;
-      showToast(`${selRecruit.name.split(' ')[0]}: ${label} assigned`);
+      showToast(`${selRecruit.name.split(' ')[0]}: ${ACTIONS[action]?.label??action} assigned`);
     });
   });
 
-  // Wire up Move Zone buttons
+  // Wire Move Zone buttons
   sb.querySelectorAll('[data-zone-id]').forEach(btn=>{
     btn.addEventListener('click',()=>{
       if(!selGroup)return;
       const targetZoneId=btn.dataset.zoneId;
       const targetZone=poi.zones.find(z=>z.id===targetZoneId);if(!targetZone)return;
-      // Move entire group to adjacent zone (instant in Step 7)
       selGroup.locationZoneId=targetZoneId;
       enterZone(poi,targetZone);
-      // Clear actions on move
       for(const rid of selGroup.memberIds){const r=org.recruits.find(r=>r.id===rid);if(r&&r._zoneAction)r._zoneAction={type:null,targetObjectId:null,progress:0};}
       _selectedMemberId=null;
       drawPoiGraph();
@@ -1640,13 +2260,25 @@ function wireHireButtons(org){
 }
 function renderRosterPanel(org){
   if(!org.recruits.length)return'<div class="panel-title">Roster</div><div class="panel-subtitle">All guild recruits.</div><div class="stub-panel"><strong>Empty Roster</strong>Hire from the Tavern.</div>';
-  let h=`<div class="panel-title">Roster</div><div class="panel-subtitle">${org.recruits.length} recruit${org.recruits.length!==1?'s':''} on file.</div><table class="roster-table"><thead><tr><th>Name</th><th>Lvl</th><th>HP</th><th>STR</th><th>DEX</th><th>PER</th><th>SPD</th><th>LYL</th><th>Traits</th><th>State</th><th>Action</th></tr></thead><tbody>`;
+  let h=`<div class="panel-title">Roster</div><div class="panel-subtitle">${org.recruits.length} recruit${org.recruits.length!==1?'s':''} on file.</div>
+  <table class="roster-table"><thead><tr><th>Name</th><th>Lvl</th><th>BaseHP</th><th>EffHP</th><th>Wounds</th><th>STR</th><th>DEX</th><th>PER</th><th>SPD</th><th>Traits</th><th>State</th><th>Action</th></tr></thead><tbody>`;
   for(const r of org.recruits){
     const th=r.traits.map(t=>`<span class="trait-badge">${t}</span>`).join('');
-    const sc=r.state==='Available'?'available':'deployed';
+    const sc=r.state==='Dead'?'deployed':r.state==='Available'?'available':'deployed';
+    const stateLabel=r.state==='Dead'?'<span style="color:var(--text-dim)">Dead</span>':r.incapacitated?'<span style="color:var(--red-bright)">Incap</span>':`<span class="recruit-state ${sc}">${r.state}</span>`;
+    const effH=effectiveHealth(r);
+    const baseH=r.characteristics.health;
+    const effHColor=effH<=0?'color:var(--text-dim)':effH<baseH*.5?'color:var(--red-bright)':effH<baseH*.8?'color:var(--amber)':'color:var(--green-bright)';
+    const woundCount=(r.wounds||[]).length;
+    const woundCell=woundCount>0?`<span style="color:var(--red-bright)">${woundCount}</span>`:'—';
     const za=r._zoneAction??{type:null};
     const actionLabel=za.type?ACTIONS[za.type]?.label??za.type:'—';
-    h+=`<tr><td><span class="recruit-name">${r.name}</span></td><td><span class="recruit-level">${r.level}</span></td><td>${r.characteristics.health}</td><td>${r.characteristics.strength}</td><td>${r.characteristics.dexterity}</td><td>${r.characteristics.perception}</td><td>${r.characteristics.movementSpeed}</td><td>${r.characteristics.loyalty}</td><td>${th||'—'}</td><td><span class="recruit-state ${sc}">${r.state}</span></td><td style="font-family:var(--mono);font-size:9px;color:var(--text-dim)">${actionLabel}</td></tr>`;
+    h+=`<tr><td><span class="recruit-name">${r.name}</span></td><td><span class="recruit-level">${r.level}</span></td>
+    <td>${baseH}</td><td style="${effHColor}">${effH}</td><td>${woundCell}</td>
+    <td>${r.characteristics.strength}</td><td>${r.characteristics.dexterity}</td>
+    <td>${r.characteristics.perception}</td><td>${r.characteristics.movementSpeed}</td>
+    <td>${th||'—'}</td><td>${stateLabel}</td>
+    <td style="font-family:var(--mono);font-size:9px;color:var(--text-dim)">${actionLabel}</td></tr>`;
   }
   return h+'</tbody></table>';
 }
@@ -1731,7 +2363,25 @@ function renderGroupPanel(gid){
   document.getElementById('gp-status').textContent=status;
   const membersEl=document.getElementById('gp-members');membersEl.innerHTML='';
   if(!group.memberIds.length){membersEl.innerHTML='<span style="font-family:var(--mono);font-size:10px;color:var(--text-dim)">No members</span>';}
-  else for(const id of group.memberIds){const r=org.recruits.find(r=>r.id===id);if(!r)continue;const chip=document.createElement('div');chip.className='gp-member-chip';const za=r._zoneAction??{type:null};chip.textContent=r.name.split(' ')[0]+(za.type?` [${ACTIONS[za.type]?.label?.split(' ')[0]??'?'}]`:'');chip.title=`${r.name} — SPD ${r.characteristics.movementSpeed}`;membersEl.appendChild(chip);}
+  else for(const id of group.memberIds){const r=org.recruits.find(r=>r.id===id);if(!r)continue;
+    const chip=document.createElement('div');
+    chip.className='gp-member-chip';
+    const za=r._zoneAction??{type:null};
+    const isDead=r.state==='Dead',isIncap=!!r.incapacitated;
+    const wCount=(r.wounds||[]).length;
+    const effH=effectiveHealth(r),baseH=r.characteristics.health;
+    let chipLabel=r.name.split(' ')[0];
+    if(isDead)chipLabel+=' [✝]';
+    else if(isIncap)chipLabel+=` [⚡${r.incapacitated.charges}]`;
+    else if(wCount)chipLabel+=` [${wCount}W]`;
+    else if(za.type)chipLabel+=` [${ACTIONS[za.type]?.label?.split(' ')[0]??'?'}]`;
+    if(isDead)chip.style.cssText='border-color:var(--text-dim);color:var(--text-dim)';
+    else if(isIncap)chip.style.cssText='border-color:var(--red);color:var(--red-bright)';
+    else if(wCount)chip.style.cssText='border-color:var(--amber-dim);color:var(--amber)';
+    chip.textContent=chipLabel;
+    chip.title=`${r.name} — HP ${effH}/${baseH} SPD ${r.characteristics.movementSpeed}`;
+    membersEl.appendChild(chip);
+  }
   const actEl=document.getElementById('gp-actions');actEl.innerHTML='';
   const tLabel=document.createElement('div');tLabel.className='gp-section-label';tLabel.textContent='Travel';actEl.appendChild(tLabel);
   if(group.inTransitTo){
@@ -1797,13 +2447,62 @@ function showToast(msg,type=''){const c=document.getElementById('toast-container
 
 /* ═══════════════ TEST SCENARIOS ═══════════════ */
 const TEST_SCENARIOS=[
+  {id:'wound_test',name:'Wound System Test',
+   desc:'Group pre-placed in a hazardous cave system zone. Scout Zone to trigger hazard damage and observe wounds accumulating. Use Treat to bandage wounds.',
+   build(){
+     const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:12});
+     s._startingChars=3;generateWorld(s);
+     const org=s.organizations[0];
+     // Find a cave system or dungeon POI, or use first discovered
+     const poi=s.world.pois.find(p=>p.discovered&&(p.type==='cave system'||p.type==='dungeon'))
+             ||s.world.pois.find(p=>p.discovered);
+     if(poi){
+       const rng=makePRNG(poi.id.split('').reduce((h,c)=>Math.imul(31,h)+c.charCodeAt(0)|0,0));
+       generateZones(poi,rng);
+       // Force at least one hazard on entry zone for testing
+       if(poi.zones.length&&!poi.zones[0].hazardConditions.length){
+         poi.zones[0].hazardConditions=['dangerous_exploration'];
+       }
+       if(org.recruits.length>=2){
+         const g=makeGroup({name:'Test Squad',role:'Scout',memberIds:org.recruits.slice(0,2).map(r=>r.id)});
+         g.currentCityId=null;g.locationPoiId=poi.id;g.locationZoneId=poi.zones[0].id;
+         org.groups.push(g);org.recruits.slice(0,2).forEach(r=>r.state='Deployed');
+         initFactionForZone(PLAYER_FACTION,poi.zones[0]);poi.zones[0].state='Scouted';
+       }
+     }
+     return s;
+   }},
+  {id:'incap_test',name:'Incapacitation Test',
+   desc:'Recruit starts with a pre-applied Severe head wound (near-lethal). Advance turns to watch progression, incapacitation, and recovery cycle. Dev Mode enabled.',
+   build(){
+     const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:12});
+     s._startingChars=2;generateWorld(s);s._devMode=true;
+     const org=s.organizations[0];
+     const recruit=org.recruits[0];
+     if(recruit){
+       // Apply a severe head wound close to progression threshold
+       const stageDef=WOUND_SEQUENCES.head[2]; // severe
+       const w=makeWoundInstance(stageDef,'head',2);
+       w.currentCharges=1400; // near max (1500)
+       recruit.wounds=[w];
+     }
+     const poi=s.world.pois.find(p=>p.discovered);
+     if(poi&&org.recruits.length>=1){
+       const rng=makePRNG(poi.id.split('').reduce((h,c)=>Math.imul(31,h)+c.charCodeAt(0)|0,0));
+       generateZones(poi,rng);
+       const g=makeGroup({name:'Alpha',role:'Scout',memberIds:[org.recruits[0].id]});
+       g.currentCityId=null;g.locationPoiId=poi.id;g.locationZoneId=poi.zones[0].id;
+       org.groups.push(g);org.recruits[0].state='Deployed';
+       initFactionForZone(PLAYER_FACTION,poi.zones[0]);poi.zones[0].state='Scouted';
+     }
+     return s;
+   }},
   {id:'action_test',name:'Action System Test',
    desc:'Group pre-placed inside entry zone of a discovered POI. Open the POI → click a member → assign Scout Zone → End Turn to watch awareness grow.',
    build(){
      const s=makeGameState({orgName:'Test Guild',gold:9999,mapSize:128,targetPois:20,targetKnownPois:12});
      s._startingChars=3;generateWorld(s);
      const org=s.organizations[0];
-     // Find a discovered POI, generate its zones, place group inside entry zone
      const poi=s.world.pois.find(p=>p.discovered);
      if(poi){
        const rng=makePRNG(poi.id.split('').reduce((h,c)=>Math.imul(31,h)+c.charCodeAt(0)|0,0));

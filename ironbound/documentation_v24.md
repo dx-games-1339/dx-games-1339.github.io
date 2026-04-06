@@ -1,6 +1,8 @@
+# Points 1 - 12 are human-verified. Data serialization model must be deleted and re-generated as it might become inconsistent as the result of manual changes.
+
 # Ironbound — Game Design Document
 
-**Version:** 3.6-draft  
+**Version:** 4.1-draft  
 **Target URL:** `https://dx-games-1339.github.io/strategy`  
 **Renderer:** WebGL 2D, single-page application  
 **Hosting:** GitHub Pages (static, no backend)
@@ -47,9 +49,9 @@ The primary view. A scrollable 2D map rendered in WebGL.
 - Travel routes shown as lines when a group is in transit
 
 **Interactions:**
-- Click a city → open City Layout
-- Click a visible POI → open POI Layout
-- Click a group token → open Group Panel
+- Click a city → open City Details Panel (same flow as POI — see POI visibility below). From the City Details Panel the player can click Enter City to open the City Layout.
+- Click a visible POI → open POI Details Panel. From the Details Panel the player can click Enter POI to open the POI Layout.
+- Click a group token → open Group Panel.
 - Pan and zoom the map
 
 **Coordinates:** Every city and POI on the global map has a fixed pair of coordinates. Distance between any two points is calculated from these coordinates using standard Euclidean distance. Coordinates are used internally for travel time calculations and are not displayed to the player as numbers.
@@ -86,8 +88,8 @@ All portraits within the token use the rhombus icon shape consistent with the li
 
 Discovery is determined by two mechanisms:
 
-- **Intelligence network** — the guild maintains agents at HQ assigned to the *Gather Rumors* task (see Section 3.2). The number of agents and their capabilities determine how many POIs spawn as Discovered. In v1 this mechanic is partially active: the *Target publicly known POIs* world option (see Section 12.2) determines how many POIs are Discovered by default for all organizations regardless of Gather Rumors activity. The Gather Rumors task itself has no additional effect in v1 beyond this baseline.
-- **References** — during the exploration of a POI, a group may find a reference (a map fragment, a rumor, a captured informant) that directly discovers a specific other POI. This is the only way to discover POIs beyond the baseline public count.
+- **Intelligence network** — the guild maintains agents at HQ assigned to the *Gather Rumors* task (see Section 3.2). The number of agents and their capabilities determine how many POIs spawn as Discovered. In v1 this mechanic is a placeholder and has no actual effect.
+- **References** — during the exploration of a POI, a group may find a reference that directly discovers a specific other POI. This is the only way to discover POIs beyond the baseline public count.
 
 An Undiscovered POI reverts to nothing if its despawn timer expires before it is discovered — the opportunity is lost.
 
@@ -95,7 +97,11 @@ An Undiscovered POI reverts to nothing if its despawn timer expires before it is
 
 A menu-driven view representing a city and the guild's headquarters when it is based there.
 
+**Navigation:** Clicking a city on the Global Map opens a City Details Panel — identical in structure to the POI Details Panel. The panel displays the city's name, size, and a "never" despawn value (cities never despawn). An **Enter City** button navigates into the City Layout. Cities are always in the Discovered state and the Enter City button is always enabled.
+
 Each city has a fixed pair of **coordinates** on the global map. These are used to calculate distances and travel times in the same way as POI coordinates.
+
+Each city also has a **size** property (small, medium, or large) assigned at world generation. Size determines the range and quantity of goods available in the city's Market — larger cities stock more items.
 
 **City panels:**
 - **Market** — purchase food, equipment, and weapons. Items are divided into three stock categories (see Section 9.3). The player stages items for purchase in the For Purchase box and confirms the transaction from this panel (see Section 9.5).
@@ -121,11 +127,15 @@ Recruits not assigned to a field group can be assigned to one of the following p
 
 A recruit assigned to an HQ task is unavailable for field deployment until reassigned. Task output is calculated each turn based on the number of assigned recruits and their capabilities.
 
+In V1 HQ staff tasks are a placeholder and has no real effect or game logic behind it.
+
 ### 3.3 POI Layout
 
-A view representing the internal structure of a single POI. Accessed by clicking a POI on the Global Map.
+A view representing the internal structure of a single POI.
 
 A POI is composed of **zones** connected by passages. The layout is a node graph: zones are nodes, passages are edges. The graph is rendered on the WebGL canvas with zones as clickable shapes and passages as lines between them. Each zone has a **size** characteristic that determines how large the area is. Size is reflected visually in the POI graph and governs the cost and yield of exploration actions inside the zone (see Section 4.1).
+
+**POI Zones are where most of the gameplay actions happen. Players are supposed to spend the most of their playing time in these layouts.**
 
 **Zone states:**
 
@@ -144,7 +154,7 @@ Zone states are a coarse, zone-level summary visible in the POI graph view. They
 
 **POI metadata** shown in a sidebar:
 - POI type and name
-- Turns remaining before despawn
+- Turns remaining before despawn (turn counter must be colored: more than 60 turns = green, less than 60 more than 12 = yellow, less than 12 turns = red)
 
 ### 3.4 Zone Detail Panel
 
@@ -155,7 +165,6 @@ A panel opened by clicking a zone inside the POI Layout. The Zone Detail Panel i
 - List of Located objects in this zone, from the perspective of the player faction
 - List of Known objects in this zone (existence confirmed, location unknown)
 - List of Located characters and groups from other factions visible to the player faction, including their visible status effects (see Section 5 for status transparency rules). Living characters are displayed with a rhombus portrait icon; dead bodies are displayed with a square dead body icon (see Section 8.4.5)
-- Available actions for each player-controlled group or individual recruit in this zone
 
 **Character status display:**
 
@@ -165,7 +174,7 @@ Every Located character — whether player-controlled, an animal, or dead — di
 - All active wounds with name, stage, current charges, and max charges displayed as a progress bar
 - Hunger stage with current charges and max charges
 - All other active status effects with their current state
-- Loyalty (player-controlled characters only)
+- Loyalty (NPC characters have loyalty towards their NPC faction, animals in most cases have 100% loyalty which can not decrease)
 
 This applies equally to animals. Once an animal is in the Located state for the player's faction, its full status — wounds, hunger, charges — is visible. Dead characters in the Located state display all status effects frozen at the moment of death.
 
@@ -179,28 +188,28 @@ The zone is the primary arena of gameplay. This section documents how zones work
 
 Each zone has a set of static and dynamic properties that govern how it behaves.
 
-**Static properties:**
+**Properties:**
 
-- **Size** — a fixed numeric value representing the physical area of the zone. Size does not change during a playthrough. It affects the cost and yield of awareness actions: a larger zone takes more turns of Scouting to cover and each individual Scout action reveals fewer objects relative to the total number present. Larger zones can also contain more objects overall. Size is not displayed to the player as a number but is reflected in the zone's visual scale in the POI graph and in how quickly scouting progresses.
-
-**Dynamic properties (zone conditions):**
-
-- **Light level** — a value from 0% (absolute darkness) to 100% (full daylight). Light level affects what characters can perceive and how quickly they detect objects. Diurnal characters perform well at high light levels; nocturnal creatures may be comfortable around 30% but are also impaired in absolute darkness.
-- **Weather effects** — conditions such as rain or sandstorm that can be applied to individual zones. Weather affects all objects and characters in the zone and may restrict certain actions or alter how quickly characters are detected.
+- **Size** — a fixed numeric value representing the physical area of the zone. Size does not change during a playthrough and is only assigned during the POI generation once. It affects the cost and yield of awareness actions. Larger zones can also contain more objects overall. Size is displayed to the player as a number.
+- **Light level** — a value from 0% (absolute darkness) to 100% (full daylight). Light level affects what characters can perceive and how quickly they detect objects. Diurnal characters perform well at high light levels; nocturnal creatures may be comfortable around 30% but are also impaired in absolute darkness. In V1 Light Levels have no effect and are a placeholder.
+- **Weather effects** — conditions such as rain or sandstorm that can be applied to individual zones. Weather affects all objects and characters in the zone and may restrict certain actions or alter how quickly these actions are performed. Weather effects may passivle apply status effects on characters or have a chance of applying these effects every turn.
 - **Hazard conditions** — passive conditions that apply damage probabilistically when characters perform certain actions in the zone. Each hazard condition specifies which actions trigger it, the probability of each damage event, and the damage value. Damage is rolled per action attempt, not per full action execution. See Section 4.9.2 for the full hazard condition model.
 
 ### 4.2 Living Characters and Animals
 
 A zone may contain any number of living characters or animals alongside static objects. These are full objects in the zone's object list and follow the same awareness mechanics as everything else — they may be Undiscovered, Known, or Located depending on the faction observing them.
 
-Living characters and animals each have a **disposition** toward every other group or faction present in the zone. Disposition is not binary. A character or group may be hostile toward one faction, neutral toward another, and indifferent to a third simultaneously. The following dispositions are possible:
+Living characters and animals always belong to a Group (see Section 7 Groups). A living character can not exist in a Zone outside of a Group and a single character alwaus belongs to a Group containing that one character. Each Group belongs to a certain faction inside the Zone. Factions have a **disposition** toward every other faction present in the zone. Disposition is not binary. One faction may be hostile toward one faction, neutral toward another, and indifferent to a third simultaneously. The following dispositions are possible:
 
-- **Hostile** — actively seeks to harm the other group when aware of them.
-- **Neutral** — neither allied nor hostile; will not initiate conflict unprovoked but may respond if threatened.
-- **Friendly** — cooperative; shares awareness information and will not attack unless provoked.
-- **Indifferent** — unaware of or uninterested in the other group; takes no action based on their presence.
+- **Hostile**
+- **Neutral**
+- **Friendly**
+- **Allied**
+- **Indifferent**
 
-Disposition is independent for each pairing. It is entirely possible to enter a zone and find two groups of animals already engaged in conflict that has nothing to do with the player's presence. The player may choose to intervene, avoid, observe, or exploit the situation. In future releases, NPC groups will also occupy zones and operate under the same disposition system.
+Allied factions share visibility and object awareness with each other i.e. each turn each factions visibility towards each object in the Zone becomes the highest value among visibilities of all allied factions towards these objects.
+
+Disposition is independent for each pairing. It is entirely possible to enter a zone and find two groups of animals or characters already engaged in conflict that has nothing to do with the player's presence. The player may choose to intervene, avoid, observe, or exploit the situation. In future releases, NPC groups will also occupy zones and operate under the same disposition system.
 
 ### 4.3 Object Awareness
 
@@ -208,68 +217,32 @@ A zone may contain a large number of objects — potentially hundreds. Each fact
 
 - **Located** — the faction knows this object exists and knows where it is. Characters can interact with it directly.
 - **Known** — the faction knows this object exists somewhere in the zone but has not pinpointed its location. Interaction is not yet possible.
-- **Undiscovered** — the object is present in the zone but the faction has no knowledge of it. This state exists in the game data but is never shown to the player.
+- **Undiscovered** — the object is present in the zone but the faction has no knowledge of it. This state exists in the game data but a player always sees an empty list of objects under "undiscovered" section with a brief description explaining that some objects might be there so that the user would be aware of such possibility. In Dev Mode all Undiscovered Objects are displayed.
 
-State transitions are driven entirely by numeric thresholds on the faction visibility value. The full generation rules, threshold formulas, and scouting mechanics are documented in Sections 4.3.1 through 4.3.3.
+State transitions are driven by numeric thresholds on the faction visibility value. The full generation rules, threshold formulas, and scouting mechanics are documented in Sections 4.3.1 through 4.3.3.
 
-Characters also have their own visibility value, which is not fixed. A character can actively modify their visibility by performing certain actions — for example by hiding, which raises the threshold another faction must meet in order to locate them. A sufficiently capable scout or a group that searches a zone long enough can still locate a hiding character, but doing so requires greater effort than detecting one who is not concealed.
+Characters also have their own visibility value, which is dynamic. A character can actively modify their visibility by performing certain actions.
 
-#### 4.3.1 Object Visibility Generation
+#### 4.3.1 Object Visibility
 
-When a POI is generated — either at world generation or when a new POI spawns dynamically — each zone object is assigned a **discoverability–visibility classification**: a pair of integer values `_discover_value` and `_visibility_value`, each in the range 0–4.
+Each object has the following visibility characteristics:
 
-- `_discover_value` — how much total effort is required to advance the object toward the Located state. 0 = easy to find; 4 = very hard to find.
-- `_visibility_value` — the object's starting position on the discoverability spectrum. A high value means the object begins closer to Located; a low value means it starts deep in the Undiscovered range.
+- Visibility ceiling
+- Initial visibility
 
-These two values are assigned randomly per object instance from ranges defined by the object's type. From them, three instance-specific visibility variables are derived:
+Each faction has its own visibility value for each object, but these values ​​always start from the object's initial visibility. Objects whose visibility to a faction exceeds 34% of their ceiling visibility value become "Known" to that faction. Objects whose visibility to a faction exceeds 70% of their ceiling visibility value become "Located" to that faction.
 
-**Step 1 — Compute the faction visibility ceiling:**
+When a POI is generated — either at world generation or when a new POI spawns dynamically — each zone object is assigned a **_discoverabilityLevel**: an integer value in the range 0–4. Faction visibility values are stored per object per faction and increase only through character actions.
 
-> **faction_visibility_max = 2 ^ _discover_value × 300**
+Objects are assigned their ceiling visibility as `100 + (100 * 2 ^ _discoverabilityLevel)`.
 
-This is the numeric ceiling of the faction visibility scale for this object. Values range from 300 (discover value 0) to 4800 (discover value 4).
-
-**Step 2 — Compute the initial visibility anchor:**
-
-> **initial_objects_visibility = (faction_visibility_max / 5) × _visibility_value**
-
-This sets the midpoint of the range from which the object's starting visibility is drawn.
-
-**Step 3 — Roll the object's starting visibility:**
-
-A random value is rolled in the range:
-
-> **[0.5 × initial_objects_visibility, initial_objects_visibility]**
-
-The result is assigned as the object's `visibility` characteristic. This is the faction visibility value at which a new faction starts when they first enter the zone — their initial awareness of this object before any scouting occurs.
-
-**Step 4 — Roll the upper bound:**
-
-A random value is rolled in the range:
-
-> **[0.8 × faction_visibility_max, 1.2 × faction_visibility_max]**
-
-The result is assigned as the object's `upper_bound_visibility`. All faction visibility values are bounded by this ceiling — no faction's visibility toward this object can exceed it.
+Objects are assigned initial visibility as a random value in the interval between 0 and objects ceiling visibility. Therefore it is assumed that some objects will be located as soon as the faction will enter the Zone. These objects will be immediately interactable.
 
 **Living objects — runtime mutability**
 
-For static zone objects (rocks, trees, containers, etc.) `visibility` and `upper_bound_visibility` are spawn-time constants. They do not change unless a character explicitly acts on them (e.g. via the Conceal action).
+For static zone objects (rocks, trees, containers, etc.) `visibility` and `ceiling visibility` are spawn-time constants. They do not change unless a character explicitly acts on them (e.g. via actions).
 
-For **living objects** — characters and character groups present in a zone — `visibility` and `upper_bound_visibility` are **runtime values** that can change at any time through actions such as Hide. When either value changes on a living object, the awareness states of all factions that have a visibility entry toward that object are re-evaluated immediately against the new thresholds. A faction that had Located a living object may lose that state and revert to Known or Undiscovered if the object's `upper_bound_visibility` increases sufficiently, and similarly a faction that had not yet Located an object may gain it if `upper_bound_visibility` decreases. Awareness state changes on living objects are applied in the same turn they occur.
-
-#### 4.3.2 Faction Visibility Thresholds
-
-Each faction's current visibility value toward an object determines the object's awareness state for that faction:
-
-| Condition | Awareness state |
-|---|---|
-| faction_visibility < 40% of upper_bound_visibility | Undiscovered |
-| faction_visibility ≥ 40% of upper_bound_visibility | Known |
-| faction_visibility > 90% of upper_bound_visibility | Located |
-
-When a new faction enters a zone for the first time, their visibility toward each object in that zone is initialised to the object's `visibility` characteristic (the value rolled in Section 4.3.1 Step 3). The awareness state is then evaluated immediately from this starting value — objects with a high starting visibility may be Known or even Located the moment a faction arrives, while low-visibility objects begin Undiscovered and require active scouting to surface.
-
-Faction visibility values are stored per object per faction and increase only through character actions. They never decrease naturally.
+For **living objects** — characters, animals and character groups present in a zone — `visibility` and `ceiling visibility` are **runtime values** that can change at any time through actions. When either value changes on a living object, the awareness states of all factions that have a visibility entry toward that object are re-evaluated immediately against the new thresholds. A faction that had Located a living object may lose that state and revert to Known or Undiscovered if the object's `ceiling visibility` increases sufficiently, and similarly a faction that had not yet Located an object may gain it if `ceiling visibility` decreases. Awareness state changes on living objects are applied in the same turn they occur.
 
 #### 4.3.3 Scout Zone — Awareness Mechanics
 
@@ -297,7 +270,7 @@ A random integer is rolled in the range [2, 6] inclusive. This determines how ma
 
 3. **Apply the discovery pulse:**
 
-The `discovery_value` is added to the faction visibility of each of the selected objects. Objects are selected randomly from the full set of objects in the zone. Any object — regardless of its current awareness state — can be selected. Objects whose faction visibility would exceed `upper_bound_visibility` after the addition are capped at `upper_bound_visibility`.
+The `discovery_value` is added to the faction visibility of each of the selected objects. Objects are selected randomly **without replacement** from the full set of objects in the zone — each object can be selected at most once per discovery pulse. Any object — regardless of its current awareness state — can be selected. If the zone contains fewer objects than the rolled count, all objects in the zone receive the pulse. Objects whose faction visibility would exceed `ceiling visibility` after the addition are capped at `ceiling visibility`.
 
 After each discovery pulse, awareness states are re-evaluated for all affected objects and transitions to Known or Located are applied immediately if the thresholds are crossed.
 
@@ -305,33 +278,51 @@ After each discovery pulse, awareness states are re-evaluated for all affected o
 
 Awareness is tracked per faction, not per individual character or group. A faction is a set of groups that share complete knowledge of each other and of all objects they have collectively discovered within a zone. Groups belonging to the same controller (e.g. all player-controlled groups) always form a single faction within a POI and share awareness state instantly.
 
-Animal groups belong to their own factions. It is possible for two factions to occupy the same zone with no awareness of each other — neither appears in the other's Located list. Conflict between factions only becomes possible once at least one group in each faction has located at least one group in the other. In future releases, NPC character groups will also form their own factions and operate under this same system.
+Animal groups belong to their own factions. It is possible for two factions to occupy the same zone with no awareness of each other — neither appears in the other's Located list. Conflict between factions only becomes possible once at least one faction has located at least one group of the other faction. In future releases, NPC character groups will also form their own factions and operate under this same system.
 
 ### 4.5 Zone-wide Actions
 
-Zone-wide actions have no specific target. They are assigned to a group and apply broadly to the zone or to all eligible objects within it.
+>NOTE: Actions in this section are game mechanics and pieces of game logic. Characters perform actions. They are not player interactions. Players can not invoke actions directly. Players assign tasks (for Groups or Characters within these Groups) and tasks result in Characters performing actions.
+
+Zone-wide actions have no specific object as a target ("Move to" action targets a Zone within POI however). They are assigned to a group and apply broadly to the zone or to all eligible objects within it.
 
 - **Scout** — the character actively searches the zone. Each action point investment (5 AP per attempt) applies a passive visibility increase to all objects in the zone. Each full execution fires a discovery pulse that applies a larger visibility increase to a random subset of objects. Both effects advance object awareness toward Known and Located for the scouting character's faction. Full mechanics are documented in Section 4.3.3.
-- **Hunt** — the group passively engages all huntable animals present in the zone without needing to locate them individually. No specific target is required; the action resolves against any huntable animal in the zone.
-- **Hide** — the group actively conceals itself, increasing how difficult it is for other factions to detect them. Because characters and groups are living objects, their `visibility` and `upper_bound_visibility` are runtime values (see Section 4.3.1). Each completed Hide execution raises the group's `upper_bound_visibility`, pushing the Known and Located thresholds higher and forcing other factions to accumulate more visibility to maintain or achieve the same awareness state. A faction that had Located the hiding group may lose that state and revert to Known or Undiscovered if the group's `upper_bound_visibility` rises above the faction's current visibility relative to the new thresholds. A sufficiently capable opposing scout or sustained search effort can still locate a hiding group by continuing to accumulate faction visibility past the new higher thresholds.
-- **Rest** — the character takes the full turn off to recover. Costs 46 action points. This cost is intentionally set to 46 rather than 50: since most zone actions cost 5 AP, the remaining 4 AP after resting are insufficient to perform any standard action, ensuring rest is a full-turn commitment. However, lightweight group management actions (such as arranging inventory or transferring an item between characters) will cost only 1 AP and are designed to be performed alongside rest — these do not apply changes to the zone and only affect the internal state of the group. Such actions are planned for a future update. The Rest action is subject to the 50 AP action cost cap — even if a head wound applies an action cost increase, Rest will never cost more than 50 AP and remains executable by any living character. During rest the character consumes food from their inventory until hunger charges are reduced to 20 or below in the Hunger stage — eating through Starvation and Famine if necessary. See Section 5.6.2 for the full Rest eating mechanic and loyalty bonuses.
-- **Move** — assign a group or individual to travel to an adjacent zone. The number of turns required depends on the distance between zones and the movement speed of the slowest group member. No target object required; destination zone is the parameter.
-- **Retreat** — a special case of Move directing the group back toward the POI entry zone and out of the POI.
-- **Wait** — hold position for a specified number of turns (e.g. awaiting a supply group).
+- **Rest** — the character takes the full turn off to recover. Costs 46 action points. This cost is intentionally set to 46 rather than 50: since most zone actions cost 5 AP, the remaining 4 AP after resting are insufficient to perform any standard action, ensuring rest is a full-turn commitment. However, lightweight group management actions (such as arranging inventory or transferring an item between characters) will cost only 1 AP and are designed to be performed alongside rest — these do not apply changes to the zone and only affect the internal state of the group. Such actions are planned for a future update. The Rest action is subject to the 50 AP action cost cap — even if an effect applies an action cost increase, Rest will never cost more than 50 AP and remains executable by any living character. During rest the character consumes food from their inventory until hunger charges are reduced to 20 or below in the Hunger stage — eating through Starvation and Famine if necessary. See Section 5.6.2 for the full Rest eating mechanic and loyalty bonuses.
+- **Leave POI** — a special action only available in the POI entry zone. A character can not leave POI on its own, instead the progress of performing the Leave POI action stops at a full progress bar and the character remains in that state until all other characters of the Group will perform the same action to full completion. The whole Group leaves POI when all its characters performed the Leave POI action fully i.e. they are all ready to leave.
+- **Move to** — an action that targets an adjacent Zone of the same POI. A character can not enter another Zone on its own, instead the progress of performing the "Move to" action stops at a full progress bar and the character remains in that state until all other characters of the Group will perform the same action to full completion. The whole Group moves to a new Zone of the POI when all its characters performed the "Move to" action fully. If a character cancels the execution of the "Move to" action as the result of some instruction (such as the need to rest) - that character would need to perform the "Move to" action again starting from zero completion level.
+- **Wait** — hold position doing nothing.
 
-### 4.6 Object Interactions
+### 4.6 Objects and Object Interactions
 
-Object interactions require a specific target. A target must be in the Located state before any object interaction can be assigned, with one exception: a group may be assigned to **Search for** a Known object, which applies a focused visibility increase to that specific object on each execution and a smaller secondary increase to a random set of other objects in the zone. See the Search for entry below for the full numeric mechanic.
+>NOTE: Actions in this section are game mechanics and pieces of game logic. Characters perform actions. They are not player interactions. Players can not invoke actions directly. Players assign tasks (for Groups or Characters within these Groups) and tasks result in Characters performing actions.
+
+Most of the gameplay revolves around Objects located in POI Zones. Each non-living Object in a POI Zone has the following properties:
+- Size - determines whether the object can be picked (i.e. transformed into an item in the characters inventory).
+- Icon - displayed in the Zone Layout.
+- Name - flavourful description of the object, provides with some information about the object (not necessarily useful or correct) e.g. Old Oak.
+- Type - identifies the type of the object e.g. Tree.
+- Material - a list of items that could be extracted from the object through the "Harvest" action. Living characters can not be harvested but they may display meat/fish/fur or whatever resources can be harvested from their type of corpse.
+- Content - inventory of the object that can be interacted with through "Loot" or "Gather resources" actions depending on the object type.
+- Tags - object-specific modifications of the object properties or identifiers for tag-specific actions.
+- Status effects - a list of effects that govern the state of an object. Living characters may have "Hunger" or "Wounds" that govern their life cycle, non-living objects like trees may passively grow "Propagate" which can then create a new Tree object. Object conditions may also be expressed through status effects, e.g. half-broken building may have status effect "Broken" charged to 100 points out of 200 max.
+
+Object interactions are actions that can be performed by living characters on those objects. Which actions can be performed on an object is determined by the type of that object and the type of character performing the action. Some actions may require additional conditions to be met (e.g. a tool with specific tag).
+
+Living characters are treated as parts of a group. Group is treated as a single object and individual characters within that group can not be interacted with by other Groups. Characters within that Group are also discovered together via the Group visibility characteristic and their inventories are displayed in the "content" property of the Group once its visibility reaches 100%. Dead characters are automatically removed from their Group and transformed into a non-living corpse object which is then discovered as a separate object, not a part of the Group that the character belonged to before death.
+
+Non-living objects do not perform actions themselves. If a non-living object is supposed to interact with the game world - it must be performed through a changing status effect on that object.
+
+Object interactions require a specific target. A target must be in the Located state before any object interaction can be assigned, with one exception: a group may be assigned to **"Search for"** a Known object, which applies a focused visibility increase to that specific object on each execution and a smaller secondary increase to a random set of other objects in the zone. See the "Search for" entry below for the full numeric mechanic.
 
 Object interactions are divided into four subcategories:
 
 **Common actions** — applicable to most or all objects:
 - **Take** — pick up the object and place it in a character's inventory. Requires sufficient free inventory capacity. Cannot be applied to objects too large to carry.
-- **Gather resources** — extract usable material from the object (e.g. harvesting from a plant, stripping a carcass). Can be performed without tools but is significantly faster if a compatible tool is present.
-- **Examine** — inspect the object closely to learn more about its properties without interacting with it further.
-- **Conceal** — deliberately make a Located object harder to find. Each completed Conceal execution applies two effects:
-  - **Base visibility reduction** — the object's `visibility` characteristic (the value used to initialise faction visibility for new factions entering the zone) is reduced by 10% of its current value: `object.visibility = ⌊object.visibility × 0.9⌋`. This makes the object harder to discover for any faction that has not yet entered the zone.
-  - **Faction visibility reduction** — for every faction that has already Located the object, their faction visibility toward it is reduced by 10% of its current value: `factionAwareness[factionId][objectId] = ⌊factionAwareness[factionId][objectId] × 0.9⌋`. The faction that performed the Conceal action is exempt from this reduction. After the reduction, awareness states are re-evaluated — a faction whose visibility falls back below the Located threshold (≤90% of `upper_bound_visibility`) will lose the Located state and revert to Known. Factions that have not yet Located the object are unaffected by this component.
+- **Gather resources** — extract items from the objects "content" without destroying it. 
+- **Harvest** — destroys the object and places its "material" items into the inventory of a character who performed the action. If the object had items in its "content" - these items are discarded.
+- **Loot** - manipulates the objects "content" property allowing a free exchange between the characters inventory and the inventory of the objects "content" i.e. a character can withdraw any items from the "content" or place any items in the "content" of the object.
+- **Examine** — planned for future releases. Currently a placeholder.
+- **Conceal** — planned for future releases. Currently a placeholder.
 - **Search for** (Known objects only) — direct the group's effort toward locating a specific Known object. The Search for action produces no passive per-attempt tick — action point investments during progress accumulation apply no visibility increase to any object. On full execution the following steps are applied:
 
   1. **Calculate the character's Discovery Value** using the same formula as Scout Zone (see Section 4.3.3):
@@ -342,16 +333,14 @@ Object interactions are divided into four subcategories:
 
   3. **Apply the secondary increase to other objects** — a random integer is rolled in the range [1, 5] inclusive to determine how many other objects in the zone are affected. That many objects are selected at random from all objects in the zone excluding the target, and each receives a visibility increase of 0.8 × discovery_value for the performing faction.
 
-  All visibility increases are capped at `upper_bound_visibility`. Awareness states are re-evaluated for all affected objects immediately after the execution and transitions to Known or Located are applied if thresholds are crossed.
+  All visibility increases are capped at `ceiling visibility`. Awareness states are re-evaluated for all affected objects immediately after the execution and transitions to Known or Located are applied if thresholds are crossed.
 
 **Inventory actions** — operate on items in a character's inventory rather than on zone objects:
-- **Drop** — removes a selected item from a character's inventory and places it into the zone as a new object. The dropped item is immediately Located by the dropping character's faction. Other factions must discover it through normal awareness mechanics.
+- **Drop** — removes a selected item from a character's inventory and places it into the zone as a new object. The dropped item is immediately Located by the dropping character's faction. Other factions must discover it through normal awareness mechanics in order to be able to interact with it.
 
-**Construction actions** — introduce new permanent objects into the zone. Constructed objects enter the Located state for the builder's faction immediately:
-- **Build camp** — establishes a camp structure providing a base for resting, treating injuries, and storing supplies. Requires materials and time.
-- **Build container** — constructs a basic storage box or crate. Can store items, cache supplies, or serve as bait. Additional buildable structures may be defined per game content.
+**Construction actions** —  planned for future releases. Currently a placeholder.
 
-**Object-specific actions** — available only for particular object types, surfaced contextually in the UI:
+**Object-specific actions** — available only for particular object types:
 - Examples: **Open** (chest, door), **Unlock** (locked container), **Cut down** (tree), **Rescue** (incapacitated friendly character), **Attack** (living characters and animals only).
 - Object-specific actions are not enumerated exhaustively here. They appear in the UI only when the relevant object is selected and the action is applicable.
 
@@ -466,7 +455,7 @@ Multiple damage events on the same condition are rolled independently. A single 
 
 When a character receives damage the following steps are applied in order:
 
-1. **Incapacitation check** — if raw damage ≥ character's current effective health, the character becomes Incapacitated. Initial charges are calculated as described in Section 4.9.7.
+1. **Incapacitation check** — only evaluated if `current_health > 0`. If `raw_damage ≥ current_health`, the character becomes Incapacitated. If `current_health ≤ 0` the character is already dead and this check is skipped. Initial charges are calculated as described in Section 4.9.6.
 2. **Wound probability calculation** — the damage ratio R is computed and used to select a wound severity tier.
 3. **Wound slot assignment** — the specific wound is selected from the character's available wound slots for that severity. If the slot is already occupied, charges are added to the existing wound instead (which may trigger progression).
 
@@ -478,7 +467,7 @@ All probability calculations are driven by a single normalised value:
 
 Where `character_current_health` is the effective maximum health after all active wound penalties.
 
-**Incapacitation:** if raw_damage ≥ character_current_health the character becomes Incapacitated regardless of wound outcome. Both can apply on the same hit. See Section 4.9.7 for charge calculation.
+**Incapacitation:** if raw_damage ≥ character_current_health the character becomes Incapacitated regardless of wound outcome. Both can apply on the same hit. See Section 4.9.6 for charge calculation.
 
 **Wound severity zones** — R maps to five tiers with overlapping soft boundaries:
 
@@ -558,39 +547,20 @@ Once a severity tier is selected:
 
 **Generic wound selection (Scratch / Bruise):**
 
-Generic wounds are stackable — no slot conflict. A secondary roll determines the type based on hit type:
-
-| Hit type | More likely |
-|---|---|
-| Bladed / sharp | Scratch |
-| Blunt | Bruise |
-| Piercing | Scratch |
+Generic wounds are stackable — no slot conflicts.
 
 **Starting charges on application:**
 
 | Severity | Starting charges |
 |---|---|
 | Generic (Scratch, Bruise) | 50 |
-| Light | 230 |
-| Medium | 400 |
-| Severe | 600 |
+| Light | 100 |
+| Medium | 150 |
+| Severe | 200 |
 
 When a wound progresses via charge injection (repeat hit to an occupied slot), the wound advances to the next stage and its charge counter resets to that stage's starting value.
 
-### 4.9.6 Function Signature
-
-```
-applyDamage(character, rawDamage, hitType)
-  → { incapacitated: bool, woundApplied: WoundInstance | null }
-```
-
-| Parameter | Type | Description |
-|---|---|---|
-| `character` | Object | Full character state — current health, active wound slots, type |
-| `rawDamage` | Number | Rolled damage value |
-| `hitType` | String | `"bladed"`, `"blunt"`, `"piercing"` |
-
-### 4.9.7 Incapacitated Status Effect
+### 4.9.6 Incapacitated Status Effect
 
 Incapacitation is a charge-based status effect applied when a character receives a blow exceeding their current effective health. It is not a wound and does not progress into any other state — it simply depletes and removes itself.
 
@@ -599,7 +569,7 @@ Incapacitation is a charge-based status effect applied when a character receives
 > **initial_charges = min(200, 40 + 20 × (max_health / current_health))**
 
 Where:
-- `current_health` — the character's current effective health at the moment of the hit (base health minus all active wound penalties)
+- `current_health` — the character's current effective health at the moment of the hit (base health minus all active wound penalties). Must be greater than zero — a character with `current_health ≤ 0` is already dead (see Section 5.3.1) and the incapacitation check does not fire. The incapacitation check is only evaluated when `current_health > 0`.
 - `max_health` — the character's base health (unmodified by wounds)
 - The result is capped at 200 — any excess above 200 is discarded
 
@@ -634,7 +604,7 @@ A recruit's state is a combination of concurrent conditions rather than a single
 - **Available** — at HQ, ready to be assigned. Mutually exclusive with Deployed.
 - **Deployed** — assigned to a group currently on the map or inside a POI. Mutually exclusive with Available.
 - **Wounded** — carries one or more active wounds. May still be deployed depending on severity; some wounds do not prevent field activity while others restrict actions or reduce capability significantly. Can co-exist with Incapacitated.
-- **Incapacitated** — the character is temporarily unconscious and cannot perform any actions. Incapacitation is a charge-based status effect that depletes automatically each turn until the character regains consciousness. It is triggered either by receiving a blow exceeding the character's current effective health, or by a progressive wound being forced to advance beyond its final non-lethal stage. In both cases the initial charge count is determined by the standard incapacitation formula. A character can be both Wounded and Incapacitated at the same time — the Incapacitated condition takes precedence for UI display and task scheduling purposes. See Section 4.9.7 for the full mechanic.
+- **Incapacitated** — the character is temporarily unconscious and cannot perform any actions. Incapacitation is a charge-based status effect that depletes automatically each turn until the character regains consciousness. It is triggered either by receiving a blow exceeding the character's current effective health, or by a progressive wound being forced to advance beyond its final non-lethal stage. In both cases the initial charge count is determined by the standard incapacitation formula. A character can be both Wounded and Incapacitated at the same time — the Incapacitated condition takes precedence for UI display and task scheduling purposes. See Section 4.9.6 for the full mechanic.
 - **Dead** — the character has died. The body remains in the zone where death occurred as a persistent object (see Section 5.4). All other conditions are frozen at the moment of death.
 
 ### 5.2 Growth and Change
@@ -659,7 +629,7 @@ Each character has the following persistent characteristics. Unless otherwise no
 
 **Level**
 
-A single value ranging from 1 to 10 representing overall experience and capability. Most recruits available for hire start at level 5 or 6. Level does not directly govern other characteristics but serves as a general indicator of a character's competence and is likely to influence action outcomes and event resolution.
+A single value ranging from 1 to 10 representing overall experience and capability. Most recruits available for hire start at level 5 or 6.
 
 **Combat and action characteristics**
 
@@ -671,29 +641,31 @@ These three characteristics do nothing passively. They are only relevant when an
 
 **Survival characteristics**
 
-- **Regeneration** — determines how effectively the character recovers from wounds over time. Influences the rate at which wound charges accumulate each turn and how quickly bandaged wounds heal.
-- **Movement speed** — determines how quickly the character travels. Used to calculate the number of turns required to move between zones inside a POI and to travel between locations on the global map. A character's effective movement speed can be reduced by wound effects (e.g. leg wounds). When a character's movement speed is reduced to zero they cannot move independently.
-- **Carrying capacity** — each character has a base carrying capacity ranging between 5 and 10 units for human-like characters. This is the character's intrinsic capacity before any backpack bonus is applied. Total effective capacity is higher when a backpack is equipped. See Section 5.3.4 for the full carrying capacity system.
+- **Regeneration** — determines how effectively the character recovers from wounds over time. Influences the rate at which wound charges accumulate or deplete each turn.
+- **Movement speed** — determines how quickly the character travels. Used to calculate the number of turns required to travel between locations on the global map. A character's effective movement speed can be reduced by status effects (e.g. wounds). When a character's movement speed is reduced to zero they cannot move independently.
+- **Carrying capacity** — each character has a base carrying capacity (typically ranging between 5 and 10 units for human-like characters). This is the character's intrinsic capacity before any backpack bonus is applied. Total effective capacity is higher when a backpack is equipped. See Section 5.3.4 for the full carrying capacity system.
 
 **Loyalty**
 
 Loyalty represents how willing the character is to remain with their current controller. It ranges from 0 to 30.
 
-Loyalty decreases over time through events such as unpaid upkeep, witnessing the death of companions, or being left in dangerous situations without support. It may increase through positive events such as successful missions, receiving good equipment, or resting in safe conditions.
+Loyalty changes over time through events.
 
-When a character's loyalty reaches 0, two outcomes are possible depending on their location:
+When a character's loyalty reaches 0, two outcomes are possible for a player-controlled character depending on their location:
 
 - **Inside a POI zone** — the character immediately leaves their group and becomes an independent object within the zone. They retain all characteristics, wounds, and equipment. They are no longer under player control but remain present as an interactable and attackable object in the zone.
 - **Outside a POI zone** (travelling or at HQ) — the character deserts. They are removed from the player's roster and group without returning equipment.
+
+NPC characters may decide to leave their faction and form a new one (consisting of only that one NPC whose loyalty reached zero, in that case the NPC starts with a new faction and is 30/30 Loyal to itself there) or join an existing faction (including players).
 
 #### 5.3.3 Movement Speed
 
 Each character has a **movement speed** characteristic that determines how quickly they can travel. Movement speed affects two contexts:
 
 - **Global map travel** — the number of turns required for a group to travel from its current location to a destination city or POI.
-- **Zone movement** — the number of turns required for a character to move between zones inside a POI.
+- **Zone exploration** — the movement speed slightly increases object awareness gain when performing the Scout zone action.
 
-A group always moves at the speed of its slowest member. If one character in a group has a movement speed penalty from a wound (e.g. a leg wound), the entire group's travel time is calculated using that character's reduced speed. This creates a meaningful trade-off when deciding whether to keep a wounded character in a group or leave them behind.
+A group always moves at the speed of its slowest member. If one character in a group has a movement speed penalty from a status effect (e.g. a wound), the entire group's travel time is calculated using that character's reduced speed.
 
 **Typical values**
 
@@ -712,7 +684,7 @@ A standard day cycle consists of 6 turns. Of these, 1 turn is assumed to be spen
 
 **Carrying capacity**
 
-Each character has an individual carrying capacity measured in abstract units. Items stored in a character's unequipped inventory each consume a defined number of units. A character cannot pick up or be assigned an item that would cause their total carried units to exceed their available capacity.
+Each character has an individual carrying capacity measured in abstract units. Items stored in a character's unequipped inventory each consume a defined number of units. A character cannot pick up or be assigned an item that would cause their total carried units to exceed their available capacity. If an effect would reduce the total carrying capacity for a unit then it will not lose any of the items it was already carrying but it will not be able to pick or get any new items until the carrying capacity is freed up.
 
 Capacity is composed of two parts:
 
@@ -746,9 +718,9 @@ Wounds fall into three structural categories that determine how they are applied
 
 - **Stackable wounds** — can be applied to a character multiple times simultaneously, with each instance tracked independently. Each application adds its modifier separately. Example: a *Scratch* wound applies −3 max health per instance. A character can accumulate many scratches at once, each one counting individually toward their health penalty.
 
-- **Progressive wounds** — cannot stack. Each progressive wound occupies a single slot per body location. If a character already has a progressive wound on a given location and that same location is damaged again, the existing wound advances to the next severity stage rather than a new instance being added. Progressive wounds move through a fixed sequence of stages (e.g. Light → Medium → Severe). When the final stage is reached and further progression is triggered, the character becomes **Incapacitated** (see Section 4.9.7) instead of advancing further. For wounds on vital locations (head, chest) the final progression stage is Lethal, which causes immediate death.
+- **Progressive wounds** — cannot stack. Each progressive wound occupies a single slot per body location. If a character already has a progressive wound on a given location and that same location is damaged again, the existing wound advances to the next severity stage rather than a new instance being added. Progressive wounds move through a fixed sequence of stages (e.g. Light → Medium → Severe). When the final stage is reached and further progression is triggered, the character becomes **Incapacitated** (see Section 4.9.6) instead of advancing further. For wounds on vital locations (head, chest) the final progression stage is Lethal, which causes immediate death.
 
-- **Special wounds** — applied as discrete status effects outside the progressive or stackable systems. They behave like stackable wounds in that multiple instances can be active simultaneously, but they represent specific injury types tied to particular damage sources. Example: *Animal Bite* (−20 max health), applied by animal attacks. Each bite is a separate instance. A human-like character can sustain 5–6 simultaneous animal bites before their effective maximum health reaches zero.
+- **Special wounds** — applied as discrete status effects outside the progressive or stackable systems. They behave like stackable wounds in that multiple instances can be active simultaneously, but they represent specific injury types tied to particular damage sources. Example: *Animal Bite* (−20 max health), applied by animal attacks. Each bite is a separate instance.
 
 #### 5.3.7 Lethal Wounds
 
@@ -761,9 +733,9 @@ Lethal wounds are the terminal stage of progressive wound sequences on vital bod
 
 #### 5.3.8 Wound-Triggered Incapacitation
 
-When a progressive wound is at its final non-lethal stage and damage forces it to progress further, the character becomes **Incapacitated**. The initial charge count is determined by the standard incapacitation formula (see Section 4.9.7), using the character's current effective health and base health at the moment the wound progression is triggered. Incapacitation depletes automatically each turn and is removed when charges reach zero — the character then regains consciousness. Other characters can still interact with an Incapacitated character (e.g. to move them or administer treatment) while the status is active.
+When a progressive wound is at its final non-lethal stage and damage forces it to progress further, the character becomes **Incapacitated**. The initial charge count is determined by the standard incapacitation formula (see Section 4.9.6). If the character's current effective health is zero or below at the moment of triggering — meaning wound penalties have already reduced them to a lethal state — the character dies instead of becoming Incapacitated, and the formula is not evaluated. Incapacitation depletes automatically each turn and is removed when charges reach zero — the character then regains consciousness.
 
-The wound that triggered Incapacitation remains active and continues accumulating charges while the character is unconscious. If the wound is not treated before its charges reach the progression threshold again, Incapacitation is applied a second time immediately after the character regains consciousness — or sooner, if the threshold is crossed while the character is still unconscious. This creates a recurring collapse cycle for neglected final-stage wounds and provides a strong mechanical incentive to treat the wound during the window when the character is incapacitated and accessible.
+The wound that triggered Incapacitation remains active and continues accumulating charges while the character is unconscious. If the wound is not treated before its charges reach the progression threshold again, Incapacitation is applied again immediately after the character regains consciousness. This creates a recurring collapse cycle for neglected final-stage wounds.
 
 #### 5.3.9 Wound Examples
 
@@ -780,14 +752,14 @@ Every wound instance tracks the following values:
 - **Degeneration value** — a base rate at which charges accumulate per turn (positive = worsening)
 - **Regeneration contribution** — derived from the character's regeneration characteristic; reduces charge accumulation each turn
 
-**Each turn**, the following calculation is performed for each active wound:
+**Each turn**, the following calculation is performed for each active wound (on each alive character in each POI Zone in each POI):
 
 1. A random value is rolled within the wound's degeneration range
 2. A random value is rolled within the character's regeneration range
 3. The net result `(degeneration roll − regeneration roll)` is added to the current charges
 4. If charges reach the max threshold, the wound progresses
 
-*Example:* A Light arm wound is applied with 230 starting charges and a progression threshold of 1000 (the charge value at which it advances to Medium). Its degeneration produces rolls in the range 10–20. The character's regeneration produces rolls in the range 5–10. On a given turn: degeneration rolls 15, regeneration rolls 7. Net: +8. Charges advance from 230 to 238. This continues each turn until charges reach 1000, at which point the wound advances to a Medium arm wound — which is applied at its own starting charges (400, as defined in Section 4.9.5), not at zero. The progression threshold and the starting charges of the next stage are independent values.
+*Example:* A Light arm wound is applied with 100 starting charges (as defined in Section 4.9.5). Its degeneration produces rolls in the range 10–20. The character's regeneration characteristic is 5, producing a fixed roll of 5 each turn. On a given turn: degeneration rolls 14, regeneration rolls 5. Net: +9. Charges advance from 100 to 109. This continues each turn until charges reach the wound's progression threshold — the charge value at which it advances to Medium. Progression thresholds are defined in the wound table data and are not specified in this document. When the threshold is reached, the wound advances to a Medium arm wound, which is applied at its own starting charges (150, as defined in Section 4.9.5), not at zero. The progression threshold and the starting charges of the next stage are independent values.
 
 #### 5.3.11 Wound Treatment
 
@@ -803,6 +775,8 @@ Bandaged wounds retain a modified set of the original wound's effects (reduced p
 
 Lethal wounds cannot be treated — they cause immediate death upon application.
 
+If a character would receive a damage that applies a damage to the wound slot where a bandaged wound exists then the bandaged wound is removed and replaced with a new wound of the corresponding type and corresponding stage at its starting charges (e.g. Bandaged severe arm wound (left) would be replaced with Severe arm wound (left) at its starting charges).
+
 ### 5.4 Dead Characters and Body Persistence
 
 When a character dies, their body is not removed from the game. The body remains in the zone of the POI where the character died as a persistent object in the zone's object list. It follows the same awareness and visibility mechanics as any other object — it can be Undiscovered, Known, or Located depending on the observing faction.
@@ -816,16 +790,6 @@ When a character dies, their body is not removed from the game. The body remains
 **Body persistence:**
 
 A body remains in the zone until the POI despawns, at which point all objects including bodies are removed.
-
-**Inspecting bodies:**
-
-A Located body can be examined by any character using the Examine action. Inspection reveals:
-
-- The character's name, level, and faction at time of death.
-- All wounds and status effects present on the body at time of death, including their charge levels.
-- The body's full equipment and inventory contents, which can be looted using the Take or Gather resources actions.
-
-Animal bodies are subject to the same inspection rules. If an animal body is in the Located state for the player's faction, its information is fully transparent — including wounds.
 
 **Roster impact:**
 
@@ -937,7 +901,7 @@ The character is in critical condition. All action-relevant characteristics are 
 | Charge gain per turn | 0 |
 | Effects | Immediate death on application |
 
-Starved to Death is not a progression stage — it is a discrete status effect applied instantly when Famine reaches its maximum charge threshold. It causes the character to die immediately. Because it carries 1 charge at a fixed maximum of 1, it remains permanently on the character's status effect list after death and is never removed. When another character examines the body, the presence of this status effect indicates the cause of death was starvation.
+Starved to Death is the terminal stage of the hunger progression chain. When Famine reaches its maximum charge threshold the character's HungerState transitions to stage StarvedToDeath with charges set to 1 — and the character dies immediately. The StarvedToDeath stage is never cleared and persists on the body after death, so that any character examining the body can identify starvation as the cause of death.
 
 #### 5.6.2 Food Items and the Food Tag
 
@@ -960,9 +924,17 @@ Inside a POI zone, eating is performed as an explicit action:
 - **Effect:** consumes one unit of the highest Food-value item in the character's inventory and applies its Food value to the hunger charge reduction.
 - A character must have at least one food item in their inventory to perform this action.
 
-**Automatic eating — self-assigned task:**
+**Automatic eating — self-assigned sub-goal:**
 
-When a character's Hunger stage charges exceed 80 (out of 120 maximum), the character automatically inserts an Eat task into the group task list, placed immediately below the character's currently active task, and assigns themselves to it. This ensures the character eats before Hunger progresses into Starvation.
+When a character's Hunger stage charges exceed 80 (out of 120 maximum) and the group's **Allow self-management** setting is enabled (see Section 13.5), the character automatically inserts a **Feed Self** sub-goal into the group task list, placed immediately below the character's currently active task, and assigns themselves as the responsible character.
+
+Feed Self is an abstract sub-goal, not a single action. It decomposes automatically into sub-tasks based on the character's current situation:
+
+1. **If food is available in the character's inventory** — the character performs Eat actions until hunger charges are reduced to 20 or below in the Hunger stage.
+2. **If no food is in the character's inventory but food exists in another group member's inventory** — a redistribution sub-task is generated to transfer food to the hungry character, followed by Eat actions.
+3. **If no food is available in the group at all** — the character attempts to find food within the current zone or adjacent zones, generating sub-tasks to Scout for edible objects, Gather from any Located food sources, and then Eat. If no food sources can be found within the give-up turn count, the sub-goal expires and hunger continues to accumulate.
+
+If Allow self-management is disabled for the group, the character does not insert this sub-goal. Hunger accumulation is then handled entirely by the maintenance lifecycle (see Section 13.6) or by the player manually.
 
 **Rest eating and loyalty:**
 
@@ -978,7 +950,7 @@ When selecting which food items to consume during rest, the character prioritise
 
 ### 5.7 Upkeep
 
-Each character requires a gold payment on the first turn of the last day of each in-game month. This is their upkeep — the combined cost of pay, food, and basic supplies needed to keep them in the guild.
+Each character requires a gold payment on the first turn of the last day of each in-game month.
 
 Upkeep is defined as a **per-level rate** for each character, determined when the character is initialised. The actual monthly payment is calculated as:
 
@@ -990,18 +962,15 @@ On the first turn of the last day of each month the total upkeep for all charact
 
 The Greedy trait increases a character's base rate by 10%, applied before the level multiplier.
 
-Food and supplies consumed during expeditions are tracked separately from upkeep — a group on a long expedition requires adequate food packed at departure or a resupply group sent after them (see Section 9.2). Running out of food in the field causes hunger to progress through increasingly severe stages, applying mounting penalties to strength, dexterity, perception, and loyalty, and ultimately resulting in death if left unresolved (see Section 5.6). This does not interact with the monthly upkeep payment directly.
-
-
 ### 5.8 Race
 
 Every character has a **race** characteristic assigned at initialisation and fixed for the character's lifetime. Race determines which wound types a character can receive and which other standard status effects apply to them. Characters of the same race share an identical wound table and status effect table.
 
-Race is a data-driven definition — each race specifies its full set of progressive wound sequences, stackable wound types, special wound types, and any race-specific status effects. The damage pipeline (Section 4.9) selects wounds from the character's race wound table when applying damage.
+Race is a data-driven definition — each race specifies its full set of progressive wound sequences, stackable wound types, and any race-specific status effects. The damage pipeline (Section 4.9) selects wounds from the character's race wound table when applying damage.
 
 **Human race — wound table:**
 
-The following wound sets are defined for human characters. This is the reference wound table for all human recruits and all human animals in v1.
+The following wound sets are defined for human characters. This is the reference wound table for all human recruits in v1.
 
 *Progressive wounds — left arm:*
 
@@ -1063,6 +1032,11 @@ Identical stages and penalties to left leg. Tracked independently.
 | Characteristic | Range |
 |---|---|
 | Health | 90 – 130 |
+| Strength | 9 - 11 |
+| Dexterity | 9 - 11 |
+| Perception | 9 - 11 |
+| Movement Speed | 8 - 12 |
+| Regeneration | 5 - 5 |
 | Base carrying capacity | 5 – 10 |
 
 Additional races may be introduced in future updates. Each new race is defined as an independent wound table and characteristic range without requiring changes to the damage pipeline.
@@ -1076,7 +1050,7 @@ Additional races may be introduced in future updates. Each new race is defined a
 The player controls a single guild throughout a playthrough. The guild has:
 
 - A **name** (set at game start)
-- A **headquarters city** — assigned at world generation as one of the 3 cities on the map, selected at random. Can be relocated to a different city for a gold cost after the game begins.
+- A **headquarters city** — assigned at world generation as one of the 3 cities on the map, selected at random.
 - A **gold balance** — the primary resource and the loss condition (if gold reaches zero and no recruits are deployed, the guild dissolves)
 - A **roster** of recruits
 - An **inventory** of supplies and equipment stored at HQ
@@ -1129,33 +1103,54 @@ The codebase must treat player-controlled groups and NPC groups as instances of 
 
 ## 7. Groups
 
-A **group** is a named collection of one or more recruits that acts as a single unit on the Global Map and inside POIs.
+A **group** is a named collection of one or more characters (player-controlled, NPC or animals) that acts as a single unit on the Global Map (only player-controlled Groups) and inside POIs.
 
-- Groups are created and managed in the HQ Group Manager panel
+- Groups are created and managed in the HQ Group Manager panel.
 - A group can contain a maximum of 9 recruits. A player can assign more than one group to the same POI simultaneously, allowing larger operations to be split across multiple groups.
-- Groups move together; individual recruit actions are only available within the Zone Detail Panel
-- A group moves at the speed of its slowest member — if any character in the group has a reduced movement speed (e.g. from a leg wound), the entire group's travel time is calculated using that character's speed
-- Characters in a group do not share carrying capacity — each character holds items independently in their own inventory. The group's effective total capacity is the sum of each member's available space, but items must be assigned to specific characters and cannot exceed individual limits
-- Groups can be split or merged at HQ or inside a POI zone where both groups are present
+- A group moves at the speed of its slowest member — if any character in the group has a reduced movement speed the entire group's travel time is calculated using that character's speed.
+- Characters in a group do not share carrying capacity — each character holds items independently in their own inventory.
+- Groups can be split or merged at HQ or inside a POI zone where both groups are present.
 
 **Daily schedule:**
 
 Each group has a **schedule** — a repeating 6-turn pattern that mirrors the in-game day cycle. Each of the six turn slots can be marked as a **rest turn** or left as an **active turn** by the player.
 
-When a rest turn is reached in the cycle, characters in the group will prefer to rest rather than continue their current activity. If the group has no active task assigned for that turn they automatically perform the Rest action. If a task is in progress when a rest turn arrives the character pauses it and rests instead, resuming on the next active turn.
+When a rest turn is reached in the cycle, characters in the group will prefer to rest rather than continue their current activity. If the group has no active task assigned for that turn they automatically perform the Rest action. If a task is in progress when a rest turn arrives the character continues to perform the action which is already in progress ignoring the Rest schedule.
 
-The default schedule has turn 6 set as the rest turn, matching the movement speed model in Section 5.3.3 — one rest turn per day cycle out of six. The player can adjust the schedule freely: more rest turns slow overall progress but improve wound recovery and fatigue management; fewer rest turns increase output but may cause characters to accumulate fatigue over time.
+The default schedule has turn 6 set as the rest turn. The player can adjust the schedule freely: more rest turns slow overall progress but improve loyalty gains.
 
 Schedules are set at the group level and apply to all members equally. Individual characters do not have separate schedules.
 
 **Group roles:**
 
-A group's role is a label assigned by the player to communicate intent and improve UI clarity. Roles are not mechanically enforced — there is no system restriction preventing a labelled Combat group from scouting, or a Supply group from fighting. However, roles are not purely cosmetic either: the recruits a player places in a group and the equipment they carry determine what the group is actually capable of. A group composed of recruits with high scouting capability and light equipment will perform better at reconnaissance regardless of its label. Role labels exist to help the player manage multiple groups at a glance.
+A group's role is a label assigned by the player to communicate intent and improve UI clarity. Roles are not mechanically enforced — there is no system restriction preventing a labelled Combat group from scouting, or a Supply group from fighting.
 
-- **Scout** — small, lightly equipped, prioritised for reconnaissance and awareness tasks
-- **Combat** — larger, heavily equipped, prioritised for engaging hostile characters
-- **Supply** — carries food and equipment to support deployed groups
-- **Rescue** — dispatched to retrieve incapacitated recruits from inside POIs
+- **Scout**
+- **Combat**
+- **Supply**
+- **Special**
+
+**Group actions log:**
+
+Every group maintains a rolling **actions log** — a record of actions performed by group members and events that affected them. The log retains entries for the last 20 turns and discards older entries automatically. Each log entry records the turn number, the character involved, and a description of the action or event.
+
+The following actions are recorded in the log (the list is not exhaustive, this is just an example and more log entries may be required):
+
+- Zone actions performed by any group member (Scout, Rest, Eat, Treat, Gather, etc.) — one entry per execution, not per attempt
+- Damage received by any group member, including the wound applied and its severity
+- Status effect changes — wounds progressing to a new stage, hunger stage transitions, incapacitation applied or cleared
+- Loyalty changes — the amount and the cause (rest with food, upkeep payment, starvation penalty, etc.)
+- Character state changes — a member becoming Incapacitated, recovering, or dying
+- Items picked up, dropped, or transferred between group members
+- Group movement — departure from and arrival at locations
+
+**Access:**
+
+Player-controlled groups expose the log in the Group panel, always accessible to the player. The log is displayed in reverse chronological order (most recent turn first) and can be scrolled.
+
+NPC-controlled groups maintain the same log structure but their logs are not displayed in normal gameplay. They are accessible exclusively through Dev Mode (see Section 14), where they appear in the same format as player group logs.
+
+The log is included in the game state schema (see Section 11.2) and is serialised with the save file so it persists across sessions.
 
 ---
 
@@ -1169,7 +1164,6 @@ Every POI has:
 - **Coordinates** — a fixed position on the global map expressed as an (x, y) pair. Used to calculate distance to other map points and to determine travel time for groups. Not displayed to the player as numbers.
 - A **despawn timer** — number of turns until the POI disappears from the map
 - A **zone graph** — the internal layout of zones and passages
-- A **loot table** — an internal list of possible resources and artifacts the POI may contain. This is not visible to the player; discovering what a POI holds is part of the scouting challenge.
 
 ### 8.2 Spawn and Despawn
 
@@ -1180,13 +1174,7 @@ Every POI has:
 
 ### 8.3 Zone Graph Structure
 
-Each POI contains between 3 and 20 zones depending on size. Zone graphs follow these patterns:
-
-- **Linear** — zones form a single chain
-- **Branching** — one or more forks in the path
-- **Hub and spoke** — a central zone connects to several peripheral zones
-- **Complex** — a non-trivial graph with loops and multiple paths
-
+Each POI contains between 3 and 20 zones depending on size.
 The entry zone is always revealed and scouted on arrival. All other zones begin as Unknown.
 
 ### 8.4 Zone Objects
@@ -1198,10 +1186,11 @@ Every object that can appear in a POI zone has the following characteristics. So
 | Characteristic | Description |
 |---|---|
 | **Name** | A display label shown to the player. The name is distinct from the type — it conveys flavour and sets player expectations but has no effect on game logic. Two objects of the same type may have different names (e.g. "crumbling wall" and "stone barricade" are both of type Rock). |
+| **Icon** | An image that is displayed in a square shape for non-living objects (including corpses of the dead characters) or diamond shape for living characters (including animals). |
 | **Type** | A fixed classification that determines which actions can be applied to the object. The type list is defined in Section 8.4.2. |
 | **Size** | A numeric value. Objects with a size small enough to fit within a character's available carrying capacity can be picked up and placed in their inventory using the Take action. |
-| **Visibility** | The faction visibility value at which a new faction's awareness of this object is initialised when they first enter the zone. Derived from the object's `_discover_value` and `_visibility_value` generation parameters. See Section 4.3.1 for the full derivation. |
-| **Upper bound visibility** | The numeric ceiling for faction visibility toward this object. Faction visibility cannot exceed this value. Rolled at spawn as a random value within ±20% of `faction_visibility_max`. See Section 4.3.1. |
+| **Visibility** | The faction visibility value at which a new faction's awareness of this object is initialised when they first enter the zone.
+| **Visibility Ceiling** | The numeric ceiling for faction visibility toward this object. See Section 4.3.1. |
 | **Faction visibility map** | *Runtime state — not assigned at spawn.* Stores the current numeric faction visibility value for each faction that has entered the zone. Used to evaluate Undiscovered / Known / Located thresholds (see Section 4.3.2). Initialised for a faction when they first enter the zone, set to the object's `visibility` value. |
 | **Gold value** | A range (min–max) representing how much the object is worth if carried back to a city and sold. The actual sale price is determined when the object is sold. Objects with a gold value of 0 have no market value. |
 | **Tags** | A list of special modifiers that alter how the object interacts with the zone or with characters. See Section 8.4.3 for the tag list. |
@@ -1211,19 +1200,19 @@ Every object that can appear in a POI zone has the following characteristics. So
 
 The object type determines which standard actions are available on the object. Each type maps to a set of common and object-specific actions defined in Section 4.6.
 
-| Type | Standard actions | Notes |
-|---|---|---|
-| **Rock** | Examine, Gather resources, Move | Yields stone or ore. Requires a tool for gathering. |
-| **Tree** | Examine, Cut down, Gather resources | Yields timber and firewood. Cut down requires sharp tool ≥ 70%. |
-| **Bush** | Examine, Gather resources, Search, Cut down | May yield berries, herbs, or concealed objects. |
-| **Plant** | Examine, Gather resources | Yields food, herbs, or other organic material depending on species. |
-| **Pond** | Examine, Use | Refills water flasks. May contain fish or hidden objects. |
-| **River** | Examine, Use, Move (cross) | Refills water flasks. Crossing costs extra movement turns. |
-| **Mushroom** | Examine, Take, Gather resources | Typically small enough to be taken directly into inventory. |
-| **Fungal tree** | Examine, Cut down, Gather resources | Large fungal growth. Yields fungal material. Cut down requires sharp tool ≥ 50%. |
-| **Wooden house** | Examine, Search | May contain containers and items. |
-| **Wooden barn** | Examine, Search | Typically contains supplies, tools, or animals. |
-| **Stone house** | Examine, Search | Sturdier structure; may contain locked areas. |
+| Type | Standard actions | Appearance in a "Known" state | Notes |
+|---|---|---|---|
+| **Rock** | Examine, Gather resources, Move | Unidentified Rock | Yields stone or ore. Requires a tool for gathering. |
+| **Tree** | Examine, Cut down, Gather resources | Unidentified Tree | Yields timber and firewood. Cut down requires sharp tool ≥ 70%. |
+| **Bush** | Examine, Gather resources, Search, Cut down | Unidentified Bush | May yield berries, herbs, or concealed objects. |
+| **Plant** | Examine, Gather resources  | Unidentified Plant | Yields food, herbs, or other organic material depending on species. |
+| **Pond** | Examine, Use | Unidentified Water Source | May contain fish or hidden objects. |
+| **River** | Examine, Use, Move (cross) | Unidentified Water Source | May contain fish or hidden objects. |
+| **Mushroom** | Examine, Take, Gather resources | Unidentified Mushroom | Typically small enough to be taken directly into inventory. |
+| **Fungal tree** | Examine, Cut down, Gather resources | Unidentified Mushroom | Large fungal growth. Yields fungal material. Cut down requires sharp tool ≥ 50%. |
+| **Wooden house** | Examine, Search | Unidentified Building | May contain containers and items. |
+| **Wooden barn** | Examine, Search | Unidentified Building | Typically contains supplies, tools, or animals. |
+| **Stone house** | Examine, Search  | Unidentified Building | Sturdier structure; may contain locked areas. |
 
 #### 8.4.3 Object Tags
 
@@ -1232,31 +1221,17 @@ Tags are modifiers attached to individual object instances at spawn. An object m
 | Tag | Effect |
 |---|---|
 | **Light source (X%)** | The object emits light. When the object is active or interacted with, the zone's effective light level is calculated as though increased by X%. Multiple light source tags in the same zone stack additively. |
-| **Edible** | The object can be consumed as food. Carries a Food (value) tag indicating how many hunger charges are removed when one unit is consumed. May additionally carry a Delicious (X) tag granting X loyalty when consumed during Rest. Consumed via the Eat action or the Rest action. See Section 5.6.2. |
+| **Food** | The object can be consumed as food. Carries a Food (value) tag indicating how many hunger charges are removed when one unit is consumed. May additionally carry a Delicious (X) tag granting X loyalty when consumed during Rest. Consumed via the Eat action or the Rest action. See Section 5.6.2. |
 | **Toxic** | Contact or consumption applies a Poisoned wound instance to the character. |
-| **Flammable** | The object can be set alight. When burning it gains a Light source tag and may spread fire to adjacent flammable objects. |
-| **Concealment** | Characters hiding near or inside this object receive a bonus to their visibility reduction. |
-| **Locked (condition)** | The object cannot be opened or accessed without satisfying the specified tool condition (e.g. key ≥ 100%). |
 | **Delicious (X)** | When the object is consumed during the Rest action, X is added to the consuming character's loyalty in addition to the standard +1 rest loyalty bonus. Has no effect when consumed via the Eat action outside of rest. |
-| **Fragile** | The object can be destroyed by a single Attack action or by incidental contact during combat. |
-| **Heavy** | The object cannot be moved by a single character. Requires multiple characters or a specific tool condition to move. |
 
 #### 8.4.4 Unknown Object Display
 
-Objects that are Known but not yet Located are displayed with a placeholder representation rather than their true appearance. This allows a player to know something exists in a zone without knowing exactly what it is. The placeholder name and icon are determined by a broad category mapping:
+Objects that are Known but not yet Located are displayed with a placeholder representation rather than their true appearance. This allows a player to know something exists in a zone without knowing exactly what it is. The placeholder name and icon are determined by a broad category mapping.
 
-| True type | Placeholder display name |
-|---|---|
-| Wooden house | Unidentified building |
-| Wooden barn | Unidentified building |
-| Stone house | Unidentified building |
-| Rock | Stone formation |
-| Tree / Fungal tree | Large growth |
-| Bush / Plant | Vegetation |
-| Pond / River | Water source |
-| Mushroom | Small growth |
+The placeholder removes type-specific detail but may still convey partial information — for example, a Known object categorised as "Unidentified building" tells the player a structure is present without revealing its contents or layout. 
 
-The placeholder removes type-specific detail but may still convey partial information — for example, a Known object categorised as "Unidentified building" tells the player a structure is present without revealing its contents or layout.
+Object size property is always displayed to the player even in its "Known" state.
 
 #### 8.4.5 Object Icons and Character Portraits
 
@@ -1272,15 +1247,13 @@ This distinction applies consistently across all UI contexts where object or cha
 
 **Character portraits**
 
-Every character in the game has a unique portrait image. Portraits are used wherever that character appears in the UI — in the Zone Detail Panel, the roster, the group panel, and the character detail view. All portrait images are displayed inside a rhombus shape.
+Every character in the game has a unique portrait image. Portraits are used wherever that character appears in the UI — in the Zone Detail Panel, the roster, the group panel, and the character detail view. All portrait images are displayed inside a rhombus (diamond) shape.
 
 Portraits represent the character's appearance and are assigned at initialisation. They do not change over time and are not affected by wounds, equipment, or status effects.
 
 **Object icons**
 
-Each object type has a distinct icon. Objects of the same type but different name or size may use variant icons to help the player distinguish them at a glance — for example, two objects both named "wild plant" may have different icons if one is visually larger or bears berries, enabling the player to prioritise task assignment without reading every entry in detail.
-
-Icon variants are determined at spawn based on the object's size, name, and tags. The full icon set and portrait set are defined in the visual assets specification.
+Each object type has a distinct icon. Objects of the same type but different name or size may use variant icons to help the player distinguish them at a glance. Icon variants are determined at spawn based on the object's size, name, and tags. The full icon set and portrait set are defined in the visual assets specification.
 
 ---
 
@@ -1298,19 +1271,12 @@ Gold is spent on:
 - Recruit upkeep (paid monthly, deducted on the first turn of the last day of each in-game month)
 - Hiring new recruits
 - Purchasing food, equipment, and weapons
-- Relocating HQ
 
 The guild dissolves (game over) if gold reaches zero and no income is expected within the next few turns (configurable threshold warning before hard game over).
 
 ### 9.2 Supplies
 
 Food is purchased in the city market and stored at HQ. When a group departs on an expedition, the player allocates food from HQ stock to individual characters.
-
-**During the Rest action**, a character consumes food from their inventory until their hunger charges are reduced to 20 or below in the Hunger stage, eating through Starvation and Famine stages if necessary. Each item consumed reduces charges by its Food (value). Loyalty bonuses from Delicious-tagged food also apply at this point (see Section 5.6.2).
-
-**Between rest turns**, a character's hunger charges accumulate each turn. If hunger progresses to Starvation or Famine and the character performs the Eat action (5 AP), one food item is consumed and its Food value is subtracted from the current stage's charges, potentially reversing hunger progression. Characters with hunger charges above 80 automatically schedule an Eat task for themselves (see Section 5.6.2).
-
-If a character has no food available and hunger is left untreated, it progresses through increasingly severe stages and ultimately causes death (see Section 5.6).
 
 A supply group can be sent to a deployed group's current location to top up their food and swap out equipment.
 
@@ -1320,7 +1286,7 @@ Equipment (armour, tools) and weapons are purchased in the city Market. The Mark
 
 - **Permanent stock** — basic items always available. Inventory does not deplete and does not rotate.
 - **Rotating stock** — higher quality items that appear in limited quantities and are replaced at the start of each new in-game week. Once a rotating stock item is purchased it is gone until the next rotation.
-- **Rare drops** — occasionally a rare or unique item appears; limited to one or two units and does not restock once purchased.
+- **Rare** — occasionally a rare or unique item appears; limited to one or two units and does not restock once purchased.
 
 Each item in the Market displays its gold value range (min–max). The purchase mechanic — including the For Purchase staging box, the market tax, and the price roll — is documented in Section 9.5.
 
@@ -1464,7 +1430,7 @@ POI {
   x, y:          number,   // map coordinates
   despawnTimer:  number,   // turns remaining
   zones:         [ Zone ],
-  visible:       bool      // whether revealed to player
+  discovered:    bool      // whether the player can interact with this POI; all POIs are always visible on the map but only Discovered ones can be entered or travelled to
 }
 
 Zone {
@@ -1492,10 +1458,10 @@ ZoneObject {
   name:                 string,
   type:                 string,     // see Section 8.4.2
   size:                 number,
-  discoverValue:        number,     // 0–4; controls the scale of faction_visibility_max
-  visibilityValue:      number,     // 0–4; controls starting position on the visibility spectrum
-  visibility:           number,     // rolled at spawn; faction visibility initialised to this on zone entry
-  upperBoundVisibility: number,     // rolled at spawn; hard ceiling for all faction visibility values
+  _discoverabilityLevel: number,  // 0–4; controls the scale of visibilityCeiling
+  visibilityValue:      number,   // 0–4; controls starting position on the visibility spectrum
+  visibility:           number,   // rolled at spawn; faction visibility initialised to this on zone entry
+  visibilityCeiling:    number,   // rolled at spawn; hard ceiling for all faction visibility values
   goldValueMin:         number,
   goldValueMax:         number,
   tags:                 [ Tag ],
@@ -1611,8 +1577,13 @@ Wound {
 // ── Hunger ────────────────────────────────────────────
 
 HungerState {
-  stage:    "Hunger" | "Starvation" | "Famine",
+  stage:    "Hunger" | "Starvation" | "Famine" | "StarvedToDeath",
   charges:  number
+  // StarvedToDeath is the terminal stage. When Famine reaches max charges the stage
+  // transitions to StarvedToDeath and the character dies immediately. charges is set
+  // to 1 (matching the status effect definition in Section 5.6.1) and does not change
+  // further. This stage persists on the body after death so that examining characters
+  // can identify starvation as the cause of death.
 }
 
 // ── Incapacitated ─────────────────────────────────────
@@ -1626,7 +1597,7 @@ IncapacitatedState {
 
 Group {
   id, name:    string,
-  role:        "Scout" | "Combat" | "Supply" | "Rescue",
+  role:        "Scout" | "Combat" | "Supply" | "Special",
   memberIds:   [ string ],  // recruit ids
   locationPoiId: string | null,
   locationZoneId: string | null,
@@ -1634,11 +1605,20 @@ Group {
   inTransitTo:    { type: "city" | "poi", targetId: string } | null,
   schedule:    [ bool ],    // 6-element array; true = rest turn
   taskList:    [ Task ],
+  actionLog:   [ LogEntry ],  // rolling 20-turn history; [] for new groups
   config: {
-    zoneTravelAllowed:          bool,
-    giveUpTurnCount:            number,
-    overrideMaintenanceLifecycle: bool
+    zoneTravelAllowed:            bool,
+    giveUpTurnCount:              number,
+    overrideMaintenanceLifecycle: bool,
+    allowSelfManagement:          bool    // if false, characters cannot insert tasks autonomously
   }
+}
+
+LogEntry {
+  turn:        number,
+  characterId: string | null,  // null for group-level events (movement, arrival)
+  type:        string,         // e.g. 'action', 'damage', 'status', 'loyalty', 'state', 'item', 'movement'
+  description: string          // human-readable summary
 }
 
 Task {
@@ -1665,6 +1645,10 @@ For v1 the entire application ships as a single `index.html` containing inlined 
 ---
 
 ## 12. UI Layout
+
+Full interface documentation is maintained in a separate document: **Ironbound — Interface Design Document** (`ui.md`). That document specifies every screen, panel, interactive element, and navigation flow in detail. The high-level layout sketch in Section 12.4 provides a structural overview; implementers should refer to `ui.md` for the complete specification.
+
+The Interface Design Document declares which version of this GDD it was written against. If the GDD version listed in `ui.md` does not match the current GDD version, the two documents may be out of sync and should be reconciled before implementation continues.
 
 ### 12.1 Launch Menu
 
@@ -1757,7 +1741,9 @@ A group member who already has an active task is not reassigned. They continue t
 
 **Character-initiated tasks:**
 
-Characters may add tasks to the group task list themselves and self-assign. This happens automatically when a character determines that a personal maintenance action is needed — such as eating, resting, or applying wound treatment. The self-assigned task is placed immediately below the task the character is currently performing, and the character marks themselves as the assignee immediately. When the character finishes their current task, they begin the self-assigned one.
+Characters may add tasks to the group task list themselves and self-assign, provided the group's **Allow self-management** setting is enabled (see Section 13.5). This happens automatically when a character determines that a personal maintenance action is needed — such as hunger management (see Section 5.6.2) or applying wound treatment. The self-assigned task is placed immediately below the task the character is currently performing, and the character marks themselves as the assignee immediately. When the character finishes their current task, they begin the self-assigned one.
+
+If Allow self-management is disabled, characters cannot insert tasks into the group task list on their own. All maintenance is then driven by the maintenance lifecycle (Section 13.6) or by the player directly.
 
 ### 13.4 Task Types
 
@@ -1795,6 +1781,7 @@ The following settings can be configured per group:
 | **Give-up turn count** | 7 | If a sub-task generated by a goal fails to complete for this many consecutive turns, the parent goal is cancelled along with all its remaining sub-tasks, and the group proceeds to the next item in the task list. |
 | **Goal lifetime** | Configurable | The maximum number of turns a goal may run, counted from the turn it begins executing. When the lifetime expires the goal is removed from the task list. |
 | **Override maintenance lifecycle** | No | If Yes, the group ignores its maintenance lifecycle checks and no maintenance tasks are inserted automatically. |
+| **Allow self-management** | Yes | If Yes, individual characters may insert sub-goals and tasks into the group task list on their own when personal maintenance conditions are met (hunger, wound treatment). If No, characters cannot modify the task list autonomously — all task management is handled by the maintenance lifecycle or the player. |
 
 ### 13.6 Group Maintenance Lifecycle
 
@@ -1852,7 +1839,89 @@ While Dev Mode is active a persistent indicator is displayed in the toolbar to m
 
 ---
 
-## 15. Scope — v1 Release
+## 15. Resources
+
+### 15.1 Item List
+
+Every item in the game has a defined set of tags, a gold value range, and a size. Tags determine what the item can be used for — as a tool, food source, equipment piece, or weapon. Gold value is rolled within the defined range at the point of sale. Size determines how many inventory capacity units the item occupies when unequipped.
+
+Items are divided into three availability categories based on how they enter the game.
+
+---
+
+#### 15.1.1 Purchasable Items — Unlimited Supply
+
+These items are always available in the city Market under permanent stock. They do not deplete and do not rotate.
+
+| Item | Tags | Gold value | Size | Notes |
+|---|---|---|---|---|
+| **Knife** | One-Handed, Sharp tool (100%), Melee Weapon | 7–10 | 2 | — |
+| **Rope** | Climbing tool (70%) | 5–5 | 3 | — |
+| **Bandage** | Healing | 5–10 | 1 | — |
+| **Bread** | Food (70), Delicious (1) | 8–8 | 2 | — |
+| **Fruits** | Food (30), Delicious (1) | 2–12 | 1 | — |
+| **Meat** | Food (80), Delicious (1) | 6–22 | 2 | — |
+| **Backpack** | Equipment (backpack) | 20–30 | 4 | When equipped: carrying capacity +10, movement speed −1 |
+| **Bow** | Hunting tool (100%), Ranged Weapon, Two-Handed | 25–40 | 4 | — |
+| **Cloth** | Equipment (garment) | 10–12 | 4 | Armor value: 5 |
+| **Torch** | Lighting tool (80%) | 4–4 | 2 | — |
+| **Lamp** | Lighting tool (100%) | 20–20 | 1 | — |
+
+---
+
+#### 15.1.2 Purchasable Items — Limited Supply
+
+These items appear in the city Market as rotating or rare stock. They are available in limited quantities and are replaced or removed at the weekly rotation. Once purchased they are gone until the next appearance.
+
+| Item | Tags | Gold value | Size | Notes |
+|---|---|---|---|---|
+| **Exotic Fruits** | Food (40), Delicious (3) | 10–15 | 1 | — |
+| **Dried Meat** | Food (100) | 15–15 | 1 | — |
+| **Fish** | Food (60), Delicious (1) | 6–8 | 1 | — |
+| **Sword** | Sharp tool (40%), Melee Weapon, Two-Handed | 40–45 | 5 | — |
+| **Axe** | Sharp tool (20%), Melee Weapon, One-Handed | 15–17 | 4 | — |
+| **Leather Armor** | Equipment (garment) | 20–30 | 6 | Armor value: 25 |
+| **Chainmail** | Equipment (garment) | 80–80 | 8 | Armor value: 35. When equipped: dexterity −5 |
+| **Plate Armor** | Equipment (garment) | 300–300 | 9 | Armor value: 50. When equipped: dexterity −8 |
+| **Large Backpack** | Equipment (backpack) | 40–45 | 5 | When equipped: carrying capacity +15, movement speed −1, dexterity −4, perception −2 |
+| **Metal Helmet** | Equipment (head) | 50–50 | 3 | Armor value: 30 |
+| **Leather Cloak** | Equipment (head) | 10–20 | 3 | Armor value: 20 |
+| **Fish Net** | Fishing tool (100%) | 20–20 | 3 | — |
+| **Pickaxe** | Mining tool (100%), Two-Handed, Melee Weapon | 30–30 | 6 | — |
+
+---
+
+#### 15.1.3 Non-Purchasable Items
+
+These items cannot be bought in any city Market. They are found exclusively through looting POI zones, gathering from zone objects, or hunting. They are the primary source of guild income from expeditions.
+
+| Item | Tags | Gold value | Size | Notes |
+|---|---|---|---|---|
+| **Iron Ore** | Ore | 8–12 | 2 | — |
+| **Copper Ore** | Ore | 5–10 | 2 | — |
+| **Wood** | Resource | 1–2 | 2 | — |
+| **Fiber** | Resource | 0–0 | 1 | — |
+| **Stone** | Resource | 0–1 | 2 | — |
+| **Unidentified Artifact** | Artifact | 150–300 | 1 | — |
+| **Hunting Trophy (small)** | — | 10–15 | 1 | — |
+| **Hunting Trophy (large)** | — | 50–55 | 3 | — |
+| **Berries** | Food (30), Delicious (2) | 3–4 | 1 | — |
+| **Exotic Meat** | Food (100), Delicious (1) | 50–50 | 2 | — |
+| **Goblet** | — | 20–80 | 1 | — |
+| **Jewelry** | — | 10–100 | 1 | — |
+| **Exotic Jewelry** | — | 400–500 | 1 | — |
+| **Glowing Crystal** | Lighting tool (50%) | 40–60 | 1 | — |
+| **Fungal Wood** | Resource | 8–15 | 2 | — |
+| **Glowing Mushroom** | Lighting tool (20%) | 20–22 | 1 | — |
+| **Glowing Shard** | Lighting tool (60%) | 100–100 | 2 | — |
+| **Ancient Artifact Alpha** | Artifact | 800–850 | 1 | — |
+| **Ancient Artifact Beta** | Artifact | 900–1000 | 1 | — |
+| **Ancient Bones** | — | 200–300 | 8 | — |
+| **Basic Supplies** | Resource | 7–45 | 2 | — |
+
+---
+
+## 16. Scope — v1 Release
 
 The following systems are in scope for the first release:
 
@@ -1891,4 +1960,102 @@ The following systems are in scope for the first release:
 
 ---
 
-*End of document — v3.6-draft*
+## 17. Developer Testing System
+
+### 17.1 Overview
+
+The game ships with a built-in developer testing system activated by appending `?dev` to the page URL. When active, a persistent **DEV panel** appears at the bottom of the screen containing a validation console, scenario launcher, and state injection tools. The system is entirely self-contained within the single `index.html` file and requires no external dependencies or build tools.
+
+The DEV system is implemented as a self-executing module assigned to the global `DEV` object. It is inert when `?dev` is not present in the URL — no UI is rendered and no performance overhead is incurred.
+
+### 17.2 Activation
+
+Add `?dev` to the URL when opening the game in a browser:
+
+```
+file:///path/to/ironbound.html?dev
+```
+
+A `DEV` badge appears in the bottom-right corner of the screen. Clicking it opens the full dev panel. The panel can be collapsed and re-expanded without losing the log contents.
+
+When dev mode is active, `DEV.validate()` is automatically called after every End Turn so the game state is continuously checked as time progresses.
+
+### 17.3 Validation System
+
+`DEV.validate()` runs all registered rules against the current `GameState` object and logs each result to the dev console as a pass or fail. Rules are derived directly from the GDD and are grouped by category:
+
+| Category prefix | Coverage |
+|---|---|
+| `GS-xxx` | GameState top-level structure and cross-references |
+| `WO-xxx` | World: city count, HQ assignment, map bounds, POI fields, tile grid dimensions |
+| `OR-xxx` | Organization: required fields, gold type, inventory categories |
+| `RC-xxx` | Recruits: required fields, level range, loyalty range, trait count, hunger stage and charge bounds |
+| `GR-xxx` | Groups: required fields, member count, member ID validity, schedule format, role enum |
+| `WD-xxx` | Wounds: category enum, charge bounds |
+
+Each rule has a unique ID (e.g. `WO-002`), a human-readable description matching the GDD section it enforces, and a check function that receives the full `GameState` and returns either `true` (pass) or a failure description string. The pass/fail count is shown in the log header on each run.
+
+**Rule structure:**
+
+```javascript
+{
+  id:    'WO-002',
+  desc:  'Exactly 3 cities (GDD §10)',
+  check: gs => gs.world.cities.length === 3
+             || 'Expected 3 cities, got ' + gs.world.cities.length
+}
+```
+
+All rules are accessible at `DEV.RULES` and new rules can be pushed to this array by future implementations as new systems are added.
+
+### 17.4 Scenarios
+
+Scenarios are pre-defined operations that set up specific game states for testing. They are invoked via `DEV.runScenario(name)` or from the buttons in the dev panel toolbar.
+
+| Scenario | Effect |
+|---|---|
+| `world_gen` | Creates a fresh game via the normal `startNewGame()` path and immediately runs validation. Used to confirm world generation always produces a valid state. |
+| `poi_discovery` | Sets all POIs to `discovered: true` on the current game state and re-validates. Tests that full-discovery states are valid. |
+| `corrupt_state` | Intentionally injects four known violations (negative gold, negative despawnTimer, zone count out of range, extra city) and validates. Used to confirm the validator catches all four failures. |
+
+New scenarios are added by extending the `scenarios` object inside `DEV.runScenario()`.
+
+### 17.5 State Injection Helpers
+
+`DEV.inject` contains helper functions that mutate the current game state to create edge cases without requiring manual JSON editing.
+
+| Helper | Effect |
+|---|---|
+| `DEV.inject.emptyOrg()` | Sets gold to 0, clears recruits and groups. Tests zero-roster states. |
+| `DEV.inject.richOrg()` | Sets gold to 99,999 and injects 3 minimal but schema-valid test recruits. |
+| `DEV.inject.badPOI()` | Sets the first POI's `despawnTimer` to −1 to trigger `WO-008`. |
+| `DEV.inject.allDiscovered()` | Sets all POIs to discovered. |
+| `DEV.inject.negativeGold()` | Sets gold to −1,000 to trigger `OR-003`. |
+
+### 17.6 Logging API
+
+Any future implementation code can write to the dev console using `DEV.log(message, level)`.
+
+| Level | Appearance | Use |
+|---|---|---|
+| `'pass'` | Green ✓ | Rule passed |
+| `'fail'` | Red ✗ | Rule failed or invariant violated |
+| `'warn'` | Amber ⚠ | Non-fatal unexpected state |
+| `'info'` | Dim · | General information |
+| `'head'` | Separator | Section divider in the log |
+
+`DEV.IS_DEV` is a boolean that can be checked anywhere in the codebase to conditionally execute diagnostic code without affecting production behaviour.
+
+### 17.7 Extending the System
+
+As new game systems are implemented, the DEV system should be extended in parallel:
+
+- Add new validation rules to the `RULES` array covering GDD constraints for the new system.
+- Add new scenarios to `runScenario()` that exercise the new system end-to-end.
+- Add new inject helpers for edge cases specific to the system.
+
+The convention is to keep rule IDs stable once defined. If a rule is superseded, mark it as deprecated in its description rather than deleting it, so existing failure logs remain interpretable.
+
+---
+
+*End of document — v4.1-draft*
